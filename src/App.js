@@ -4,6 +4,7 @@ import { supabase } from './lib/supabase';
 import Header from './components/Header';
 import HomePage from './pages/HomePage';
 import StreamersPage from './pages/StreamersPage';
+import DiscoverPage from './pages/DiscoverPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import GamePage from './pages/GamePage';
 import './App.css';
@@ -47,7 +48,7 @@ function App() {
   // Configuration Twitch OAuth
   const TWITCH_CLIENT_ID = process.env.REACT_APP_TWITCH_CLIENT_ID;
   const REDIRECT_URI = process.env.REACT_APP_REDIRECT_URI;
-  const SCOPES = 'user:read:email user:read:subscriptions user:read:follows';
+  const SCOPES = 'user:read:email user:read:follows';
 
   // Générer l'URL d'autorisation Twitch
   const generateTwitchAuthUrl = () => {
@@ -170,6 +171,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage user={user} />} />
             <Route path="/streamers" element={<StreamersPage user={user} />} />
+            <Route path="/discover" element={<DiscoverPage user={user} />} />
             <Route path="/leaderboard" element={<LeaderboardPage user={user} />} />
             <Route path="/game" element={<GamePage user={user} />} />
             <Route path="/auth/callback" element={<HomePage user={user} />} />
