@@ -1,0 +1,444 @@
+/* StreamersPage.css */
+.streamers-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.page-header p {
+  font-size: 1.2rem;
+  color: #718096;
+}
+
+/* États de chargement et erreur */
+.loading, .error-message, .auth-required {
+  text-align: center;
+  background: white;
+  border-radius: 20px;
+  padding: 3rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.loading h2, .error-message h2, .auth-required h2 {
+  font-size: 2rem;
+  color: #2d3748;
+  margin-bottom: 1rem;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f4f6;
+  border-top: 4px solid #9146ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.retry-button {
+  background: #9146ff;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 1rem;
+}
+
+.retry-button:hover {
+  background: #7c3aed;
+  transform: translateY(-2px);
+}
+
+/* Section streamers en live */
+.live-section {
+  margin-bottom: 3rem;
+}
+
+.live-section h2 {
+  font-size: 2rem;
+  color: #2d3748;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.live-streamers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+}
+
+.live-streamer-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.live-streamer-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.live-indicator {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: #e53e3e;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  z-index: 1;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.stream-thumbnail {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.live-streamer-info {
+  padding: 1.5rem;
+}
+
+.streamer-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.streamer-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 2px solid #9146ff;
+  object-fit: cover;
+}
+
+.streamer-header h3 {
+  font-size: 1.2rem;
+  color: #2d3748;
+  margin-bottom: 0.25rem;
+}
+
+.stream-category {
+  font-size: 0.9rem;
+  color: #9146ff;
+  font-weight: bold;
+}
+
+.stream-title {
+  font-size: 1rem;
+  color: #2d3748;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.stream-stats {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: #718096;
+}
+
+.viewer-count, .stream-duration {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.watch-live-button {
+  background: #e53e3e;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  display: inline-block;
+  transition: all 0.2s ease;
+  width: 100%;
+  text-align: center;
+}
+
+.watch-live-button:hover {
+  background: #c53030;
+  transform: translateY(-1px);
+}
+
+/* Section tous les streamers */
+.all-streamers-section h2 {
+  font-size: 2rem;
+  color: #2d3748;
+  margin-bottom: 2rem;
+}
+
+.streamers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.streamer-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.streamer-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.streamer-card.live {
+  border: 2px solid #e53e3e;
+}
+
+.live-badge {
+  position: absolute;
+  top: -0.5rem;
+  right: -0.5rem;
+  background: #e53e3e;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.streamer-card .streamer-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid #9146ff;
+  margin-bottom: 1rem;
+  object-fit: cover;
+}
+
+.streamer-card.live .streamer-avatar {
+  border-color: #e53e3e;
+}
+
+.streamer-info {
+  flex: 1;
+  margin-bottom: 1rem;
+}
+
+.streamer-info h3 {
+  font-size: 1.2rem;
+  color: #2d3748;
+  margin-bottom: 0.25rem;
+}
+
+.streamer-username {
+  font-size: 0.9rem;
+  color: #718096;
+  margin-bottom: 1rem;
+}
+
+.live-info {
+  background: #fee;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #fed7d7;
+}
+
+.stream-game {
+  font-size: 0.9rem;
+  color: #e53e3e;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.stream-viewers {
+  font-size: 0.8rem;
+  color: #718096;
+}
+
+.follow-info {
+  background: #f7fafc;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.follow-date {
+  font-size: 0.8rem;
+  color: #718096;
+}
+
+.streamer-actions {
+  width: 100%;
+}
+
+.visit-button {
+  background: #9146ff;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  display: block;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.visit-button:hover {
+  background: #7c3aed;
+  transform: translateY(-1px);
+}
+
+.visit-button.live-button {
+  background: #e53e3e;
+}
+
+.visit-button.live-button:hover {
+  background: #c53030;
+}
+
+/* Section aucun streamer */
+.no-streamers {
+  background: white;
+  border-radius: 16px;
+  padding: 3rem;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.no-streamers-content h3 {
+  font-size: 1.5rem;
+  color: #2d3748;
+  margin-bottom: 1rem;
+}
+
+.no-streamers-content p {
+  color: #718096;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.discover-button {
+  background: #9146ff;
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: bold;
+  display: inline-block;
+  transition: all 0.2s ease;
+}
+
+.discover-button:hover {
+  background: #7c3aed;
+  transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .streamers-page {
+    padding: 1rem;
+  }
+
+  .page-header h1 {
+    font-size: 2rem;
+  }
+
+  .live-streamers {
+    grid-template-columns: 1fr;
+  }
+
+  .streamers-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .live-streamer-card {
+    min-width: unset;
+  }
+
+  .stream-stats {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .streamer-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .streamers-page {
+    padding: 0.5rem;
+  }
+
+  .live-streamer-info {
+    padding: 1rem;
+  }
+
+  .streamer-card {
+    padding: 1rem;
+  }
+
+  .streamer-card .streamer-avatar {
+    width: 60px;
+    height: 60px;
+  }
+}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import LoginModal from './LoginModal';
 import './Header.css';
 
@@ -24,15 +25,17 @@ const Header = ({ user, onLogout, onLogin, isLoading, authError }) => {
       <div className="header-container">
         {/* Logo */}
         <div className="header-logo">
-          <h1>🎮 Pauvrathon</h1>
+          <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <h1>🎮 Pauvrathon</h1>
+          </Link>
         </div>
 
         {/* Navigation Desktop */}
         <nav className="header-nav desktop-nav">
-          <a href="#home" className="nav-link">Accueil</a>
-          <a href="#streamers" className="nav-link">Streamers</a>
-          <a href="#events" className="nav-link">Événements</a>
-          <a href="#leaderboard" className="nav-link">Classement</a>
+          <a href="/" className="nav-link">Accueil</a>
+          <a href="/streamers" className="nav-link">Streamers</a>
+          <a href="/discover" className="nav-link">Découvrir</a>
+          <a href="/leaderboard" className="nav-link">Classement</a>
         </nav>
 
         {/* Section utilisateur */}
@@ -94,10 +97,10 @@ const Header = ({ user, onLogout, onLogin, isLoading, authError }) => {
 
       {/* Navigation Mobile */}
       <nav className={`mobile-nav ${isMenuOpen ? 'active' : ''}`}>
-        <a href="#home" className="mobile-nav-link" onClick={toggleMenu}>Accueil</a>
-        <a href="#streamers" className="mobile-nav-link" onClick={toggleMenu}>Streamers</a>
-        <a href="#events" className="mobile-nav-link" onClick={toggleMenu}>Événements</a>
-        <a href="#leaderboard" className="mobile-nav-link" onClick={toggleMenu}>Classement</a>
+        <Link to="/" className="mobile-nav-link" onClick={toggleMenu}>Accueil</Link>
+        <Link to="/streamers" className="mobile-nav-link" onClick={toggleMenu}>Streamers</Link>
+        <Link to="/leaderboard" className="mobile-nav-link" onClick={toggleMenu}>Classement</Link>
+        <Link to="/game" className="mobile-nav-link" onClick={toggleMenu}>Jeux</Link>
       </nav>
 
       {/* Modal de connexion */}

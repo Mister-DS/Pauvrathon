@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from './lib/supabase';
 import Header from './components/Header';
+import HomePage from './pages/HomePage';
+import StreamersPage from './pages/StreamersPage';
+import LeaderboardPage from './pages/LeaderboardPage';
+import GamePage from './pages/GamePage';
 import './App.css';
 
 function App() {
@@ -19,8 +24,8 @@ function App() {
 
   const testConnection = async () => {
     try {
-      const { data, error } = await supabase.from('streamers').select('*').limit(1);
-      console.log('✅ Tables créées !', data);
+      const { data, error } = await supabase.from('users').select('*').limit(1);
+      console.log('✅ Base de données connectée !', data);
       setConnected(true);
     } catch (err) {
       console.log('Erreur:', err.message);
@@ -42,7 +47,7 @@ function App() {
   // Configuration Twitch OAuth
   const TWITCH_CLIENT_ID = process.env.REACT_APP_TWITCH_CLIENT_ID;
   const REDIRECT_URI = process.env.REACT_APP_REDIRECT_URI;
-  const SCOPES = 'user:read:email user:read:subscriptions';
+  const SCOPES = 'user:read:email user:read:subscriptions user:read:follows';
 
   // Générer l'URL d'autorisation Twitch
   const generateTwitchAuthUrl = () => {
@@ -151,87 +156,28 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <Header 
-        user={user}
-        onLogout={handleLogout}
-        onLogin={handleTwitchLogin}
-        isLoading={authLoading}
-        authError={authError}
-      />
+    <Router>
+      <div className="App">
+        <Header 
+          user={user}
+          onLogout={handleLogout}
+          onLogin={handleTwitchLogin}
+          isLoading={authLoading}
+          authError={authError}
+        />
 
-      <main className="main-content">
-        {/* Section d'accueil */}
-        <section className="hero-section">
-          <div className="hero-content">
-            <h2>Bienvenue sur Pauvrathon !</h2>
-            <p>La plateforme dédiée aux streamers et à leur communauté</p>
-            
-            {/* Status de connexion */}
-            <div className="status-cards">
-              <div className={`status-card ${connected ? 'success' : 'error'}`}>
-                <div className="status-icon">
-                  {loading ? '⏳' : connected ? '✅' : '❌'}
-                </div>
-                <div className="status-text">
-                  <h4>Base de données</h4>
-                  <p>{loading ? 'Connexion...' : connected ? 'Connectée' : 'Erreur'}</p>
-                </div>
-              </div>
-              
-              <div className={`status-card ${isAuthenticated ? 'success' : 'neutral'}`}>
-                <div className="status-icon">
-                  {authLoading ? '⏳' : isAuthenticated ? '🎮' : '👤'}
-                </div>
-                <div className="status-text">
-                  <h4>Authentification</h4>
-                  <p>
-                    {authLoading ? 'Connexion...' : 
-                     isAuthenticated ? `Connecté en tant que ${user?.display_name}` : 
-                     'Non connecté'}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Contenu conditionnel */}
-            {isAuthenticated ? (
-              <div className="user-dashboard">
-                <h3>Tableau de bord</h3>
-                <div className="dashboard-cards">
-                  <div className="dashboard-card">
-                    <h4>Profil Twitch</h4>
-                    <div className="profile-info">
-                      <img src={user.profile_image_url} alt={user.display_name} className="profile-image" />
-                      <div>
-                        <p><strong>Nom :</strong> {user.display_name}</p>
-                        <p><strong>Type :</strong> {user.type}</p>
-                        <p><strong>Créé le :</strong> {new Date(user.created_at).toLocaleDateString('fr-FR')}</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="dashboard-card">
-                    <h4>Statistiques</h4>
-                    <p>Vos stats apparaîtront ici...</p>
-                  </div>
-                  
-                  <div className="dashboard-card">
-                    <h4>Événements récents</h4>
-                    <p>Aucun événement pour le moment</p>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="welcome-message">
-                <h3>Rejoignez la communauté !</h3>
-                <p>Connectez-vous avec votre compte Twitch pour accéder à toutes les fonctionnalités.</p>
-              </div>
-            )}
-          </div>
-        </section>
-      </main>
-    </div>
+        <main className="main-content">
+          <Routes>
+            <Route path="/" element={<HomePage user={user} />} />
+            <Route path="/streamers" element={<StreamersPage user={user} />} />
+            <Route path="/leaderboard" element={<LeaderboardPage user={user} />} />
+            <Route path="/game" element={<GamePage user={user} />} />
+            <Route path="/auth/callback" element={<HomePage user={user} />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </main>
+      </div>
+    </Router>
   );
 }
 
