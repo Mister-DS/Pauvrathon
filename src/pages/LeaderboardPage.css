@@ -34,13 +34,14 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   backface-visibility: hidden;
 }
 
-/* Container principal */
+/* Container principal - SUPPRESSION DES BANDES LATÉRALES */
 .leaderboard-page {
   min-height: 100vh;
   background: var(--primary-gradient);
-  padding: 2rem;
+  padding: 2rem 1rem; /* Padding réduit */
   position: relative;
   overflow-x: hidden;
+  width: 100%; /* Utilise toute la largeur */
 }
 
 /* Effet de particules en arrière-plan */
@@ -206,9 +207,10 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
-/* Container du leaderboard */
+/* Container du leaderboard - SUPPRESSION DES LIMITES */
 .leaderboard-container {
-  max-width: 900px;
+  max-width: none; /* SUPPRESSION DE LA LIMITE 900px */
+  width: 100%; /* Utilise toute la largeur */
   margin: 0 auto 3rem auto;
   background: rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(20px);
@@ -218,6 +220,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   position: relative;
   z-index: 1;
   overflow: hidden;
+  padding: 0 1rem; /* Padding minimal */
 }
 
 .leaderboard-container::before {
@@ -261,9 +264,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-/* ===============================
-   LISTE DU LEADERBOARD TOP 5 OPTIMISÉE
-   =============================== */
+/* LISTE DU LEADERBOARD TOP 5 OPTIMISÉE */
 .leaderboard-list {
   padding: 2rem;
   background: rgba(255, 255, 255, 0.08);
@@ -786,9 +787,10 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   line-height: 1.6;
 }
 
-/* Section stats utilisateur */
+/* Section stats utilisateur - SUPPRESSION DES LIMITES */
 .user-position {
-  max-width: 900px;
+  max-width: none; /* SUPPRESSION DE LA LIMITE 900px */
+  width: 100%; /* Utilise toute la largeur */
   margin: 0 auto;
   background: rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(20px);
@@ -972,12 +974,24 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   font-weight: 500;
 }
 
-/* ============================
-   RESPONSIVE DESIGN OPTIMISÉ POUR TOP 5
-   ============================ */
+/* RESPONSIVE DESIGN OPTIMISÉ */
+@media (max-width: 1200px) {
+  .leaderboard-container {
+    padding: 0 0.5rem;
+  }
+  
+  .user-stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+  
+  .positions-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+}
+
 @media (max-width: 768px) {
   .leaderboard-page {
-    padding: 1rem;
+    padding: 1rem 0.5rem;
   }
   
   .page-header h1 {
@@ -999,7 +1013,10 @@ h1, h2, h3, h4, h5, h6, p, span, div {
     font-size: 0.9rem;
   }
   
-  /* Leaderboard items en mode mobile pour TOP 5 */
+  .leaderboard-container {
+    padding: 0 0.25rem;
+  }
+  
   .leaderboard-list {
     padding: 1.5rem;
   }
@@ -1064,6 +1081,10 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 }
 
 @media (max-width: 480px) {
+  .leaderboard-page {
+    padding: 0.5rem 0.25rem;
+  }
+
   .page-header h1 {
     font-size: 2rem;
   }
@@ -1125,13 +1146,13 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   .score-value {
     font-size: 1.8rem;
   }
+
+  .leaderboard-container {
+    padding: 0;
+  }
 }
 
-/* ============================
-   CLASSES UTILITAIRES POUR AVATARS
-   ============================ */
-
-/* Pour gérer les avatars avec/sans image */
+/* Classes utilitaires pour avatars */
 .avatar-with-image {
   background: transparent !important;
 }
@@ -1147,7 +1168,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Animation pour les nouveaux items ajoutés dynamiquement */
+/* Animation pour les nouveaux items */
 .leaderboard-item.new-item {
   animation: newItemAppear 0.8s ease-out;
 }

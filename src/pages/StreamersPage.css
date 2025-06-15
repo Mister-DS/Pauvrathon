@@ -30,13 +30,14 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   backface-visibility: hidden;
 }
 
-/* Container principal */
+/* Container principal - SUPPRESSION DES BANDES LATÉRALES */
 .streamers-page {
   min-height: 100vh;
   background: var(--primary-gradient);
-  padding: 2rem;
+  padding: 2rem 1rem; /* Padding réduit */
   position: relative;
   overflow-x: hidden;
+  width: 100%; /* Utilise toute la largeur */
 }
 
 /* Effet de particules en arrière-plan */
@@ -126,6 +127,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   color: var(--text-primary);
   position: relative;
   z-index: 1;
+  max-width: none; /* SUPPRESSION DES LIMITES */
 }
 
 .spinner {
@@ -180,11 +182,12 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   border-color: rgba(255, 255, 255, 0.6);
 }
 
-/* Section streamers en live */
+/* Section streamers en live - GRILLE ADAPTATIVE */
 .live-section {
   margin-bottom: 4rem;
   position: relative;
   z-index: 1;
+  width: 100%; /* Utilise toute la largeur */
 }
 
 .live-section h2 {
@@ -201,8 +204,9 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 .live-streamers-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); /* Plus flexible */
   gap: 2rem;
+  padding: 0 1rem; /* Padding minimal */
 }
 
 .live-streamer-card {
@@ -375,6 +379,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   border: 2px solid var(--glass-border);
   position: relative;
   z-index: 1;
+  max-width: none; /* SUPPRESSION DES LIMITES */
 }
 
 .no-live-content h2 {
@@ -391,11 +396,12 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   font-weight: 500;
 }
 
-/* Section streamers hors ligne */
+/* Section streamers hors ligne - GRILLE ADAPTATIVE */
 .offline-section {
   margin-bottom: 3rem;
   position: relative;
   z-index: 1;
+  width: 100%; /* Utilise toute la largeur */
 }
 
 .offline-section h2 {
@@ -412,8 +418,9 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 .offline-streamers-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Plus flexible */
   gap: 1.5rem;
+  padding: 0 1rem; /* Padding minimal */
 }
 
 .offline-streamer-card {
@@ -510,6 +517,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   border: 2px solid var(--glass-border);
   position: relative;
   z-index: 1;
+  max-width: none; /* SUPPRESSION DES LIMITES */
 }
 
 .no-streamers-content h3 {
@@ -549,10 +557,23 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   border-color: rgba(255, 255, 255, 0.6);
 }
 
-/* Responsive */
+/* Responsive optimisé */
+@media (max-width: 1200px) {
+  .live-streamers-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding: 0 0.5rem;
+  }
+
+  .offline-streamers-grid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    padding: 0 0.5rem;
+  }
+}
+
 @media (max-width: 768px) {
   .streamers-page {
-    padding: 1rem;
+    padding: 1rem 0.5rem;
   }
 
   .page-header h1 {
@@ -562,10 +583,12 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   .live-streamers-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
+    padding: 0;
   }
 
   .offline-streamers-grid {
     grid-template-columns: 1fr;
+    padding: 0;
   }
 
   .offline-streamer-card {
@@ -597,7 +620,11 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 @media (max-width: 480px) {
   .streamers-page {
-    padding: 0.5rem;
+    padding: 0.5rem 0.25rem;
+  }
+
+  .page-header {
+    padding: 0 1rem;
   }
 
   .live-streamer-info {
@@ -619,5 +646,10 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   .live-section h2,
   .offline-section h2 {
     font-size: 1.8rem;
+  }
+
+  .no-live-section,
+  .no-streamers {
+    padding: 2rem 1rem;
   }
 }

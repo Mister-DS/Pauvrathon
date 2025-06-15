@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import NotificationSystem, { useNotifications } from '../components/NotificationSystem';
 import './MemoryGame.css';
 
@@ -37,34 +37,62 @@ const MemoryGame = ({ onGameComplete }) => {
     return () => clearInterval(interval);
   }, [gameStarted, gameWon]);
 
-  // Vérifier la victoire
-  useEffect(() => {
-    if (matchedCards.length === cards.length && cards.length > 0) {
-      setGameWon(true);
-      const endTime = new Date();
-      const duration = Math.floor((endTime - startTime) / 1000);
-      
-      // Calcul du score (basé sur le temps et les mouvements)
-      const baseScore = 1000;
-      const timePenalty = Math.min(timer * 2, 500);
-      const movesPenalty = Math.min(moves * 10, 400);
-      const finalScore = Math.max(100, baseScore - timePenalty - movesPenalty);
-      
-      showVictory(
-        'Toutes les paires trouvées ! 🎉',
-        `Terminé en ${timer}s avec ${moves} mouvements !`
-      );
-      
-      if (onGameComplete) {
-        onGameComplete({
-          won: true,
-          score: finalScore,
-          attempts: moves,
-          duration: duration
-        });
-      }
+// Fonction pour calculer le score Memory Game - VERSION DIFFICILE
+const calculateMemoryScore = (timer, moves, won) => {
+  if (!won) return 1;
+  
+  let score = 6; // Score de base réduit à 6 au lieu de 10
+  
+  // PÉNALITÉS TEMPS plus sévères
+  if (timer > 90) score -= 4;        // Très lent
+  else if (timer > 75) score -= 3;   // Lent  
+  else if (timer > 60) score -= 2;   // Un peu lent
+  else if (timer > 45) score -= 1;   // Acceptable
+  
+  // PÉNALITÉS MOUVEMENTS très strictes (16 = parfait)
+  if (moves > 28) score -= 3;        // Beaucoup trop de mouvements
+  else if (moves > 24) score -= 2;   // Trop de mouvements
+  else if (moves > 20) score -= 1;   // Un peu trop
+  else if (moves > 16) score -= 1;   // Pas optimal
+  
+  // BONUS très restrictifs (difficiles à obtenir)
+  if (timer < 30 && moves <= 16) score += 4;  // Performance exceptionnelle
+  else if (timer < 40 && moves <= 18) score += 3;  // Très bonne performance
+  else if (timer < 50 && moves <= 20) score += 2;  // Bonne performance
+  else if (timer < 60 && moves <= 22) score += 1;  // Performance correcte
+  
+  // MALUS pour performance médiocre
+  if (timer > 100 && moves > 26) score -= 2;  // Double pénalité
+  
+  return Math.max(1, Math.min(10, score));
+};
+
+  // Fonction pour gérer la victoire (memoized)
+  const handleVictory = useCallback((timer, moves) => {
+    const finalScore = calculateMemoryScore(timer, moves, true);
+    
+    showVictory(
+      'Toutes les paires trouvées ! 🎉',
+      `Score: ${finalScore} pts - Terminé en ${timer}s avec ${moves} mouvements !`
+    );
+    
+    if (onGameComplete) {
+      onGameComplete({
+        won: true,
+        score: finalScore,
+        attempts: moves,
+        duration: timer
+      });
     }
-  }, [matchedCards, cards.length, timer, moves, startTime, gameWon, onGameComplete, showVictory]);
+  }, [onGameComplete, showVictory]);
+
+  // Vérifier la victoire (CORRIGÉ - sans dépendances infinies)
+  useEffect(() => {
+    if (matchedCards.length === 16 && matchedCards.length > 0 && !gameWon) {
+      setGameWon(true);
+      handleVictory(timer, moves);
+    }
+  }, [matchedCards.length, gameWon, timer, moves, handleVictory]);
 
   // Mélanger les cartes
   const shuffleArray = (array) => {
@@ -93,13 +121,11 @@ const MemoryGame = ({ onGameComplete }) => {
     setGameWon(false);
     setStartTime(new Date());
     setTimer(0);
-    
-    // AUCUNE notification pour démarrage
   };
 
   // Gérer le clic sur une carte
   const handleCardClick = (cardId) => {
-    if (flippedCards.length >= 2 || flippedCards.includes(cardId) || matchedCards.includes(cardId)) {
+    if (flippedCards.length >= 2 || flippedCards.includes(cardId) || matchedCards.includes(cardId) || gameWon) {
       return;
     }
 
@@ -107,7 +133,7 @@ const MemoryGame = ({ onGameComplete }) => {
     setFlippedCards(newFlippedCards);
 
     if (newFlippedCards.length === 2) {
-      setMoves(moves + 1);
+      setMoves(prev => prev + 1);
       
       const [firstCard, secondCard] = newFlippedCards.map(id => 
         cards.find(card => card.id === id)
@@ -115,15 +141,13 @@ const MemoryGame = ({ onGameComplete }) => {
 
       if (firstCard.emoji === secondCard.emoji) {
         // Paire trouvée !
-        setMatchedCards([...matchedCards, ...newFlippedCards]);
+        setMatchedCards(prev => [...prev, ...newFlippedCards]);
         setFlippedCards([]);
-        // AUCUNE notification pour paires trouvées
       } else {
         // Pas de correspondance
         setTimeout(() => {
           setFlippedCards([]);
         }, 1000);
-        // AUCUNE notification pour erreurs
       }
     }
   };
@@ -138,8 +162,6 @@ const MemoryGame = ({ onGameComplete }) => {
     setGameWon(false);
     setStartTime(null);
     setTimer(0);
-    
-    // AUCUNE notification pour reset
   };
 
   // Formater le temps
@@ -205,7 +227,7 @@ const MemoryGame = ({ onGameComplete }) => {
           <h3>🎉 Félicitations ! Toutes les paires trouvées !</h3>
           <p>Temps: <strong>{formatTime(timer)}</strong></p>
           <p>Mouvements: <strong>{moves}</strong></p>
-          <p>Score: <strong>{Math.max(100, 1000 - timer * 2 - moves * 10)}/1000</strong></p>
+          <p>Score: <strong>{gameWon ? calculateMemoryScore(timer, moves, true) : 0}/10</strong></p>
         </div>
       )}
 

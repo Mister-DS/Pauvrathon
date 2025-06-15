@@ -1,18 +1,22 @@
-/* HangmanGame.css */
+/* HangmanGame.css - Style harmonisé avec les autres jeux */
 .hangman-game {
   max-width: 800px;
   margin: 0 auto;
   padding: 2rem;
-  background: white;
+  background: rgba(255, 255, 255, 0.25); /* Fond transparent comme les autres jeux */
+  backdrop-filter: blur(20px);
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.4);
 }
 
 .hangman-game h2 {
   text-align: center;
   font-size: 2rem;
-  color: #2d3748;
+  color: #ffffff; /* Texte blanc */
   margin-bottom: 2rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  font-weight: 700;
 }
 
 /* Contrôles du jeu */
@@ -21,16 +25,19 @@
 }
 
 .game-info {
-  background: #f7fafc;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(15px);
   padding: 1.5rem;
   border-radius: 12px;
-  border: 2px solid #e2e8f0;
+  border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .game-info p {
   margin-bottom: 1rem;
   font-size: 1rem;
-  color: #4a5568;
+  color: #ffffff; /* Texte blanc */
+  font-weight: 500;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .control-buttons {
@@ -41,61 +48,70 @@
 
 .start-btn, .reset-btn {
   padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50px;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .start-btn {
-  background: #9146ff;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
   color: white;
 }
 
 .start-btn:hover {
-  background: #7c3aed;
-  transform: translateY(-1px);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(240, 147, 251, 0.4);
+  border-color: rgba(255, 255, 255, 0.6);
 }
 
 .reset-btn {
-  background: #718096;
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
   color: white;
 }
 
 .reset-btn:hover {
-  background: #4a5568;
-  transform: translateY(-1px);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(44, 62, 80, 0.4);
+  border-color: rgba(255, 255, 255, 0.6);
 }
 
 /* Affichage du pendu */
 .hangman-display {
   text-align: center;
   margin: 2rem 0;
-  background: #f8f9fa;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
   padding: 2rem;
   border-radius: 12px;
-  border: 2px solid #e9ecef;
+  border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .hangman-ascii {
   font-family: 'Courier New', monospace;
   font-size: 1.2rem;
   line-height: 1.2;
-  color: #2d3748;
-  background: white;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
   padding: 1.5rem;
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   margin-bottom: 1rem;
   white-space: pre-wrap;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .mistakes-counter {
   font-size: 1.1rem;
   font-weight: bold;
-  color: #e53e3e;
+  color: #ff6b6b;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* Affichage du mot */
@@ -106,11 +122,15 @@
   color: white;
   padding: 2rem;
   border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
 }
 
 .word-display h3 {
   margin-bottom: 1rem;
   font-size: 1.3rem;
+  font-weight: 700;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .word-letters {
@@ -122,6 +142,7 @@
   padding: 1rem;
   border-radius: 8px;
   backdrop-filter: blur(10px);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* Inputs du jeu */
@@ -133,63 +154,72 @@
 }
 
 .letter-input, .word-input {
-  background: white;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(15px);
   padding: 1.5rem;
   border-radius: 12px;
-  border: 2px solid #e2e8f0;
-  transition: border-color 0.2s ease;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
 }
 
 .letter-input:hover, .word-input:hover {
-  border-color: #9146ff;
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .letter-input label, .word-input label {
   display: block;
   font-weight: bold;
-  color: #2d3748;
+  color: #ffffff;
   margin-bottom: 0.5rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .letter-input input, .word-input input {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 6px;
   font-size: 1rem;
   margin-bottom: 1rem;
   transition: border-color 0.2s ease;
+  background: rgba(255, 255, 255, 0.9);
+  color: #2d3748;
 }
 
 .letter-input input:focus, .word-input input:focus {
   outline: none;
-  border-color: #9146ff;
-  box-shadow: 0 0 0 3px rgba(145, 70, 255, 0.1);
+  border-color: #4facfe;
+  box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.3);
 }
 
 .letter-input button, .word-input button {
   width: 100%;
   padding: 0.75rem;
-  background: #4299e1;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
   color: white;
-  border: none;
-  border-radius: 6px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50px;
   font-weight: bold;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .letter-input button:hover:not(:disabled), 
 .word-input button:hover:not(:disabled) {
-  background: #3182ce;
-  transform: translateY(-1px);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+  border-color: rgba(255, 255, 255, 0.6);
 }
 
 .letter-input button:disabled, 
 .word-input button:disabled {
-  background: #a0aec0;
+  background: rgba(255, 255, 255, 0.3);
   cursor: not-allowed;
   transform: none;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 /* Résultats du jeu */
@@ -199,58 +229,70 @@
   border-radius: 12px;
   margin: 2rem 0;
   animation: slideIn 0.5s ease-out;
+  border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .game-result.win {
   background: linear-gradient(135deg, #48bb78, #38a169);
   color: white;
+  box-shadow: 0 8px 25px rgba(72, 187, 120, 0.4);
 }
 
 .game-result.lose {
   background: linear-gradient(135deg, #f56565, #e53e3e);
   color: white;
+  box-shadow: 0 8px 25px rgba(245, 101, 101, 0.4);
 }
 
 .game-result h3 {
   font-size: 1.5rem;
   margin-bottom: 1rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .game-result p {
   font-size: 1.1rem;
   margin-bottom: 0.5rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .retry-btn {
-  background: white;
+  background: rgba(255, 255, 255, 0.9);
   color: #e53e3e;
   padding: 1rem 2rem;
-  border: none;
-  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50px;
   font-weight: bold;
   cursor: pointer;
   margin-top: 1rem;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .retry-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
+  background: white;
 }
 
-/* Instructions */
+/* Instructions harmonisées */
 .game-instructions {
-  background: #f0f8ff;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
   padding: 2rem;
   border-radius: 12px;
-  border: 2px solid #bee3f8;
+  border: 2px solid rgba(255, 255, 255, 0.3);
   margin: 2rem 0;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 .game-instructions h3 {
-  color: #2b6cb0;
+  color: #ffffff;
   margin-bottom: 1rem;
   font-size: 1.3rem;
+  font-weight: 700;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .game-instructions ul {
@@ -260,17 +302,20 @@
 
 .game-instructions li {
   padding: 0.5rem 0;
-  color: #2d3748;
+  color: #ffffff;
   position: relative;
   padding-left: 1.5rem;
+  font-weight: 500;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .game-instructions li::before {
   content: '✓';
   position: absolute;
   left: 0;
-  color: #48bb78;
+  color: #4facfe;
   font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* Animations */

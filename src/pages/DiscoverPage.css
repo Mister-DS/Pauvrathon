@@ -30,13 +30,14 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   backface-visibility: hidden;
 }
 
-/* Container principal */
+/* Container principal - SUPPRESSION DES BANDES LATÉRALES */
 .discover-page {
   min-height: 100vh;
   background: var(--primary-gradient);
-  padding: 2rem;
+  padding: 2rem 1rem; /* Padding réduit */
   position: relative;
   overflow-x: hidden;
+  width: 100%; /* Utilise toute la largeur */
 }
 
 /* Effet de particules en arrière-plan */
@@ -139,6 +140,8 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   color: var(--text-primary);
   position: relative;
   z-index: 1;
+  max-width: none; /* SUPPRESSION DES LIMITES DE LARGEUR */
+  margin: 0; /* Suppression du centrage automatique */
 }
 
 .spinner {
@@ -156,11 +159,12 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   100% { transform: rotate(360deg); }
 }
 
-/* Container des streams */
+/* Container des streams - SUPPRESSION DES LIMITES */
 .streams-container {
   margin-bottom: 3rem;
   position: relative;
   z-index: 1;
+  width: 100%; /* Utilise toute la largeur */
 }
 
 .streams-header {
@@ -175,11 +179,13 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-/* Grille des streams */
+/* Grille des streams optimisée */
 .streams-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); /* Colonnes plus petites */
   gap: 2rem;
+  max-width: none; /* SUPPRESSION DE LA LIMITE DE LARGEUR */
+  padding: 0 1rem; /* Padding minimal */
 }
 
 .stream-card {
@@ -469,6 +475,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   box-shadow: var(--shadow-lg);
   position: relative;
   z-index: 1;
+  max-width: none; /* SUPPRESSION DE LA LIMITE */
 }
 
 .page-footer p {
@@ -480,10 +487,18 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-/* Responsive */
+/* Responsive optimisé */
+@media (max-width: 1200px) {
+  .streams-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding: 0 0.5rem;
+  }
+}
+
 @media (max-width: 768px) {
   .discover-page {
-    padding: 1rem;
+    padding: 1rem 0.5rem;
   }
 
   .page-header h1 {
@@ -493,6 +508,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   .streams-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
+    padding: 0;
   }
 
   .stream-card {
@@ -526,11 +542,12 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 @media (max-width: 480px) {
   .discover-page {
-    padding: 0.5rem;
+    padding: 0.5rem 0.25rem;
   }
 
   .page-header {
     margin-bottom: 2rem;
+    padding: 0 1rem;
   }
 
   .stream-info {
@@ -548,5 +565,9 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
   .page-header h1 {
     font-size: 2rem;
+  }
+
+  .page-footer {
+    padding: 2rem 1rem;
   }
 }

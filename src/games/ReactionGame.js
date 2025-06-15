@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import NotificationSystem, { useNotifications } from '../components/NotificationSystem';
 import './ReactionGame.css';
 
@@ -19,56 +19,99 @@ const ReactionGame = ({ onGameComplete }) => {
   const [startTime, setStartTime] = useState(null);
   const [gameTime, setGameTime] = useState(null);
   const [round, setRound] = useState(1);
-  const [maxRounds] = useState(5);
+  const [maxRounds] = useState(3);
   const [allTimes, setAllTimes] = useState([]);
   const [gameFinished, setGameFinished] = useState(false);
   const [tooEarly, setTooEarly] = useState(false);
+  
+  // Refs pour éviter les problèmes de closure
+  const timeoutRef = useRef(null);
+  const isActiveRef = useRef(false);
+
+  // Cleanup des timeouts
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   // Démarrer le jeu
   const startGame = () => {
+    // Reset complet de tous les états
     setGameStarted(true);
     setGameFinished(false);
     setRound(1);
     setAllTimes([]);
     setReactionTime(null);
     setTooEarly(false);
+    setWaitingForGreen(false);
+    setShowGreen(false);
+    setStartTime(null);
     setGameTime(new Date());
-    startRound();
+    isActiveRef.current = true;
+    
+    // Démarrer le premier round après un petit délai
+    setTimeout(() => {
+      if (isActiveRef.current) {
+        startRound();
+      }
+    }, 1000);
   };
 
-  // Démarrer un round
-  const startRound = () => {
-    setWaitingForGreen(true);
-    setShowGreen(false);
-    setReactionTime(null);
-    setTooEarly(false);
-    
-    // Attendre entre 2 et 6 secondes avant d'afficher le vert
-    const delay = Math.random() * 4000 + 2000;
-    
-    setTimeout(() => {
-      if (waitingForGreen) {
-        setShowGreen(true);
-        setStartTime(new Date());
-      }
-    }, delay);
-  };
+// Démarrer un round - VERSION FINALE
+const startRound = () => {
+  if (!isActiveRef.current) return;
+  
+  // Reset des états
+  setWaitingForGreen(true);
+  setShowGreen(false);
+  setReactionTime(null);
+  setTooEarly(false);
+  setStartTime(null);
+  
+  // Nettoyer le timeout précédent
+  if (timeoutRef.current) {
+    clearTimeout(timeoutRef.current);
+  }
+  
+  // Attendre entre 2 et 6 secondes avant d'afficher le vert
+  const delay = Math.random() * 4000 + 2000;
+  
+  timeoutRef.current = setTimeout(() => {
+    // Utiliser une ref pour éviter les problèmes de closure
+    if (isActiveRef.current) {
+      setWaitingForGreen(false); // Important !
+      setShowGreen(true);
+      setStartTime(new Date());
+    }
+  }, delay);
+};
 
   // Gérer le clic
   const handleClick = () => {
-    if (!gameStarted || gameFinished) return;
+    if (!gameStarted || gameFinished || !isActiveRef.current) return;
     
     if (!showGreen && waitingForGreen) {
       // Cliqué trop tôt !
       setTooEarly(true);
       setWaitingForGreen(false);
+      setShowGreen(false);
+      
+      // Nettoyer le timeout
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
       
       setTimeout(() => {
-        if (round < maxRounds) {
-          setRound(round + 1);
-          startRound();
-        } else {
-          finishGame();
+        if (isActiveRef.current) {
+          if (round < maxRounds) {
+            setRound(prev => prev + 1);
+            startRound();
+          } else {
+            finishGame();
+          }
         }
       }, 2000);
       
@@ -80,53 +123,76 @@ const ReactionGame = ({ onGameComplete }) => {
       const endTime = new Date();
       const reactionMs = endTime - startTime;
       setReactionTime(reactionMs);
-      setAllTimes([...allTimes, reactionMs]);
+      setAllTimes(prev => [...prev, reactionMs]);
       setWaitingForGreen(false);
       setShowGreen(false);
       
       setTimeout(() => {
-        if (round < maxRounds) {
-          setRound(round + 1);
-          startRound();
-        } else {
-          finishGame();
+        if (isActiveRef.current) {
+          if (round < maxRounds) {
+            setRound(prev => prev + 1);
+            startRound();
+          } else {
+            finishGame();
+          }
         }
       }, 2000);
     }
   };
 
+  // Fonction pour calculer le score Reaction Game
+const calculateReactionScore = (averageTime, validAttempts, won) => {
+  if (!won || validAttempts < 3) return 1;
+  
+  let score = 1;
+  
+  if (averageTime < 200) score = 10;      // Excellent
+  else if (averageTime < 250) score = 9;  // Très très bien
+  else if (averageTime < 300) score = 8;  // Très bien  
+  else if (averageTime < 350) score = 7;  // Bien
+  else if (averageTime < 400) score = 6;  // Correct
+  else if (averageTime < 450) score = 5;  // Moyen
+  else if (averageTime < 500) score = 4;  // En dessous
+  else if (averageTime < 600) score = 3;  // Lent
+  else score = 2;                         // Très lent
+  
+  // Bonus pour 5 rounds réussis
+  if (validAttempts === 5) score = Math.min(10, score + 1);
+  
+  return score;
+};
+
   // Terminer le jeu
   const finishGame = () => {
+    if (!isActiveRef.current) return;
+    
     setGameFinished(true);
     setWaitingForGreen(false);
     setShowGreen(false);
+    isActiveRef.current = false;
+    
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
     
     const endTime = new Date();
     const totalDuration = Math.floor((endTime - gameTime) / 1000);
-    
-    // Calculer la moyenne des temps (exclure les temps trop tôt)
     const validTimes = allTimes.filter(time => time > 0);
     const averageTime = validTimes.length > 0 ? 
-      Math.round(validTimes.reduce((a, b) => a + b, 0) / validTimes.length) : 
-      999;
+      Math.round(validTimes.reduce((a, b) => a + b, 0) / validTimes.length) : 999;
     
-    // Calculer le score (meilleur = plus bas temps de réaction)
-    const baseScore = 1000;
-    const timePenalty = Math.min(averageTime, 800); // Max penalty 800
-    const finalScore = Math.max(100, baseScore - timePenalty);
-    
-    // Déterminer si c'est une victoire (temps moyen < 400ms)
     const won = averageTime < 400 && validTimes.length >= 3;
+    const finalScore = calculateReactionScore(averageTime, validTimes.length, won);
     
     if (won) {
       showVictory(
         `Excellents réflexes ! ⚡`,
-        `Temps moyen: ${averageTime}ms`
+        `Score: ${finalScore} pts - Temps moyen: ${averageTime}ms`
       );
     } else {
       showError(
-        `Pas mal ! 🎯`,
-        `Temps moyen: ${averageTime}ms - Essayez d'être plus rapide !`
+        `Essayez encore ! 🎯`,
+        `Score: ${finalScore} pts - Temps moyen: ${averageTime}ms`
       );
     }
     
@@ -143,6 +209,15 @@ const ReactionGame = ({ onGameComplete }) => {
 
   // Réinitialiser le jeu
   const resetGame = () => {
+    // Arrêter le jeu en cours
+    isActiveRef.current = false;
+    
+    // Nettoyer le timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
+    // Reset de tous les états
     setGameStarted(false);
     setWaitingForGreen(false);
     setShowGreen(false);
@@ -196,7 +271,11 @@ const ReactionGame = ({ onGameComplete }) => {
         </div>
         
         <div className="control-buttons">
-          <button onClick={startGame} className="start-btn" disabled={gameStarted && !gameFinished}>
+          <button 
+            onClick={startGame} 
+            className="start-btn" 
+            disabled={gameStarted && !gameFinished}
+          >
             {gameStarted && !gameFinished ? 'En cours...' : 'Démarrer'}
           </button>
           <button onClick={resetGame} className="reset-btn">Réinitialiser</button>
@@ -289,7 +368,7 @@ const ReactionGame = ({ onGameComplete }) => {
             <li>Attendez que le cercle rouge devienne vert</li>
             <li>Cliquez le plus rapidement possible quand c'est vert</li>
             <li>Ne cliquez pas avant ! (pénalité)</li>
-            <li>5 rounds au total</li>
+            <li>3 rounds au total</li>
             <li>Objectif: temps moyen &lt; 400ms pour gagner</li>
           </ul>
           

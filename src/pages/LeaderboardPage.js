@@ -73,7 +73,7 @@ const LeaderboardPage = ({ user }) => {
           `)
           .eq('game_type', gameType)
           .eq('won', true)
-          .order('score', { ascending: gameType === 'trouve_le_chiffre' ? true : false })
+          .order('score', { ascending: gameType === 'trouve_le_chiffre' || gameType === 'reaction' ? true : false })
           .limit(20); // Garde plus de données pour le groupage
 
         if (!gameError && gameData) {
@@ -90,9 +90,9 @@ const LeaderboardPage = ({ user }) => {
                 games_won: 1
               };
             } else {
-              // Pour trouve_le_chiffre: plus petit score = mieux
+              // Pour trouve_le_chiffre et reaction: plus petit score = mieux
               // Pour autres jeux: plus grand score = mieux
-              const isBetter = gameType === 'trouve_le_chiffre' 
+              const isBetter = (gameType === 'trouve_le_chiffre' || gameType === 'reaction')
                 ? session.score < userBestScores[userName].score
                 : session.score > userBestScores[userName].score;
                 
@@ -106,7 +106,7 @@ const LeaderboardPage = ({ user }) => {
 
           // Trier par meilleur score et prendre seulement les 5 premiers
           gameLeaderboards[gameType] = Object.values(userBestScores)
-            .sort((a, b) => gameType === 'trouve_le_chiffre' ? a.score - b.score : b.score - a.score)
+            .sort((a, b) => (gameType === 'trouve_le_chiffre' || gameType === 'reaction') ? a.score - b.score : b.score - a.score)
             .slice(0, 5); // Changé de 10 à 5
         }
       }
@@ -167,7 +167,7 @@ const LeaderboardPage = ({ user }) => {
               `)
               .eq('game_type', gameType)
               .eq('won', true)
-              .order('score', { ascending: gameType === 'trouve_le_chiffre' ? true : false });
+              .order('score', { ascending: gameType === 'trouve_le_chiffre' || gameType === 'reaction' ? true : false });
 
             if (gameRanking) {
               // Grouper par utilisateur pour avoir le meilleur score de chaque joueur
@@ -177,7 +177,7 @@ const LeaderboardPage = ({ user }) => {
                 if (!userBestScores[userName]) {
                   userBestScores[userName] = session.score;
                 } else {
-                  const isBetter = gameType === 'trouve_le_chiffre' 
+                  const isBetter = (gameType === 'trouve_le_chiffre' || gameType === 'reaction')
                     ? session.score < userBestScores[userName]
                     : session.score > userBestScores[userName];
                   if (isBetter) {
@@ -188,7 +188,7 @@ const LeaderboardPage = ({ user }) => {
 
               // Créer le classement final
               const sortedUsers = Object.entries(userBestScores)
-                .sort(([,a], [,b]) => gameType === 'trouve_le_chiffre' ? a - b : b - a);
+                .sort(([,a], [,b]) => (gameType === 'trouve_le_chiffre' || gameType === 'reaction') ? a - b : b - a);
 
               const userIndex = sortedUsers.findIndex(([userName]) => userName === user.display_name);
               positions[gameType] = userIndex >= 0 ? userIndex + 1 : null;
@@ -214,7 +214,7 @@ const LeaderboardPage = ({ user }) => {
               gameStats[session.game_type].wins++;
               
               // Mettre à jour le meilleur score
-              const isBetter = session.game_type === 'trouve_le_chiffre' 
+              const isBetter = (session.game_type === 'trouve_le_chiffre' || session.game_type === 'reaction')
                 ? session.score < gameStats[session.game_type].bestScore
                 : session.score > gameStats[session.game_type].bestScore;
               if (isBetter) {
@@ -309,7 +309,7 @@ const LeaderboardPage = ({ user }) => {
           {selectedGame === 'all' ? (
             <p>Classement basé sur le nombre de victoires puis meilleur score</p>
           ) : (
-            <p>Top 5 des meilleurs scores - {selectedGame === 'trouve_le_chiffre' ? 'Moins de coups = mieux' : 'Plus de points = mieux'}</p>
+            <p>Top 5 des meilleurs scores - {(selectedGame === 'trouve_le_chiffre' || selectedGame === 'reaction') ? 'Moins de points = mieux' : 'Plus de points = mieux'}</p>
           )}
         </div>
 

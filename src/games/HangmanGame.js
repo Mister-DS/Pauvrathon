@@ -264,17 +264,16 @@ const HangmanGame = ({ onGameComplete }) => {
         </>
       )}
 
-      {!gameStarted && (
-        <div className="game-instructions">
-          <h3>📋 Instructions</h3>
-          <ul>
-            <li>Devinez le mot lettre par lettre</li>
-            <li>Vous avez droit à 10 erreurs maximum</li>
-            <li>Vous pouvez proposer le mot complet à tout moment</li>
-            <li>Plus vous faites d'erreurs, moins votre score sera élevé</li>
-          </ul>
-        </div>
-      )}
+      {/* Instructions toujours affichées */}
+<div className="game-instructions">
+  <h3>📋 Instructions</h3>
+  <ul>
+    <li>Devinez le mot lettre par lettre</li>
+    <li>Vous avez droit à 10 erreurs maximum</li>
+    <li>Vous pouvez proposer le mot complet à tout moment</li>
+    <li>Plus vous faites d'erreurs, moins votre score sera élevé</li>
+  </ul>
+</div>
 
       {/* Système de notifications - SEULEMENT pour victoire/défaite avec classement */}
       <NotificationSystem

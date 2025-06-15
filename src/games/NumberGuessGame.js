@@ -65,7 +65,7 @@ const NumberGuessGame = ({ onGameComplete }) => {
       
       const endTime = new Date();
       const duration = Math.floor((endTime - startTime) / 1000);
-      const score = Math.max(10, 100 - (newAttempts - 1) * 6);
+      const score = Math.max(1, 10 - Math.floor((newAttempts - 1) / 2));
       
       if (onGameComplete) {
         onGameComplete({
@@ -202,7 +202,7 @@ const NumberGuessGame = ({ onGameComplete }) => {
               <h3>🎉 Félicitations !</h3>
               <p>Le nombre était : <strong>{targetNumber}</strong></p>
               <p>Trouvé en : <strong>{attempts}</strong> tentative{attempts > 1 ? 's' : ''}</p>
-              <p>Score : <strong>{Math.max(10, 100 - (attempts - 1) * 6)}/100</strong></p>
+              <p>Score : <strong>{Math.max(10, 100 - (attempts - 1) * 6)}/10</strong></p>
             </div>
           )}
 

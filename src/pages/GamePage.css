@@ -30,13 +30,14 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   backface-visibility: hidden;
 }
 
-/* Container principal */
+/* Container principal - SUPPRESSION DES BANDES LATÉRALES */
 .game-page {
   min-height: 100vh;
   background: var(--primary-gradient);
-  padding: 2rem;
+  padding: 2rem 1rem; /* Padding réduit */
   position: relative;
   overflow-x: hidden;
+  width: 100%; /* Utilise toute la largeur */
 }
 
 /* Effet de particules en arrière-plan */
@@ -73,7 +74,6 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   margin: 0 0 1rem 0;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
   animation: titleGlow 3s ease-in-out infinite alternate;
-  /* Suppression du background-clip qui cause le flou */
 }
 
 @keyframes titleGlow {
@@ -132,12 +132,14 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   border-color: rgba(255, 255, 255, 0.4);
 }
 
-/* Section streamer */
+/* Section streamer - SUPPRESSION DES LIMITES DE LARGEUR */
 .streamer-section {
-  max-width: 600px;
+  max-width: none; /* SUPPRESSION DE LA LIMITE 600px */
+  width: 100%; /* Utilise toute la largeur */
   margin: 0 auto 3rem auto;
   position: relative;
   z-index: 1;
+  padding: 0 1rem; /* Padding minimal */
 }
 
 .streamer-section h2 {
@@ -159,6 +161,8 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   position: relative;
   overflow: hidden;
   transition: var(--transition);
+  max-width: 800px; /* Limite raisonnable mais plus généreuse */
+  margin: 0 auto; /* Centre seulement cette carte */
 }
 
 .streamer-card::before {
@@ -304,12 +308,14 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   animation: pulse 2s infinite;
 }
 
-/* Container de jeu */
+/* Container de jeu - SUPPRESSION DES LIMITES */
 .game-container {
-  max-width: 900px;
+  max-width: none; /* SUPPRESSION DE LA LIMITE 900px */
+  width: 100%; /* Utilise toute la largeur */
   margin: 0 auto;
   position: relative;
   z-index: 1;
+  padding: 0 1rem; /* Padding minimal */
 }
 
 .game-header-info {
@@ -321,6 +327,8 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   margin-bottom: 2rem;
   border: 1px solid var(--glass-border);
   box-shadow: var(--shadow-md);
+  max-width: 800px; /* Limite raisonnable */
+  margin: 0 auto 2rem auto; /* Centre seulement cette section */
 }
 
 .game-header-info h2 {
@@ -335,7 +343,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   font-size: 1.1rem;
 }
 
-/* Section jeux utilisateur */
+/* Section jeux utilisateur - GRILLE ADAPTATIVE */
 .user-games-section {
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
@@ -371,7 +379,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 .user-games-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Plus de flexibilité */
   gap: 2rem;
 }
 
@@ -442,7 +450,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   font-style: italic;
 }
 
-/* Leaderboard global */
+/* Leaderboard global - SUPPRESSION DES LIMITES */
 .leaderboard-section {
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
@@ -568,7 +576,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   border-radius: 15px;
 }
 
-/* Classements par jeu */
+/* Classements par jeu - GRILLE ADAPTATIVE */
 .game-leaderboards-section {
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
@@ -604,7 +612,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 .game-leaderboards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Plus flexible */
   gap: 2rem;
 }
 
@@ -725,10 +733,20 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   box-shadow: var(--shadow-lg);
 }
 
-/* Responsive Design */
+/* Responsive Design optimisé */
+@media (max-width: 1200px) {
+  .user-games-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+  
+  .game-leaderboards-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+}
+
 @media (max-width: 768px) {
   .game-page {
-    padding: 1rem;
+    padding: 1rem 0.5rem;
   }
   
   .game-header h1 {
@@ -771,9 +789,18 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   .rank {
     min-width: 40px;
   }
+
+  .streamer-section,
+  .game-container {
+    padding: 0 0.5rem;
+  }
 }
 
 @media (max-width: 480px) {
+  .game-page {
+    padding: 0.5rem 0.25rem;
+  }
+
   .game-header h1 {
     font-size: 2rem;
   }
@@ -797,5 +824,10 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   .leaderboard-section,
   .game-leaderboards-section {
     padding: 2rem 1rem;
+  }
+
+  .streamer-section,
+  .game-container {
+    padding: 0 0.25rem;
   }
 }
