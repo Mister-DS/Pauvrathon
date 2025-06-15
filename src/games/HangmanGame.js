@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import NotificationSystem, { useNotifications } from '../components/NotificationSystem';
 import './HangmanGame.css';
 
 const HangmanGame = ({ onGameComplete }) => {
+  // Hook pour les notifications (SEULEMENT victoire/défaite)
+  const {
+    notification,
+    hideNotification,
+    showVictory,
+    showError
+  } = useNotifications();
+
   const [wordList] = useState([
     "chat", "chien", "maison", "route", "ordinateur", "fenetre", "voiture", "arbre", "pomme", "musique",
     "plage", "oiseau", "soleil", "montagne", "riviere", "carte", "papier", "stylo", "livre", "porte",
@@ -49,7 +58,7 @@ const HangmanGame = ({ onGameComplete }) => {
         if (onGameComplete) {
           onGameComplete({
             won: true,
-            score: Math.max(1, 11 - mistakes), // Score basé sur le nombre d'erreurs
+            score: Math.max(1, 11 - mistakes),
             attempts: guessedLetters.length + wrongLetters.length,
             duration: duration,
             word: wordToGuess
@@ -91,22 +100,18 @@ const HangmanGame = ({ onGameComplete }) => {
     setGameWon(false);
     setGameLost(false);
     setStartTime(new Date());
-    
-    console.log('Mot à deviner:', selectedWord); // Pour le debug
   };
 
   const checkLetter = () => {
     if (!currentLetter || currentLetter.length !== 1) {
-      alert('Veuillez entrer une seule lettre');
-      return;
+      return; // Juste ignorer les entrées invalides
     }
 
     const letter = currentLetter.toLowerCase();
     
     if (guessedLetters.includes(letter) || wrongLetters.includes(letter)) {
-      alert('Lettre déjà proposée');
       setCurrentLetter('');
-      return;
+      return; // Juste ignorer les lettres déjà proposées
     }
 
     if (wordToGuess.includes(letter)) {
@@ -117,12 +122,12 @@ const HangmanGame = ({ onGameComplete }) => {
     }
     
     setCurrentLetter('');
+    // AUCUNE notification pendant le jeu !
   };
 
   const checkWord = () => {
     if (!currentWord) {
-      alert('Veuillez entrer un mot');
-      return;
+      return; // Juste ignorer si pas de mot
     }
 
     if (currentWord.toLowerCase() === wordToGuess) {
@@ -141,10 +146,10 @@ const HangmanGame = ({ onGameComplete }) => {
       }
     } else {
       setMistakes(mistakes + 1);
-      alert('Mauvais mot !');
     }
     
     setCurrentWord('');
+    // AUCUNE notification pour mauvais mot !
   };
 
   const resetGame = () => {
@@ -270,6 +275,12 @@ const HangmanGame = ({ onGameComplete }) => {
           </ul>
         </div>
       )}
+
+      {/* Système de notifications - SEULEMENT pour victoire/défaite avec classement */}
+      <NotificationSystem
+        notification={notification}
+        onClose={hideNotification}
+      />
     </div>
   );
 };

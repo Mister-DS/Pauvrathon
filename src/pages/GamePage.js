@@ -1,13 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import HangmanGame from '../games/HangmanGame';
+import NumberGuessGame from '../games/NumberGuessGame';
+import NotificationSystem, { useNotifications } from '../components/NotificationSystem';
 import './GamePage.css';
 
 const GamePage = ({ user }) => {
+  // Hook pour les notifications (RÉDUIT)
+  const {
+    notification,
+    hideNotification,
+    showError,
+    showSuccess,
+    showVictory
+  } = useNotifications();
+
   // États pour le système de jeux multiples
   const [availableGames] = useState([
     { id: 'trouve_le_chiffre', name: 'Trouve le chiffre', icon: '🎯' },
-    { id: 'hangman', name: 'Jeu du pendu', icon: '🎪' }
+    { id: 'hangman', name: 'Jeu du pendu', icon: '🎪' },
+    { id: 'memory', name: 'Memory Game', icon: '🧠' },
+    { id: 'simon', name: 'Simon Game', icon: '🎵' }
   ]);
   const [selectedGameType, setSelectedGameType] = useState(null);
 
@@ -15,24 +28,18 @@ const GamePage = ({ user }) => {
   const [clickCount, setClickCount] = useState(0);
   const [gameUnlocked, setGameUnlocked] = useState(false);
   
-  // États pour le jeu "Trouve le chiffre"
-  const [gameStarted, setGameStarted] = useState(false);
-  const [targetNumber, setTargetNumber] = useState(null);
-  const [attempts, setAttempts] = useState(0);
-  const [guesses, setGuesses] = useState([]);
-  const [currentGuess, setCurrentGuess] = useState('');
-  const [hintMessage, setHintMessage] = useState('');
-  const [gameWon, setGameWon] = useState(false);
-  const [showValidateButton, setShowValidateButton] = useState(false);
-  
-  // États pour les stats
-  const [leaderboard, setLeaderboard] = useState([]);
+  // États pour les stats et leaderboards
+  const [globalLeaderboard, setGlobalLeaderboard] = useState([]);
+  const [gameLeaderboards, setGameLeaderboards] = useState({});
+  const [userGames, setUserGames] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [userStats, setUserStats] = useState(null);
 
   useEffect(() => {
     if (user) {
       initializeUser();
-      loadLeaderboard();
+      loadAllLeaderboards();
+      loadUserGames();
     }
   }, [user]);
 
@@ -69,6 +76,7 @@ const GamePage = ({ user }) => {
         userId = existingUser.id;
       }
 
+      // Vérifier/créer les stats utilisateur
       const { data: stats, error: statsError } = await supabase
         .from('user_stats')
         .select('*')
@@ -76,7 +84,7 @@ const GamePage = ({ user }) => {
         .single();
 
       if (statsError && statsError.code === 'PGRST116') {
-        await supabase
+        const { data: newStats, error: createStatsError } = await supabase
           .from('user_stats')
           .insert({
             user_id: userId,
@@ -84,25 +92,122 @@ const GamePage = ({ user }) => {
             total_games_won: 0,
             total_clicks: 0,
             best_score: 0
-          });
+          })
+          .select()
+          .single();
+        
+        if (!createStatsError) {
+          setUserStats(newStats);
+        }
+      } else {
+        setUserStats(stats);
       }
     } catch (error) {
       console.error('Erreur initialisation utilisateur:', error);
     }
   };
 
-  // Charger le classement
-  const loadLeaderboard = async () => {
+  // Charger tous les leaderboards
+  const loadAllLeaderboards = async () => {
     try {
-      const { data, error } = await supabase
-        .from('leaderboard')
-        .select('*')
+      // 1. Leaderboard global (basé sur total_games_won et best_score)
+      const { data: globalData, error: globalError } = await supabase
+        .from('user_stats')
+        .select(`
+          *,
+          users!inner(
+            twitch_display_name,
+            profile_image_url
+          )
+        `)
+        .gt('total_games_played', 0)
+        .order('total_games_won', { ascending: false })
+        .order('best_score', { ascending: false })
         .limit(10);
 
-      if (error) throw error;
-      setLeaderboard(data || []);
+      if (!globalError) {
+        const formattedGlobal = globalData.map(stat => ({
+          twitch_display_name: stat.users.twitch_display_name,
+          profile_image_url: stat.users.profile_image_url,
+          best_score: stat.best_score,
+          total_games_won: stat.total_games_won,
+          total_games_played: stat.total_games_played
+        }));
+        setGlobalLeaderboard(formattedGlobal);
+      }
+
+      // 2. Leaderboards par jeu
+      const gameBoards = {};
+      for (const game of availableGames) {
+        const { data: gameData, error: gameError } = await supabase
+          .from('game_sessions')
+          .select(`
+            score,
+            won,
+            game_type,
+            users!inner(
+              twitch_display_name,
+              profile_image_url
+            )
+          `)
+          .eq('game_type', game.id)
+          .eq('won', true)
+          .order('score', { ascending: false })
+          .limit(10);
+
+        if (!gameError && gameData) {
+          gameBoards[game.id] = gameData.map(session => ({
+            twitch_display_name: session.users.twitch_display_name,
+            profile_image_url: session.users.profile_image_url,
+            score: session.score,
+            game_type: session.game_type
+          }));
+        }
+      }
+      setGameLeaderboards(gameBoards);
+
     } catch (error) {
-      console.error('Erreur chargement classement:', error);
+      console.error('Erreur chargement leaderboards:', error);
+    }
+  };
+
+  // Charger les jeux de l'utilisateur
+  const loadUserGames = async () => {
+    try {
+      const { data: userData } = await supabase
+        .from('users')
+        .select('id')
+        .eq('twitch_user_id', user.id)
+        .single();
+
+      if (userData) {
+        const { data: userGameData, error } = await supabase
+          .from('game_sessions')
+          .select('*')
+          .eq('user_id', userData.id)
+          .order('created_at', { ascending: false });
+
+        if (!error) {
+          // Grouper par type de jeu
+          const gamesByType = availableGames.map(game => {
+            const gameSessions = userGameData.filter(session => session.game_type === game.id);
+            const wins = gameSessions.filter(session => session.won).length;
+            const bestScore = gameSessions.length > 0 ? Math.max(...gameSessions.map(s => s.score)) : 0;
+            
+            return {
+              ...game,
+              played: gameSessions.length,
+              won: wins,
+              bestScore: bestScore,
+              lastPlayed: gameSessions.length > 0 ? gameSessions[0].created_at : null
+            };
+          });
+          
+          setUserGames(gamesByType);
+        }
+      }
+    } catch (error) {
+      console.error('Erreur chargement jeux utilisateur:', error);
     }
   };
 
@@ -111,7 +216,6 @@ const GamePage = ({ user }) => {
     const newCount = clickCount + 1;
     setClickCount(newCount);
 
-    // Mettre à jour les clics en BDD
     try {
       const { data: userData } = await supabase
         .from('users')
@@ -132,78 +236,15 @@ const GamePage = ({ user }) => {
       console.error('Erreur mise à jour clics:', error);
     }
 
-    // Débloquer le jeu à 50 clics
     if (newCount >= 50) {
       setGameUnlocked(true);
-      // Sélectionner un jeu au hasard
       const randomGame = availableGames[Math.floor(Math.random() * availableGames.length)];
       setSelectedGameType(randomGame);
-      
-      // Lancer automatiquement le jeu sélectionné
-      setTimeout(() => {
-        if (randomGame.id === 'trouve_le_chiffre') {
-          startNumberGame();
-        }
-        // Le pendu se lance automatiquement via son composant
-      }, 1000);
+      showSuccess(`Jeu débloqué ! "${randomGame.name}" sélectionné !`);
     }
   };
 
-  // Démarrer le jeu "Trouve le chiffre"
-  const startNumberGame = () => {
-    setGameStarted(true);
-    setTargetNumber(Math.floor(Math.random() * 150));
-    setAttempts(0);
-    setGuesses([]);
-    setCurrentGuess('');
-    setHintMessage('Devinez un nombre entre 0 et 150');
-    setGameWon(false);
-    setShowValidateButton(false);
-  };
-
-  // Vérifier la supposition
-  const checkGuess = () => {
-    const guess = parseInt(currentGuess);
-    
-    if (isNaN(guess)) {
-      alert('Veuillez entrer un nombre valide');
-      return;
-    }
-
-    if (guess > 150) {
-      alert('Le nombre doit être entre 0 et 150');
-      return;
-    }
-
-    const newAttempts = attempts + 1;
-    setAttempts(newAttempts);
-
-    let result = {};
-    if (guess < targetNumber) {
-      result = { guess, hint: 'plus grand', color: 'blue' };
-      setHintMessage('C\'est plus grand !');
-    } else if (guess > targetNumber) {
-      result = { guess, hint: 'plus petit', color: 'red' };
-      setHintMessage('C\'est plus petit !');
-    } else {
-      result = { guess, hint: 'gagné', color: 'green' };
-      setHintMessage(`🎉 Bravo ! Vous avez trouvé en ${newAttempts} coups !`);
-      setGameWon(true);
-      setShowValidateButton(true);
-    }
-
-    setGuesses([...guesses, result]);
-    setCurrentGuess('');
-  };
-
-  // Gérer la touche Entrée
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !gameWon && currentGuess) {
-      checkGuess();
-    }
-  };
-
-  // Gérer la completion de n'importe quel jeu
+  // Gérer la completion de n'importe quel jeu (AVEC POSITION CLASSEMENT)
   const handleGameComplete = async (result) => {
     setLoading(true);
     try {
@@ -227,53 +268,74 @@ const GamePage = ({ user }) => {
             won: result.won
           });
 
-        // Mettre à jour les statistiques
+        // Récupérer les stats actuelles
         const { data: currentStats } = await supabase
           .from('user_stats')
           .select('*')
           .eq('user_id', userData.id)
           .single();
 
-        const newBestScore = currentStats.best_score === 0 ? result.score : Math.min(currentStats.best_score, result.score);
+        if (currentStats) {
+          // Calculer le nouveau meilleur score
+          const newBestScore = result.won ? 
+            Math.max(currentStats.best_score, result.score) : 
+            currentStats.best_score;
 
-        await supabase
-          .from('user_stats')
-          .update({
-            total_games_played: currentStats.total_games_played + 1,
-            total_games_won: currentStats.total_games_won + (result.won ? 1 : 0),
-            best_score: result.won ? newBestScore : currentStats.best_score,
-            updated_at: new Date().toISOString()
-          })
-          .eq('user_id', userData.id);
+          // Mettre à jour les statistiques
+          await supabase
+            .from('user_stats')
+            .update({
+              total_games_played: currentStats.total_games_played + 1,
+              total_games_won: currentStats.total_games_won + (result.won ? 1 : 0),
+              best_score: newBestScore,
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', userData.id);
 
-        // Recharger le classement
-        await loadLeaderboard();
-        
-        alert(`🎉 ${result.won ? 'Victoire' : 'Partie'} enregistrée ! Consultez le classement.`);
-        setShowValidateButton(false);
+          // Recharger tous les données
+          await Promise.all([
+            loadAllLeaderboards(),
+            loadUserGames(),
+            initializeUser()
+          ]);
+          
+          // Calculer la position dans le classement global
+          const { data: rankingData } = await supabase
+            .from('user_stats')
+            .select('total_games_won, users!inner(twitch_user_id)')
+            .gt('total_games_played', 0)
+            .order('total_games_won', { ascending: false })
+            .order('best_score', { ascending: false });
+
+          let userPosition = 1;
+          if (rankingData) {
+            const userIndex = rankingData.findIndex(stat => stat.users.twitch_user_id === user.id);
+            userPosition = userIndex >= 0 ? userIndex + 1 : rankingData.length + 1;
+          }
+
+          // Notification avec position
+          if (result.won) {
+            showVictory(
+              `Victoire ! Score: ${result.score} points`,
+              `Vous êtes ${userPosition}${userPosition === 1 ? 'er' : 'ème'} au classement global !`
+            );
+          } else {
+            showError(
+              `Défaite ! ${result.targetNumber ? `Le nombre était ${result.targetNumber}` : 'Réessayez !'}`,
+              `Position actuelle: ${userPosition}${userPosition === 1 ? 'er' : 'ème'} au classement`
+            );
+          }
+        }
       }
     } catch (error) {
       console.error('Erreur validation:', error);
-      alert('❌ Erreur lors de l\'enregistrement');
     } finally {
       setLoading(false);
     }
   };
 
-  // Valider la victoire pour "Trouve le chiffre"
-  const validateNumberGameVictory = async () => {
-    await handleGameComplete({
-      won: true,
-      score: attempts,
-      duration: 0
-    });
-  };
-
   // Recommencer
   const resetGame = () => {
-    setGameStarted(false);
-    setGameWon(false);
-    setShowValidateButton(false);
     setClickCount(0);
     setGameUnlocked(false);
     setSelectedGameType(null);
@@ -295,6 +357,15 @@ const GamePage = ({ user }) => {
       <div className="game-header">
         <h1>🎮 Pauvrathon Gaming</h1>
         <p>Bienvenue {user.display_name} !</p>
+        
+        {/* Stats utilisateur */}
+        {userStats && (
+          <div className="user-stats">
+            <span>🎯 Parties: {userStats.total_games_played}</span>
+            <span>🏆 Victoires: {userStats.total_games_won}</span>
+            <span>⭐ Meilleur score: {userStats.best_score}</span>
+          </div>
+        )}
       </div>
 
       {/* Phase 1: Bouton Streamer (50 clics) */}
@@ -335,64 +406,8 @@ const GamePage = ({ user }) => {
           </div>
 
           {/* Jeu "Trouve le chiffre" */}
-          {selectedGameType.id === 'trouve_le_chiffre' && gameStarted && (
-            <div className="number-game">
-              <div className="game-info">
-                <p>Joueur: <strong>{user.display_name}</strong></p>
-                <p>Tentatives: <strong>{attempts}</strong></p>
-                <p>Nombre mystère entre <strong>0</strong> et <strong>150</strong></p>
-              </div>
-
-              <div className="game-input">
-                <input
-                  type="number"
-                  min="0"
-                  max="150"
-                  value={currentGuess}
-                  onChange={(e) => setCurrentGuess(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Entrez un nombre (0-150)"
-                  disabled={gameWon}
-                  autoFocus
-                />
-                <button 
-                  onClick={checkGuess}
-                  disabled={gameWon || !currentGuess}
-                >
-                  Vérifier
-                </button>
-              </div>
-
-              <div className="hint-message">
-                {hintMessage}
-              </div>
-
-              {guesses.length > 0 && (
-                <div className="guesses-list">
-                  <h3>Vos tentatives:</h3>
-                  <ul>
-                    {guesses.map((guess, index) => (
-                      <li key={index} className={`guess-${guess.color}`}>
-                        {guess.guess} ({guess.hint})
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {showValidateButton && (
-                <div className="validate-section">
-                  <h3>🎉 Félicitations ! Vous avez gagné !</h3>
-                  <button 
-                    className="validate-btn"
-                    onClick={validateNumberGameVictory}
-                    disabled={loading}
-                  >
-                    {loading ? '⏳ Enregistrement...' : '✅ Valider ma victoire'}
-                  </button>
-                </div>
-              )}
-            </div>
+          {selectedGameType.id === 'trouve_le_chiffre' && (
+            <NumberGuessGame onGameComplete={handleGameComplete} />
           )}
 
           {/* Jeu du Pendu */}
@@ -406,25 +421,83 @@ const GamePage = ({ user }) => {
         </div>
       )}
 
-      {/* Classement */}
+      {/* Mes jeux joués */}
+      <div className="user-games-section">
+        <h2>🎮 Mes jeux</h2>
+        <div className="user-games-grid">
+          {userGames.map((game) => (
+            <div key={game.id} className="user-game-card">
+              <div className="game-icon-large">{game.icon}</div>
+              <h3>{game.name}</h3>
+              <div className="game-stats">
+                <p>🎯 Joué: {game.played} fois</p>
+                <p>🏆 Gagné: {game.won} fois</p>
+                <p>⭐ Meilleur: {game.bestScore} pts</p>
+                {game.lastPlayed && (
+                  <p className="last-played">
+                    Dernière fois: {new Date(game.lastPlayed).toLocaleDateString()}
+                  </p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Classement global */}
       <div className="leaderboard-section">
-        <h2>🏆 Classement des jeux</h2>
-        {leaderboard.length > 0 ? (
+        <h2>🏆 Classement global</h2>
+        {globalLeaderboard.length > 0 ? (
           <div className="leaderboard">
-            {leaderboard.map((player, index) => (
-              <div key={index} className="leaderboard-item">
+            {globalLeaderboard.map((player, index) => (
+              <div key={index} className={`leaderboard-item ${player.twitch_display_name === user.display_name ? 'current-user' : ''}`}>
                 <span className="rank">#{index + 1}</span>
                 <img src={player.profile_image_url} alt={player.twitch_display_name} className="player-avatar" />
                 <span className="player-name">{player.twitch_display_name}</span>
-                <span className="player-score">{player.best_score} points</span>
+                <span className="player-score">{player.best_score} pts</span>
                 <span className="player-games">{player.total_games_won}W/{player.total_games_played}G</span>
               </div>
             ))}
           </div>
         ) : (
-          <p>Aucun score enregistré pour le moment. Soyez le premier !</p>
+          <p>Aucun score enregistré pour le moment.</p>
         )}
       </div>
+
+      {/* Classements par jeu */}
+      <div className="game-leaderboards-section">
+        <h2>🎯 Top 10 par jeu</h2>
+        <div className="game-leaderboards-grid">
+          {availableGames.map((game) => (
+            <div key={game.id} className="game-leaderboard">
+              <h3>{game.icon} {game.name}</h3>
+              {gameLeaderboards[game.id] && gameLeaderboards[game.id].length > 0 ? (
+                <div className="mini-leaderboard">
+                  {gameLeaderboards[game.id].slice(0, 5).map((player, index) => (
+                    <div key={index} className={`mini-leaderboard-item ${player.twitch_display_name === user.display_name ? 'current-user' : ''}`}>
+                      <span className="mini-rank">#{index + 1}</span>
+                      <img src={player.profile_image_url} alt={player.twitch_display_name} className="mini-avatar" />
+                      <span className="mini-name">{player.twitch_display_name}</span>
+                      <span className="mini-score">{player.score}</span>
+                    </div>
+                  ))}
+                  {gameLeaderboards[game.id].length > 5 && (
+                    <p className="more-players">+{gameLeaderboards[game.id].length - 5} autres joueurs</p>
+                  )}
+                </div>
+              ) : (
+                <p className="no-scores">Aucun score encore</p>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Système de notifications */}
+      <NotificationSystem
+        notification={notification}
+        onClose={hideNotification}
+      />
     </div>
   );
 };

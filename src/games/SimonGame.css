@@ -1,0 +1,420 @@
+/* Conteneur principal du Simon Game */
+.simon-game {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  color: white;
+  font-family: 'Arial', sans-serif;
+}
+
+.simon-game h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Section des contrôles */
+.game-controls {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(10px);
+}
+
+.game-stats {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  border-radius: 10px;
+  min-width: 100px;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.game-status {
+  text-align: center;
+  margin: 1rem 0;
+  font-size: 1.1rem;
+  font-weight: bold;
+  min-height: 1.5rem;
+}
+
+.status-watching {
+  color: #3498db;
+  animation: statusPulse 1.5s infinite;
+}
+
+.status-playing {
+  color: #2ecc71;
+  animation: statusBlink 1s infinite;
+}
+
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes statusBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.control-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.start-btn, .reset-btn, .retry-btn {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  min-width: 150px;
+}
+
+.start-btn {
+  background: linear-gradient(45deg, #4caf50, #66bb6a);
+  color: white;
+}
+
+.start-btn:hover {
+  background: linear-gradient(45deg, #66bb6a, #4caf50);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+}
+
+.reset-btn {
+  background: linear-gradient(45deg, #ff5722, #ff7043);
+  color: white;
+}
+
+.reset-btn:hover {
+  background: linear-gradient(45deg, #ff7043, #ff5722);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 87, 34, 0.4);
+}
+
+.retry-btn {
+  background: linear-gradient(45deg, #2196f3, #42a5f5);
+  color: white;
+  margin-top: 1rem;
+}
+
+.retry-btn:hover {
+  background: linear-gradient(45deg, #42a5f5, #2196f3);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+}
+
+/* Plateau de jeu Simon */
+.simon-board {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 300px;
+  height: 300px;
+  margin: 2rem auto;
+  background: #1a1a1a;
+  border-radius: 50%;
+  padding: 20px;
+  box-shadow: 
+    0 0 20px rgba(0, 0, 0, 0.5),
+    inset 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.simon-button {
+  border: none;
+  cursor: pointer;
+  font-size: 2.5rem;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.3),
+    inset 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.simon-button:disabled {
+  cursor: not-allowed;
+}
+
+/* Formes spécifiques pour chaque bouton */
+.simon-red {
+  border-top-left-radius: 100%;
+}
+
+.simon-blue {
+  border-top-right-radius: 100%;
+}
+
+.simon-green {
+  border-bottom-left-radius: 100%;
+}
+
+.simon-yellow {
+  border-bottom-right-radius: 100%;
+}
+
+/* États des boutons */
+.simon-button:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 
+    0 6px 20px rgba(0, 0, 0, 0.4),
+    inset 0 0 30px rgba(255, 255, 255, 0.2);
+}
+
+.simon-button:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.simon-button.active {
+  transform: scale(1.1);
+  box-shadow: 
+    0 0 30px currentColor,
+    inset 0 0 30px rgba(255, 255, 255, 0.4);
+  animation: buttonFlash 0.4s ease-in-out;
+}
+
+@keyframes buttonFlash {
+  0%, 100% { 
+    filter: brightness(1); 
+  }
+  50% { 
+    filter: brightness(1.5) saturate(1.3);
+  }
+}
+
+.color-emoji {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+/* Affichage de la séquence */
+.sequence-display {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.sequence-display h4 {
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+.sequence-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.sequence-dot {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.sequence-dot.completed {
+  border-color: #4caf50;
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+  transform: scale(1.1);
+}
+
+.sequence-dot.current {
+  border-color: #ffd700;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+  animation: currentDotPulse 1s infinite;
+}
+
+.sequence-dot.pending {
+  opacity: 0.5;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+@keyframes currentDotPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* Résultats du jeu */
+.game-result {
+  text-align: center;
+  padding: 2rem;
+  border-radius: 15px;
+  margin-bottom: 2rem;
+  animation: resultSlideIn 0.5s ease-out;
+}
+
+.game-result.win {
+  background: linear-gradient(135deg, #4caf50, #66bb6a);
+  border: 3px solid #2e7d32;
+}
+
+.game-result.lose {
+  background: linear-gradient(135deg, #f44336, #ef5350);
+  border: 3px solid #c62828;
+}
+
+.game-result h3 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.game-result p {
+  font-size: 1.2rem;
+  margin: 0.5rem 0;
+}
+
+@keyframes resultSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Instructions */
+.game-instructions {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+}
+
+.game-instructions h3 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+}
+
+.game-instructions ul {
+  list-style: none;
+  padding: 0;
+}
+
+.game-instructions li {
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0.75rem 0;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #3498db;
+  transition: all 0.3s ease;
+}
+
+.game-instructions li:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(5px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .simon-game {
+    padding: 1rem;
+    margin: 1rem;
+  }
+  
+  .simon-board {
+    width: 250px;
+    height: 250px;
+  }
+  
+  .simon-button {
+    font-size: 2rem;
+  }
+  
+  .game-stats {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .stat-item {
+    min-width: 150px;
+  }
+  
+  .control-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .sequence-dots {
+    gap: 0.3rem;
+  }
+  
+  .sequence-dot {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .simon-board {
+    width: 200px;
+    height: 200px;
+    padding: 15px;
+  }
+  
+  .simon-button {
+    font-size: 1.5rem;
+  }
+  
+  .simon-game h2 {
+    font-size: 2rem;
+  }
+  
+  .sequence-dot {
+    width: 30px;
+    height: 30px;
+    font-size: 0.9rem;
+  }
+}

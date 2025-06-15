@@ -7,12 +7,14 @@ const LeaderboardPage = ({ user }) => {
   const [selectedGame, setSelectedGame] = useState('all');
   const [loading, setLoading] = useState(true);
   const [userStats, setUserStats] = useState(null);
-  const [userPosition, setUserPosition] = useState(null);
+  const [userPositions, setUserPositions] = useState({});
 
   const gameTypes = {
     'all': { name: 'Général', icon: '🏆' },
     'trouve_le_chiffre': { name: 'Trouve le chiffre', icon: '🎯' },
-    'hangman': { name: 'Jeu du pendu', icon: '🎪' }
+    'hangman': { name: 'Jeu du pendu', icon: '🎪' },
+    'memory': { name: 'Memory Game', icon: '🧠' },
+    'simon': { name: 'Simon Game', icon: '🎵' }
   };
 
   useEffect(() => {
@@ -26,19 +28,38 @@ const LeaderboardPage = ({ user }) => {
     try {
       setLoading(true);
 
-      // Classement général (depuis la vue leaderboard)
-      const { data: generalLeaderboard, error: generalError } = await supabase
-        .from('leaderboard')
-        .select('*')
-        .limit(5);
+      // 1. Classement général (basé sur total_games_won puis best_score)
+      const { data: generalData, error: generalError } = await supabase
+        .from('user_stats')
+        .select(`
+          *,
+          users!inner(
+            twitch_display_name,
+            profile_image_url
+          )
+        `)
+        .gt('total_games_played', 0)
+        .order('total_games_won', { ascending: false })
+        .order('best_score', { ascending: false })
+        .limit(10);
 
-      if (generalError) throw generalError;
+      if (!generalError && generalData) {
+        const formattedGeneral = generalData.map(stat => ({
+          twitch_display_name: stat.users.twitch_display_name,
+          profile_image_url: stat.users.profile_image_url,
+          best_score: stat.best_score,
+          total_games_won: stat.total_games_won,
+          total_games_played: stat.total_games_played,
+          win_rate: stat.total_games_played > 0 ? Math.round((stat.total_games_won / stat.total_games_played) * 100) : 0
+        }));
+        
+        setLeaderboards(prev => ({ ...prev, all: formattedGeneral }));
+      }
 
-      // Classements par jeu
+      // 2. Classements par jeu spécifique
       const gameLeaderboards = {};
       
-      for (const gameType of ['trouve_le_chiffre', 'hangman']) {
-        // Meilleurs scores par jeu (score le plus bas = mieux pour la plupart des jeux)
+      for (const gameType of ['trouve_le_chiffre', 'hangman', 'memory', 'simon']) {
         const { data: gameData, error: gameError } = await supabase
           .from('game_sessions')
           .select(`
@@ -52,36 +73,45 @@ const LeaderboardPage = ({ user }) => {
           `)
           .eq('game_type', gameType)
           .eq('won', true)
-          .order('score', { ascending: gameType === 'trouve_le_chiffre' ? true : false }) // Plus bas pour "trouve le chiffre", plus haut pour le pendu
-          .limit(5);
+          .order('score', { ascending: gameType === 'trouve_le_chiffre' ? true : false })
+          .limit(20); // Plus de données pour pouvoir grouper
 
         if (!gameError && gameData) {
           // Grouper par utilisateur et garder le meilleur score
           const userBestScores = {};
           gameData.forEach(session => {
             const userName = session.users.twitch_display_name;
-            if (!userBestScores[userName] || 
-                (gameType === 'trouve_le_chiffre' ? 
-                 session.score < userBestScores[userName].score : 
-                 session.score > userBestScores[userName].score)) {
+            if (!userBestScores[userName]) {
               userBestScores[userName] = {
-                ...session,
-                display_name: session.users.twitch_display_name,
-                profile_image_url: session.users.profile_image_url
+                twitch_display_name: session.users.twitch_display_name,
+                profile_image_url: session.users.profile_image_url,
+                score: session.score,
+                created_at: session.created_at,
+                games_won: 1
               };
+            } else {
+              // Pour trouve_le_chiffre: plus petit score = mieux
+              // Pour autres jeux: plus grand score = mieux
+              const isBetter = gameType === 'trouve_le_chiffre' 
+                ? session.score < userBestScores[userName].score
+                : session.score > userBestScores[userName].score;
+                
+              if (isBetter) {
+                userBestScores[userName].score = session.score;
+                userBestScores[userName].created_at = session.created_at;
+              }
+              userBestScores[userName].games_won++;
             }
           });
 
+          // Trier par meilleur score
           gameLeaderboards[gameType] = Object.values(userBestScores)
             .sort((a, b) => gameType === 'trouve_le_chiffre' ? a.score - b.score : b.score - a.score)
-            .slice(0, 5);
+            .slice(0, 10);
         }
       }
 
-      setLeaderboards({
-        all: generalLeaderboard || [],
-        ...gameLeaderboards
-      });
+      setLeaderboards(prev => ({ ...prev, ...gameLeaderboards }));
 
     } catch (error) {
       console.error('Erreur chargement classements:', error);
@@ -90,7 +120,7 @@ const LeaderboardPage = ({ user }) => {
     }
   };
 
-  // Charger les statistiques utilisateur
+  // Charger les statistiques utilisateur et ses positions
   const loadUserStats = async () => {
     try {
       // Récupérer l'ID utilisateur
@@ -101,38 +131,106 @@ const LeaderboardPage = ({ user }) => {
         .single();
 
       if (userData) {
-        // Récupérer les stats de l'utilisateur
+        // Récupérer les stats générales
         const { data: stats } = await supabase
           .from('user_stats')
           .select('*')
           .eq('user_id', userData.id)
           .single();
 
-        setUserStats(stats);
+        if (stats) {
+          setUserStats(stats);
 
-        // Calculer la position dans le classement général
-        const { data: allUsers } = await supabase
-          .from('leaderboard')
-          .select('twitch_display_name, best_score')
-          .order('best_score', { ascending: false });
+          // Calculer les positions dans chaque classement
+          const positions = {};
 
-        if (allUsers) {
-          const userIndex = allUsers.findIndex(u => u.twitch_display_name === user.display_name);
-          setUserPosition(userIndex >= 0 ? userIndex + 1 : null);
-        }
+          // Position générale
+          const { data: allUsers } = await supabase
+            .from('user_stats')
+            .select('users!inner(twitch_display_name), total_games_won, best_score')
+            .gt('total_games_played', 0)
+            .order('total_games_won', { ascending: false })
+            .order('best_score', { ascending: false });
 
-        // Trouver le meilleur jeu de l'utilisateur
-        const { data: bestGame } = await supabase
-          .from('game_sessions')
-          .select('game_type, score')
-          .eq('user_id', userData.id)
-          .eq('won', true)
-          .order('score', { ascending: false })
-          .limit(1)
-          .single();
+          if (allUsers) {
+            const userIndex = allUsers.findIndex(u => u.users.twitch_display_name === user.display_name);
+            positions.all = userIndex >= 0 ? userIndex + 1 : null;
+          }
 
-        if (bestGame) {
-          setUserStats(prev => ({ ...prev, best_game: bestGame.game_type }));
+          // Positions par jeu
+          for (const gameType of ['trouve_le_chiffre', 'hangman', 'memory', 'simon']) {
+            const { data: gameRanking } = await supabase
+              .from('game_sessions')
+              .select(`
+                score,
+                users!inner(twitch_display_name)
+              `)
+              .eq('game_type', gameType)
+              .eq('won', true)
+              .order('score', { ascending: gameType === 'trouve_le_chiffre' ? true : false });
+
+            if (gameRanking) {
+              // Grouper par utilisateur pour avoir le meilleur score de chaque joueur
+              const userBestScores = {};
+              gameRanking.forEach(session => {
+                const userName = session.users.twitch_display_name;
+                if (!userBestScores[userName]) {
+                  userBestScores[userName] = session.score;
+                } else {
+                  const isBetter = gameType === 'trouve_le_chiffre' 
+                    ? session.score < userBestScores[userName]
+                    : session.score > userBestScores[userName];
+                  if (isBetter) {
+                    userBestScores[userName] = session.score;
+                  }
+                }
+              });
+
+              // Créer le classement final
+              const sortedUsers = Object.entries(userBestScores)
+                .sort(([,a], [,b]) => gameType === 'trouve_le_chiffre' ? a - b : b - a);
+
+              const userIndex = sortedUsers.findIndex(([userName]) => userName === user.display_name);
+              positions[gameType] = userIndex >= 0 ? userIndex + 1 : null;
+            }
+          }
+
+          setUserPositions(positions);
+
+          // Trouver le meilleur jeu de l'utilisateur
+          const { data: userSessions } = await supabase
+            .from('game_sessions')
+            .select('game_type, score')
+            .eq('user_id', userData.id)
+            .eq('won', true);
+
+          if (userSessions && userSessions.length > 0) {
+            // Calculer le jeu avec le plus de victoires
+            const gameStats = {};
+            userSessions.forEach(session => {
+              if (!gameStats[session.game_type]) {
+                gameStats[session.game_type] = { wins: 0, bestScore: session.score };
+              }
+              gameStats[session.game_type].wins++;
+              
+              // Mettre à jour le meilleur score
+              const isBetter = session.game_type === 'trouve_le_chiffre' 
+                ? session.score < gameStats[session.game_type].bestScore
+                : session.score > gameStats[session.game_type].bestScore;
+              if (isBetter) {
+                gameStats[session.game_type].bestScore = session.score;
+              }
+            });
+
+            const bestGame = Object.entries(gameStats)
+              .sort(([,a], [,b]) => b.wins - a.wins)[0];
+
+            setUserStats(prev => ({ 
+              ...prev, 
+              best_game: bestGame ? bestGame[0] : null,
+              best_game_wins: bestGame ? bestGame[1].wins : 0
+            }));
+          }
         }
       }
     } catch (error) {
@@ -141,23 +239,30 @@ const LeaderboardPage = ({ user }) => {
   };
 
   const formatScore = (score, gameType) => {
-    if (gameType === 'trouve_le_chiffre') {
-      return `${score} coup${score > 1 ? 's' : ''}`;
+    switch (gameType) {
+      case 'trouve_le_chiffre':
+        return `${score} coup${score > 1 ? 's' : ''}`;
+      case 'hangman':
+        return `${score} pts`;
+      case 'memory':
+        return `${score} pts`;
+      case 'simon':
+        return `${score} pts`;
+      default:
+        return score.toString();
     }
-    if (gameType === 'hangman') {
-      return `${score} points`;
-    }
-    return score.toString();
   };
 
   const getRankEmoji = (index) => {
-    const emojis = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+    const emojis = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
     return emojis[index] || '🏅';
   };
 
   const getRankClass = (index) => {
-    const classes = ['gold', 'silver', 'bronze', 'fourth', 'fifth'];
-    return classes[index] || 'other';
+    if (index === 0) return 'gold';
+    if (index === 1) return 'silver';
+    if (index === 2) return 'bronze';
+    return 'other';
   };
 
   if (loading) {
@@ -201,17 +306,19 @@ const LeaderboardPage = ({ user }) => {
             {gameTypes[selectedGame]?.icon} {gameTypes[selectedGame]?.name}
           </h2>
           {selectedGame === 'all' ? (
-            <p>Classement basé sur le meilleur score global</p>
+            <p>Classement basé sur le nombre de victoires puis meilleur score</p>
           ) : (
-            <p>Top 5 des meilleurs scores</p>
+            <p>Top 10 des meilleurs scores - {selectedGame === 'trouve_le_chiffre' ? 'Moins de coups = mieux' : 'Plus de points = mieux'}</p>
           )}
         </div>
 
         {currentLeaderboard.length > 0 ? (
           <div className="leaderboard-list">
             {currentLeaderboard.map((player, index) => (
-              <div key={`${player.twitch_display_name || player.display_name}-${index}`} 
-                   className={`leaderboard-item rank-${getRankClass(index)}`}>
+              <div key={`${player.twitch_display_name}-${index}`} 
+                   className={`leaderboard-item rank-${getRankClass(index)} ${
+                     player.twitch_display_name === user?.display_name ? 'current-user' : ''
+                   }`}>
                 <div className="rank-section">
                   <span className="rank-emoji">{getRankEmoji(index)}</span>
                   <span className="rank-number">#{index + 1}</span>
@@ -220,17 +327,23 @@ const LeaderboardPage = ({ user }) => {
                 <div className="player-section">
                   <img 
                     src={player.profile_image_url} 
-                    alt={player.twitch_display_name || player.display_name}
+                    alt={player.twitch_display_name}
                     className="player-avatar"
                   />
                   <div className="player-info">
                     <h3 className="player-name">
-                      {player.twitch_display_name || player.display_name}
+                      {player.twitch_display_name}
+                      {player.twitch_display_name === user?.display_name && (
+                        <span className="you-badge">C'est vous !</span>
+                      )}
                     </h3>
                     {player.created_at && (
                       <span className="achievement-date">
                         {new Date(player.created_at).toLocaleDateString('fr-FR')}
                       </span>
+                    )}
+                    {player.games_won > 1 && selectedGame !== 'all' && (
+                      <span className="games-count">{player.games_won} victoires dans ce jeu</span>
                     )}
                   </div>
                 </div>
@@ -293,9 +406,9 @@ const LeaderboardPage = ({ user }) => {
           <h3>📊 Vos statistiques</h3>
           <div className="user-stats-grid">
             <div className="user-stat-card">
-              <span className="stat-icon">🎮</span>
+              <span className="stat-icon">🏆</span>
               <div>
-                <span className="stat-number">{userPosition || '-'}</span>
+                <span className="stat-number">{userPositions.all || '-'}</span>
                 <span className="stat-description">Position générale</span>
               </div>
             </div>
@@ -305,7 +418,7 @@ const LeaderboardPage = ({ user }) => {
                 <span className="stat-number">
                   {userStats.best_game ? gameTypes[userStats.best_game]?.name || userStats.best_game : '-'}
                 </span>
-                <span className="stat-description">Meilleur jeu</span>
+                <span className="stat-description">Jeu favori</span>
               </div>
             </div>
             <div className="user-stat-card">
@@ -318,11 +431,31 @@ const LeaderboardPage = ({ user }) => {
               </div>
             </div>
           </div>
+
+          {/* Positions par jeu */}
+          <div className="game-positions">
+            <h4>Vos positions par jeu :</h4>
+            <div className="positions-grid">
+              {Object.entries(gameTypes).slice(1).map(([gameId, gameInfo]) => (
+                <div key={gameId} className="position-item">
+                  <span className="game-icon">{gameInfo.icon}</span>
+                  <span className="game-name">{gameInfo.name}</span>
+                  <span className="position">
+                    {userPositions[gameId] ? `#${userPositions[gameId]}` : 'Non classé'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div className="user-details">
             <p><strong>Parties jouées :</strong> {userStats.total_games_played}</p>
             <p><strong>Victoires :</strong> {userStats.total_games_won}</p>
             <p><strong>Meilleur score :</strong> {userStats.best_score}</p>
             <p><strong>Clics de soutien :</strong> {userStats.total_clicks}</p>
+            {userStats.best_game_wins && (
+              <p><strong>Victoires dans votre jeu favori :</strong> {userStats.best_game_wins}</p>
+            )}
           </div>
         </div>
       )}
