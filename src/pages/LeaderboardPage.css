@@ -78,7 +78,6 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
   animation: titlePulse 4s ease-in-out infinite;
   position: relative;
-  /* Suppression du background-clip qui cause le flou */
 }
 
 .page-header h1::after {
@@ -262,141 +261,295 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-/* Liste du leaderboard - Plus compacte */
+/* ===============================
+   LISTE DU LEADERBOARD TOP 5 OPTIMISÉE
+   =============================== */
 .leaderboard-list {
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.1);
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.08);
+  position: relative;
+}
+
+/* Effet de grille subtile en arrière-plan */
+.leaderboard-list::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 25px 25px;
+  pointer-events: none;
+  z-index: 0;
+  animation: gridPulse 6s ease-in-out infinite;
+}
+
+@keyframes gridPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
 }
 
 .leaderboard-item {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(15px);
-  padding: 1.2rem 1.5rem;
-  margin-bottom: 1rem;
-  border-radius: var(--border-radius-sm);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  padding: 1.8rem 2rem;
+  margin-bottom: 1.5rem;
+  border-radius: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
   transition: var(--transition);
   position: relative;
   overflow: hidden;
-  min-height: 70px;
+  min-height: 85px;
+  z-index: 1;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
 }
 
+/* Animation d'entrée en cascade pour TOP 5 */
+.leaderboard-item {
+  animation: itemSlideInSmooth 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
+.leaderboard-item:nth-child(1) { animation-delay: 0.1s; }
+.leaderboard-item:nth-child(2) { animation-delay: 0.2s; }
+.leaderboard-item:nth-child(3) { animation-delay: 0.3s; }
+.leaderboard-item:nth-child(4) { animation-delay: 0.4s; }
+.leaderboard-item:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes itemSlideInSmooth {
+  0% {
+    opacity: 0;
+    transform: translateX(-60px) translateY(20px) scale(0.9);
+  }
+  70% {
+    transform: translateX(5px) translateY(-2px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) translateY(0) scale(1);
+  }
+}
+
+/* Effet de bordure animée */
 .leaderboard-item::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
-  width: 4px;
+  width: 100%;
   height: 100%;
-  background: var(--secondary-gradient);
-  transform: scaleY(0);
-  transition: transform 0.3s;
+  background: linear-gradient(45deg, 
+    transparent 30%, 
+    rgba(255, 255, 255, 0.08) 50%, 
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.7s ease;
+  z-index: -1;
 }
 
 .leaderboard-item:hover::before {
+  transform: translateX(100%);
+}
+
+/* Ligne de gauche colorée */
+.leaderboard-item::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+  background: var(--secondary-gradient);
+  transform: scaleY(0);
+  transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  z-index: 1;
+  border-radius: 0 2px 2px 0;
+}
+
+.leaderboard-item:hover::after {
   transform: scaleY(1);
 }
 
 .leaderboard-item:hover {
-  transform: translateX(8px) translateY(-3px);
-  box-shadow: var(--shadow-lg);
-  border-color: rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-6px) translateX(8px) scale(1.01);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.18);
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.2);
 }
 
-/* Rangs spéciaux */
+/* Rangs spéciaux pour TOP 5 */
 .leaderboard-item.rank-gold {
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 237, 78, 0.1));
-  border-color: #ffd700;
-  box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+  background: linear-gradient(135deg, 
+    rgba(255, 215, 0, 0.25) 0%, 
+    rgba(255, 237, 78, 0.15) 100%
+  );
+  border: 2px solid rgba(255, 215, 0, 0.5);
+  box-shadow: 
+    0 12px 35px rgba(255, 215, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  animation: goldShimmer 4s ease-in-out infinite;
+}
+
+.leaderboard-item.rank-gold::after {
+  background: var(--gold-gradient);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+}
+
+@keyframes goldShimmer {
+  0%, 100% { 
+    box-shadow: 
+      0 12px 35px rgba(255, 215, 0, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+  50% { 
+    box-shadow: 
+      0 16px 45px rgba(255, 215, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
 }
 
 .leaderboard-item.rank-silver {
-  background: linear-gradient(135deg, rgba(192, 192, 192, 0.2), rgba(232, 232, 232, 0.1));
-  border-color: #c0c0c0;
-  box-shadow: 0 0 30px rgba(192, 192, 192, 0.3);
+  background: linear-gradient(135deg, 
+    rgba(192, 192, 192, 0.25) 0%, 
+    rgba(232, 232, 232, 0.15) 100%
+  );
+  border: 2px solid rgba(192, 192, 192, 0.5);
+  box-shadow: 
+    0 12px 35px rgba(192, 192, 192, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.leaderboard-item.rank-silver::after {
+  background: var(--silver-gradient);
 }
 
 .leaderboard-item.rank-bronze {
-  background: linear-gradient(135deg, rgba(205, 127, 50, 0.2), rgba(212, 165, 116, 0.1));
-  border-color: #cd7f32;
-  box-shadow: 0 0 30px rgba(205, 127, 50, 0.3);
+  background: linear-gradient(135deg, 
+    rgba(205, 127, 50, 0.25) 0%, 
+    rgba(212, 165, 116, 0.15) 100%
+  );
+  border: 2px solid rgba(205, 127, 50, 0.5);
+  box-shadow: 
+    0 12px 35px rgba(205, 127, 50, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.leaderboard-item.rank-bronze::after {
+  background: var(--bronze-gradient);
+}
+
+/* Positions 4 et 5 avec style spécial */
+.leaderboard-item.rank-other {
+  background: linear-gradient(135deg, 
+    rgba(102, 126, 234, 0.15) 0%, 
+    rgba(118, 75, 162, 0.1) 100%
+  );
+  border: 2px solid rgba(102, 126, 234, 0.3);
+  box-shadow: 
+    0 8px 25px rgba(102, 126, 234, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.leaderboard-item.rank-other::after {
+  background: var(--primary-gradient);
 }
 
 .leaderboard-item.current-user {
-  background: linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(102, 187, 106, 0.2));
+  background: linear-gradient(135deg, 
+    rgba(76, 175, 80, 0.3) 0%, 
+    rgba(102, 187, 106, 0.2) 100%
+  );
   border: 3px solid #4caf50;
-  animation: userHighlight 3s infinite;
+  box-shadow: 
+    0 12px 40px rgba(76, 175, 80, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  animation: currentUserPulse 3s ease-in-out infinite;
   position: relative;
 }
 
 .leaderboard-item.current-user::after {
-  content: '✨ Vous ✨';
-  position: absolute;
-  top: -15px;
-  right: 20px;
-  background: #4caf50;
-  color: white;
-  padding: 0.3rem 1rem;
-  border-radius: 15px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  animation: bounce 2s infinite;
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+  box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
 }
 
-@keyframes userHighlight {
-  0%, 100% { box-shadow: 0 0 20px rgba(76, 175, 80, 0.5); }
-  50% { box-shadow: 0 0 40px rgba(76, 175, 80, 0.8); }
+@keyframes currentUserPulse {
+  0%, 100% { 
+    box-shadow: 
+      0 12px 40px rgba(76, 175, 80, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+  50% { 
+    box-shadow: 
+      0 16px 50px rgba(76, 175, 80, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
 }
 
-/* Sections des items - Plus compactes */
+/* Sections des items pour TOP 5 */
 .rank-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-right: 1.5rem;
-  min-width: 60px;
+  margin-right: 2rem;
+  min-width: 70px;
 }
 
 .rank-emoji {
-  font-size: 2rem;
-  margin-bottom: 0.3rem;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-  animation: rankFloat 3s ease-in-out infinite;
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  animation: rankFloatGentle 4s ease-in-out infinite;
 }
 
-@keyframes rankFloat {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-3px); }
+@keyframes rankFloatGentle {
+  0%, 100% { 
+    transform: translateY(0px) rotate(0deg);
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  }
+  50% { 
+    transform: translateY(-4px) rotate(2deg);
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+  }
 }
 
 .rank-number {
-  font-size: 1rem;
-  font-weight: 800;
+  font-size: 1.1rem;
+  font-weight: 900;
   color: var(--text-primary);
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.12);
+  padding: 0.3rem 0.7rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
 }
 
 .player-section {
   display: flex;
   align-items: center;
   flex: 1;
-  margin-right: 1.5rem;
+  margin-right: 2rem;
 }
 
+/* Avatar du joueur optimisé */
 .player-avatar {
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
-  margin-right: 1rem;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  box-shadow: var(--shadow-sm);
+  margin-right: 1.5rem;
+  border: 3px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
   transition: var(--transition);
   position: relative;
+  overflow: hidden;
 }
 
+/* Effet de bordure animée pour l'avatar */
 .player-avatar::before {
   content: '';
   position: absolute;
@@ -405,19 +558,31 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   right: -3px;
   bottom: -3px;
   border-radius: 50%;
-  background: var(--secondary-gradient);
+  background: conic-gradient(
+    from 0deg,
+    var(--secondary-gradient),
+    var(--primary-gradient),
+    var(--secondary-gradient)
+  );
   z-index: -1;
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: opacity 0.4s;
+  animation: avatarRotateSmooth 8s linear infinite;
+}
+
+@keyframes avatarRotateSmooth {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .player-avatar:hover::before {
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
 .player-avatar:hover {
-  transform: scale(1.08);
+  transform: scale(1.1);
   border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
 }
 
 .player-info {
@@ -425,38 +590,46 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 }
 
 .player-name {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: 700;
   color: var(--text-primary);
-  margin: 0 0 0.3rem 0;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  margin: 0 0 0.6rem 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 1rem;
 }
 
 .you-badge {
   background: var(--success-gradient);
   color: white;
-  padding: 0.15rem 0.6rem;
-  border-radius: 10px;
-  font-size: 0.65rem;
-  font-weight: 600;
+  padding: 0.25rem 0.8rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  animation: badgePulse 2s infinite;
+  box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+  animation: badgeGlow 2.5s ease-in-out infinite;
 }
 
-@keyframes badgePulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.03); }
+@keyframes badgeGlow {
+  0%, 100% { 
+    transform: scale(1);
+    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+  }
+  50% { 
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(79, 172, 254, 0.5);
+  }
 }
 
 .achievement-date, .games-count {
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   color: var(--text-muted);
-  margin: 0;
+  margin: 0.2rem 0;
   font-style: italic;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .games-count {
@@ -465,14 +638,14 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   font-style: normal;
 }
 
-/* Section des scores - Plus compacte */
+/* Section des scores optimisée */
 .score-section {
   text-align: right;
 }
 
 .general-stats {
   display: flex;
-  gap: 1rem;
+  gap: 1.2rem;
   align-items: center;
 }
 
@@ -480,43 +653,63 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: rgba(255, 255, 255, 0.08);
-  padding: 0.8rem;
-  border-radius: var(--border-radius-sm);
-  min-width: 60px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 1rem;
+  border-radius: 12px;
+  min-width: 70px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: var(--transition);
+}
+
+.stat-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
 .stat-value {
-  font-size: 1.1rem;
-  font-weight: 800;
+  font-size: 1.2rem;
+  font-weight: 900;
   color: #4facfe;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  margin-bottom: 0.3rem;
 }
 
 .stat-label {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-top: 0.2rem;
+  font-weight: 600;
 }
 
 .game-score {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: rgba(255, 255, 255, 0.08);
-  padding: 1rem;
-  border-radius: var(--border-radius-sm);
-  min-width: 80px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 1.2rem;
+  border-radius: 12px;
+  min-width: 85px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: var(--transition);
+}
+
+.game-score:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
 .score-value {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 900;
   color: #4facfe;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-  margin-bottom: 0.3rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+  margin-bottom: 0.5rem;
+  line-height: 1;
 }
 
 .score-label {
@@ -524,29 +717,37 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  font-weight: 600;
 }
 
-/* Badge champion - Plus petit */
+/* Badge champion optimisé */
 .champion-badge {
   position: absolute;
-  top: -10px;
+  top: -15px;
   left: 50%;
   transform: translateX(-50%);
   background: var(--gold-gradient);
   color: #333;
-  padding: 0.3rem 1rem;
-  border-radius: 15px;
-  font-size: 0.75rem;
-  font-weight: 700;
+  padding: 0.5rem 1.2rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  box-shadow: var(--shadow-sm);
-  animation: championGlow 2s infinite alternate;
+  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+  animation: championFloat 3.5s ease-in-out infinite;
+  border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
-@keyframes championGlow {
-  0% { box-shadow: var(--shadow-sm); }
-  100% { box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4); }
+@keyframes championFloat {
+  0%, 100% { 
+    transform: translateX(-50%) translateY(0px);
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+  }
+  50% { 
+    transform: translateX(-50%) translateY(-4px);
+    box-shadow: 0 12px 35px rgba(255, 215, 0, 0.6);
+  }
 }
 
 /* Leaderboard vide */
@@ -771,7 +972,9 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   font-weight: 500;
 }
 
-/* Responsive Design */
+/* ============================
+   RESPONSIVE DESIGN OPTIMISÉ POUR TOP 5
+   ============================ */
 @media (max-width: 768px) {
   .leaderboard-page {
     padding: 1rem;
@@ -796,11 +999,17 @@ h1, h2, h3, h4, h5, h6, p, span, div {
     font-size: 0.9rem;
   }
   
+  /* Leaderboard items en mode mobile pour TOP 5 */
+  .leaderboard-list {
+    padding: 1.5rem;
+  }
+  
   .leaderboard-item {
     flex-direction: column;
     text-align: center;
-    gap: 1rem;
-    padding: 1.5rem;
+    gap: 1.5rem;
+    padding: 2rem 1.5rem;
+    align-items: center;
   }
   
   .rank-section,
@@ -808,12 +1017,41 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   .score-section {
     margin: 0;
     width: 100%;
+    justify-content: center;
+  }
+  
+  .player-section {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .player-avatar {
+    margin: 0;
+    width: 70px;
+    height: 70px;
+  }
+  
+  .player-name {
+    font-size: 1.4rem;
+    text-align: center;
+    justify-content: center;
   }
   
   .general-stats {
     flex-direction: row;
     justify-content: center;
-    gap: 1rem;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .stat-item {
+    min-width: 70px;
+    padding: 1rem;
+  }
+  
+  .game-score {
+    min-width: 90px;
+    padding: 1.2rem;
   }
   
   .user-stats-grid {
@@ -847,13 +1085,18 @@ h1, h2, h3, h4, h5, h6, p, span, div {
     padding: 1rem;
   }
   
+  .leaderboard-item {
+    padding: 1.5rem 1rem;
+    gap: 1.5rem;
+  }
+  
   .player-avatar {
-    width: 50px;
-    height: 50px;
+    width: 70px;
+    height: 70px;
   }
   
   .player-name {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
   }
   
   .rank-emoji {
@@ -866,11 +1109,85 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   
   .general-stats {
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 1rem;
   }
   
   .stat-item {
-    padding: 0.8rem;
-    min-width: 60px;
+    padding: 1rem;
+    min-width: 70px;
   }
+  
+  .game-score {
+    padding: 1.2rem;
+    min-width: 80px;
+  }
+  
+  .score-value {
+    font-size: 1.8rem;
+  }
+}
+
+/* ============================
+   CLASSES UTILITAIRES POUR AVATARS
+   ============================ */
+
+/* Pour gérer les avatars avec/sans image */
+.avatar-with-image {
+  background: transparent !important;
+}
+
+.avatar-fallback {
+  background: var(--secondary-gradient) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: white !important;
+  font-weight: 900 !important;
+  font-size: 1.2rem !important;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Animation pour les nouveaux items ajoutés dynamiquement */
+.leaderboard-item.new-item {
+  animation: newItemAppear 0.8s ease-out;
+}
+
+@keyframes newItemAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  50% {
+    transform: scale(1.05) translateY(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* États de chargement */
+.leaderboard-item.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.leaderboard-item.loading::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.2), 
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }

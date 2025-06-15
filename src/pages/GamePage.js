@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import HangmanGame from '../games/HangmanGame';
 import NumberGuessGame from '../games/NumberGuessGame';
+import MemoryGame from '../games/MemoryGame';
+import ReactionGame from '../games/ReactionGame';
 import NotificationSystem, { useNotifications } from '../components/NotificationSystem';
 import './GamePage.css';
 
@@ -20,7 +22,7 @@ const GamePage = ({ user }) => {
     { id: 'trouve_le_chiffre', name: 'Trouve le chiffre', icon: '🎯' },
     { id: 'hangman', name: 'Jeu du pendu', icon: '🎪' },
     { id: 'memory', name: 'Memory Game', icon: '🧠' },
-    { id: 'simon', name: 'Simon Game', icon: '🎵' }
+    { id: 'reaction', name: 'Jeu de Réaction', icon: '⚡' }
   ]);
   const [selectedGameType, setSelectedGameType] = useState(null);
 
@@ -413,6 +415,16 @@ const GamePage = ({ user }) => {
           {/* Jeu du Pendu */}
           {selectedGameType.id === 'hangman' && (
             <HangmanGame onGameComplete={handleGameComplete} />
+          )}
+
+          {/* Memory Game */}
+          {selectedGameType.id === 'memory' && (
+            <MemoryGame onGameComplete={handleGameComplete} />
+          )}
+
+          {/* Reaction Game */}
+          {selectedGameType.id === 'reaction' && (
+            <ReactionGame onGameComplete={handleGameComplete} />
           )}
 
           <button className="reset-btn" onClick={resetGame}>

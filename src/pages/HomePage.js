@@ -8,6 +8,7 @@ const HomePage = ({ user }) => {
   const [recentGames, setRecentGames] = useState([]);
   const [followedStreamers, setFollowedStreamers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (user) {
@@ -18,10 +19,99 @@ const HomePage = ({ user }) => {
     }
   }, [user]);
 
-  // Charger les données utilisateur
+  // Charger les données utilisateur AMÉLIORÉ
   const loadUserData = async () => {
     try {
-      // Récupérer l'ID utilisateur
+      setError(null);
+      
+      // Récupérer ou créer l'utilisateur
+      let { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('twitch_user_id', user.id)
+        .single();
+
+      if (userError && userError.code === 'PGRST116') {
+        // Utilisateur n'existe pas, le créer
+        const { data: newUser, error: createError } = await supabase
+          .from('users')
+          .insert({
+            twitch_user_id: user.id,
+            twitch_username: user.login,
+            twitch_display_name: user.display_name,
+            profile_image_url: user.profile_image_url,
+            email: user.email
+          })
+          .select('id')
+          .single();
+
+        if (createError) {
+          throw createError;
+        }
+        userData = newUser;
+      } else if (userError) {
+        throw userError;
+      }
+
+      if (userData) {
+        // Charger les statistiques avec gestion d'erreur
+        let { data: stats, error: statsError } = await supabase
+          .from('user_stats')
+          .select('*')
+          .eq('user_id', userData.id)
+          .single();
+
+        if (statsError && statsError.code === 'PGRST116') {
+          // Stats n'existent pas, les initialiser
+          await supabase.rpc('initialize_user_stats', { user_uuid: userData.id });
+          
+          // Récupérer les stats initialisées
+          const { data: newStats } = await supabase
+            .from('user_stats')
+            .select('*')
+            .eq('user_id', userData.id)
+            .single();
+          
+          stats = newStats;
+        }
+
+        console.log('📊 Stats chargées:', stats); // Debug
+
+        setUserStats(stats || {
+          total_games_played: 0,
+          total_games_won: 0,
+          total_clicks: 0,
+          best_score: 0,
+          total_playtime: 0
+        });
+
+        // Charger les parties récentes
+        const { data: games, error: gamesError } = await supabase
+          .from('game_sessions')
+          .select('*')
+          .eq('user_id', userData.id)
+          .order('created_at', { ascending: false })
+          .limit(5);
+
+        if (gamesError) {
+          console.error('Erreur chargement parties:', gamesError);
+        } else {
+          setRecentGames(games || []);
+        }
+      }
+    } catch (error) {
+      console.error('Erreur chargement données utilisateur:', error);
+      setError('Impossible de charger vos données. Veuillez rafraîchir la page.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fonction pour forcer la mise à jour des stats
+  const refreshStats = async () => {
+    if (!user) return;
+    
+    try {
       const { data: userData } = await supabase
         .from('users')
         .select('id')
@@ -29,7 +119,10 @@ const HomePage = ({ user }) => {
         .single();
 
       if (userData) {
-        // Charger les statistiques
+        // Recalculer les stats
+        await supabase.rpc('update_user_stats', { user_uuid: userData.id });
+        
+        // Recharger les stats
         const { data: stats } = await supabase
           .from('user_stats')
           .select('*')
@@ -37,22 +130,34 @@ const HomePage = ({ user }) => {
           .single();
 
         setUserStats(stats);
-
-        // Charger les parties récentes
-        const { data: games } = await supabase
-          .from('game_sessions')
-          .select('*')
-          .eq('user_id', userData.id)
-          .order('created_at', { ascending: false })
-          .limit(5);
-
-        setRecentGames(games || []);
+        console.log('✅ Stats mises à jour:', stats);
       }
     } catch (error) {
-      console.error('Erreur chargement données utilisateur:', error);
-    } finally {
-      setLoading(false);
+      console.error('Erreur mise à jour stats:', error);
     }
+  };
+
+  // Composant de statistique animée
+  const AnimatedStat = ({ value, duration = 1000 }) => {
+    const [displayValue, setDisplayValue] = useState(0);
+    
+    useEffect(() => {
+      let startTime = null;
+      const targetValue = value || 0;
+      
+      const animate = (timestamp) => {
+        if (!startTime) startTime = timestamp;
+        const progress = Math.min((timestamp - startTime) / duration, 1);
+        setDisplayValue(Math.floor(progress * targetValue));
+        
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        }
+      };
+      requestAnimationFrame(animate);
+    }, [value, duration]);
+    
+    return <h3>{displayValue}</h3>;
   };
 
   // Charger les streamers suivis (VERSION CORRIGÉE)
@@ -88,14 +193,8 @@ const HomePage = ({ user }) => {
           if (streamersResponse.ok) {
             const streamersData = await streamersResponse.json();
             setFollowedStreamers(streamersData.data || []);
-          } else {
-            console.log('Erreur récupération détails streamers');
           }
-        } else {
-          console.log('Aucun streamer suivi trouvé');
         }
-      } else {
-        console.log('Impossible de récupérer les follows - permissions insuffisantes (erreur', followsResponse.status, ')');
       }
     } catch (error) {
       console.log('Erreur chargement streamers (normal en développement):', error.message);
@@ -160,6 +259,20 @@ const HomePage = ({ user }) => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="homepage">
+        <div className="error-section">
+          <h2>😅 Oups !</h2>
+          <p>{error}</p>
+          <button onClick={loadUserData} className="retry-button">
+            Réessayer
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="homepage">
       {/* Section profil utilisateur */}
@@ -172,36 +285,44 @@ const HomePage = ({ user }) => {
           </div>
         </div>
 
-        {/* Statistiques rapides */}
+        {/* Statistiques rapides AMÉLIORÉES */}
         <div className="quick-stats">
-          <div className="stat-card">
+          <div className="stat-card stat-card-games">
             <div className="stat-icon">🎮</div>
             <div className="stat-content">
-              <h3>{userStats?.total_games_played || 0}</h3>
+              <AnimatedStat value={userStats?.total_games_played || 0} />
               <p>Parties jouées</p>
             </div>
           </div>
-          <div className="stat-card">
+          <div className="stat-card stat-card-wins">
             <div className="stat-icon">🏆</div>
             <div className="stat-content">
-              <h3>{userStats?.total_games_won || 0}</h3>
+              <AnimatedStat value={userStats?.total_games_won || 0} />
               <p>Victoires</p>
             </div>
           </div>
-          <div className="stat-card">
+          <div className="stat-card stat-card-score">
             <div className="stat-icon">⭐</div>
             <div className="stat-content">
-              <h3>{userStats?.best_score || 0}</h3>
+              <AnimatedStat value={userStats?.best_score || 0} />
               <p>Meilleur score</p>
             </div>
           </div>
-          <div className="stat-card">
+          <div className="stat-card stat-card-clicks">
             <div className="stat-icon">👆</div>
             <div className="stat-content">
-              <h3>{userStats?.total_clicks || 0}</h3>
+              <AnimatedStat value={userStats?.total_clicks || 0} />
               <p>Clics de soutien</p>
             </div>
           </div>
+        </div>
+
+        {/* Bouton de rafraîchissement des stats */}
+        <div className="stats-refresh-section">
+          <button onClick={refreshStats} className="refresh-stats-button">
+            <span className="refresh-icon">🔄</span>
+            <span className="refresh-text">Actualiser les statistiques</span>
+          </button>
         </div>
       </section>
 
@@ -222,6 +343,7 @@ const HomePage = ({ user }) => {
                 <div className="game-details">
                   <h4>{getGameDisplayName(game.game_type)}</h4>
                   <p>Score: {game.score} {game.won ? '🏆' : ''}</p>
+                  <p>Clics: {game.clicks_count}</p>
                   <span className="game-date">
                     {new Date(game.created_at).toLocaleDateString('fr-FR')}
                   </span>

@@ -14,7 +14,7 @@ const LeaderboardPage = ({ user }) => {
     'trouve_le_chiffre': { name: 'Trouve le chiffre', icon: '🎯' },
     'hangman': { name: 'Jeu du pendu', icon: '🎪' },
     'memory': { name: 'Memory Game', icon: '🧠' },
-    'simon': { name: 'Simon Game', icon: '🎵' }
+    'reaction': { name: 'Jeu de Réaction', icon: '⚡' }
   };
 
   useEffect(() => {
@@ -28,7 +28,7 @@ const LeaderboardPage = ({ user }) => {
     try {
       setLoading(true);
 
-      // 1. Classement général (basé sur total_games_won puis best_score)
+      // 1. Classement général (basé sur total_games_won puis best_score) - TOP 5
       const { data: generalData, error: generalError } = await supabase
         .from('user_stats')
         .select(`
@@ -41,7 +41,7 @@ const LeaderboardPage = ({ user }) => {
         .gt('total_games_played', 0)
         .order('total_games_won', { ascending: false })
         .order('best_score', { ascending: false })
-        .limit(10);
+        .limit(5); // Changé de 10 à 5
 
       if (!generalError && generalData) {
         const formattedGeneral = generalData.map(stat => ({
@@ -56,10 +56,10 @@ const LeaderboardPage = ({ user }) => {
         setLeaderboards(prev => ({ ...prev, all: formattedGeneral }));
       }
 
-      // 2. Classements par jeu spécifique
+      // 2. Classements par jeu spécifique - TOP 5
       const gameLeaderboards = {};
       
-      for (const gameType of ['trouve_le_chiffre', 'hangman', 'memory', 'simon']) {
+      for (const gameType of ['trouve_le_chiffre', 'hangman', 'memory', 'reaction']) {
         const { data: gameData, error: gameError } = await supabase
           .from('game_sessions')
           .select(`
@@ -74,7 +74,7 @@ const LeaderboardPage = ({ user }) => {
           .eq('game_type', gameType)
           .eq('won', true)
           .order('score', { ascending: gameType === 'trouve_le_chiffre' ? true : false })
-          .limit(20); // Plus de données pour pouvoir grouper
+          .limit(20); // Garde plus de données pour le groupage
 
         if (!gameError && gameData) {
           // Grouper par utilisateur et garder le meilleur score
@@ -104,10 +104,10 @@ const LeaderboardPage = ({ user }) => {
             }
           });
 
-          // Trier par meilleur score
+          // Trier par meilleur score et prendre seulement les 5 premiers
           gameLeaderboards[gameType] = Object.values(userBestScores)
             .sort((a, b) => gameType === 'trouve_le_chiffre' ? a.score - b.score : b.score - a.score)
-            .slice(0, 10);
+            .slice(0, 5); // Changé de 10 à 5
         }
       }
 
@@ -158,7 +158,7 @@ const LeaderboardPage = ({ user }) => {
           }
 
           // Positions par jeu
-          for (const gameType of ['trouve_le_chiffre', 'hangman', 'memory', 'simon']) {
+          for (const gameType of ['trouve_le_chiffre', 'hangman', 'memory', 'reaction']) {
             const { data: gameRanking } = await supabase
               .from('game_sessions')
               .select(`
@@ -246,15 +246,16 @@ const LeaderboardPage = ({ user }) => {
         return `${score} pts`;
       case 'memory':
         return `${score} pts`;
-      case 'simon':
+      case 'reaction':
         return `${score} pts`;
       default:
         return score.toString();
     }
   };
 
+  // Fonction corrigée pour TOP 5
   const getRankEmoji = (index) => {
-    const emojis = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
+    const emojis = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
     return emojis[index] || '🏅';
   };
 
@@ -308,7 +309,7 @@ const LeaderboardPage = ({ user }) => {
           {selectedGame === 'all' ? (
             <p>Classement basé sur le nombre de victoires puis meilleur score</p>
           ) : (
-            <p>Top 10 des meilleurs scores - {selectedGame === 'trouve_le_chiffre' ? 'Moins de coups = mieux' : 'Plus de points = mieux'}</p>
+            <p>Top 5 des meilleurs scores - {selectedGame === 'trouve_le_chiffre' ? 'Moins de coups = mieux' : 'Plus de points = mieux'}</p>
           )}
         </div>
 
