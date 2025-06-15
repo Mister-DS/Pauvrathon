@@ -6,17 +6,21 @@ const LeaderboardPage = ({ user }) => {
   const [leaderboards, setLeaderboards] = useState({});
   const [selectedGame, setSelectedGame] = useState('all');
   const [loading, setLoading] = useState(true);
+  const [userStats, setUserStats] = useState(null);
+  const [userPosition, setUserPosition] = useState(null);
 
   const gameTypes = {
     'all': { name: 'Général', icon: '🏆' },
     'trouve_le_chiffre': { name: 'Trouve le chiffre', icon: '🎯' },
-    'memory_game': { name: 'Jeu de mémoire', icon: '🧠' },
-    'reaction_game': { name: 'Jeu de réflexes', icon: '⚡' }
+    'hangman': { name: 'Jeu du pendu', icon: '🎪' }
   };
 
   useEffect(() => {
     loadLeaderboards();
-  }, []);
+    if (user) {
+      loadUserStats();
+    }
+  }, [user]);
 
   const loadLeaderboards = async () => {
     try {
@@ -33,8 +37,8 @@ const LeaderboardPage = ({ user }) => {
       // Classements par jeu
       const gameLeaderboards = {};
       
-      for (const gameType of ['trouve_le_chiffre', 'memory_game', 'reaction_game']) {
-        // Meilleurs scores par jeu (score le plus bas pour trouve_le_chiffre = mieux)
+      for (const gameType of ['trouve_le_chiffre', 'hangman']) {
+        // Meilleurs scores par jeu (score le plus bas = mieux pour la plupart des jeux)
         const { data: gameData, error: gameError } = await supabase
           .from('game_sessions')
           .select(`
@@ -48,7 +52,7 @@ const LeaderboardPage = ({ user }) => {
           `)
           .eq('game_type', gameType)
           .eq('won', true)
-          .order('score', { ascending: gameType === 'trouve_le_chiffre' ? true : false })
+          .order('score', { ascending: gameType === 'trouve_le_chiffre' ? true : false }) // Plus bas pour "trouve le chiffre", plus haut pour le pendu
           .limit(5);
 
         if (!gameError && gameData) {
@@ -86,9 +90,62 @@ const LeaderboardPage = ({ user }) => {
     }
   };
 
+  // Charger les statistiques utilisateur
+  const loadUserStats = async () => {
+    try {
+      // Récupérer l'ID utilisateur
+      const { data: userData } = await supabase
+        .from('users')
+        .select('id')
+        .eq('twitch_user_id', user.id)
+        .single();
+
+      if (userData) {
+        // Récupérer les stats de l'utilisateur
+        const { data: stats } = await supabase
+          .from('user_stats')
+          .select('*')
+          .eq('user_id', userData.id)
+          .single();
+
+        setUserStats(stats);
+
+        // Calculer la position dans le classement général
+        const { data: allUsers } = await supabase
+          .from('leaderboard')
+          .select('twitch_display_name, best_score')
+          .order('best_score', { ascending: false });
+
+        if (allUsers) {
+          const userIndex = allUsers.findIndex(u => u.twitch_display_name === user.display_name);
+          setUserPosition(userIndex >= 0 ? userIndex + 1 : null);
+        }
+
+        // Trouver le meilleur jeu de l'utilisateur
+        const { data: bestGame } = await supabase
+          .from('game_sessions')
+          .select('game_type, score')
+          .eq('user_id', userData.id)
+          .eq('won', true)
+          .order('score', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (bestGame) {
+          setUserStats(prev => ({ ...prev, best_game: bestGame.game_type }));
+        }
+      }
+    } catch (error) {
+      console.error('Erreur chargement stats utilisateur:', error);
+    }
+  };
+
   const formatScore = (score, gameType) => {
     if (gameType === 'trouve_le_chiffre') {
       return `${score} coup${score > 1 ? 's' : ''}`;
+    }
+    if (gameType === 'hangman') {
+      return `${score} points`;
     }
     return score.toString();
   };
@@ -231,34 +288,50 @@ const LeaderboardPage = ({ user }) => {
       </div>
 
       {/* Informations utilisateur */}
-      {user && (
+      {user && userStats && (
         <div className="user-position">
           <h3>📊 Vos statistiques</h3>
           <div className="user-stats-grid">
             <div className="user-stat-card">
               <span className="stat-icon">🎮</span>
               <div>
-                <span className="stat-number">-</span>
+                <span className="stat-number">{userPosition || '-'}</span>
                 <span className="stat-description">Position générale</span>
               </div>
             </div>
             <div className="user-stat-card">
               <span className="stat-icon">🎯</span>
               <div>
-                <span className="stat-number">-</span>
+                <span className="stat-number">
+                  {userStats.best_game ? gameTypes[userStats.best_game]?.name || userStats.best_game : '-'}
+                </span>
                 <span className="stat-description">Meilleur jeu</span>
               </div>
             </div>
             <div className="user-stat-card">
               <span className="stat-icon">📈</span>
               <div>
-                <span className="stat-number">-</span>
-                <span className="stat-description">Progression</span>
+                <span className="stat-number">
+                  {userStats.total_games_played > 0 ? `${Math.round((userStats.total_games_won / userStats.total_games_played) * 100)}%` : '-'}
+                </span>
+                <span className="stat-description">Taux de victoire</span>
               </div>
             </div>
           </div>
+          <div className="user-details">
+            <p><strong>Parties jouées :</strong> {userStats.total_games_played}</p>
+            <p><strong>Victoires :</strong> {userStats.total_games_won}</p>
+            <p><strong>Meilleur score :</strong> {userStats.best_score}</p>
+            <p><strong>Clics de soutien :</strong> {userStats.total_clicks}</p>
+          </div>
+        </div>
+      )}
+
+      {user && !userStats && (
+        <div className="user-position">
+          <h3>📊 Vos statistiques</h3>
           <p className="stats-note">
-            Jouez plus de parties pour voir vos statistiques détaillées !
+            Vous n'avez pas encore joué de parties. Allez sur la page Jeux pour commencer !
           </p>
         </div>
       )}
