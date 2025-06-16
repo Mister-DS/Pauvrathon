@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import LoginModal from './LoginModal';
-import './Header.css';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import LoginModal from "./LoginModal";
+import "./Header.css";
 
 const Header = ({ user, onLogout, onLogin, isLoading, authError }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -25,17 +25,25 @@ const Header = ({ user, onLogout, onLogin, isLoading, authError }) => {
       <div className="header-container">
         {/* Logo */}
         <div className="header-logo">
-          <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
             <h1>🎮 Pauvrathon</h1>
           </Link>
         </div>
 
         {/* Navigation Desktop */}
         <nav className="header-nav desktop-nav">
-          <a href="/" className="nav-link">Accueil</a>
-          <a href="/streamers" className="nav-link">Streamers</a>
-          <a href="/discover" className="nav-link">Découvrir</a>
-          <a href="/leaderboard" className="nav-link">Classement</a>
+          <a href="/" className="nav-link">
+            Accueil
+          </a>
+          <a href="/streamers" className="nav-link">
+            Streamers
+          </a>
+          <a href="/discover" className="nav-link">
+            Découvrir
+          </a>
+          <a href="/leaderboard" className="nav-link">
+            Classement
+          </a>
         </nav>
 
         {/* Section utilisateur */}
@@ -43,25 +51,32 @@ const Header = ({ user, onLogout, onLogin, isLoading, authError }) => {
           {user ? (
             <div className="user-section">
               <div className="user-info">
-                <img 
-                  src={user.profile_image_url} 
+                <img
+                  src={user.profile_image_url}
                   alt={user.display_name}
                   className="user-avatar"
                 />
                 <span className="user-name">{user.display_name}</span>
               </div>
-              <button 
-                className="logout-btn"
-                onClick={onLogout}
-              >
-                <svg className="logout-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              <button className="logout-btn" onClick={onLogout}>
+                <svg
+                  className="logout-icon"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  />
                 </svg>
                 Déconnexion
               </button>
             </div>
           ) : (
-            <button 
+            <button
               className="login-btn"
               onClick={handleLoginClick}
               disabled={isLoading}
@@ -73,8 +88,12 @@ const Header = ({ user, onLogout, onLogin, isLoading, authError }) => {
                 </>
               ) : (
                 <>
-                  <svg className="twitch-icon" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
+                  <svg
+                    className="twitch-icon"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z" />
                   </svg>
                   Connexion Twitch
                 </>
@@ -84,27 +103,42 @@ const Header = ({ user, onLogout, onLogin, isLoading, authError }) => {
         </div>
 
         {/* Menu burger pour mobile */}
-        <button 
+        <button
           className="menu-toggle"
           onClick={toggleMenu}
           aria-label="Toggle menu"
         >
-          <span className={`burger-line ${isMenuOpen ? 'active' : ''}`}></span>
-          <span className={`burger-line ${isMenuOpen ? 'active' : ''}`}></span>
-          <span className={`burger-line ${isMenuOpen ? 'active' : ''}`}></span>
+          <span className={`burger-line ${isMenuOpen ? "active" : ""}`}></span>
+          <span className={`burger-line ${isMenuOpen ? "active" : ""}`}></span>
+          <span className={`burger-line ${isMenuOpen ? "active" : ""}`}></span>
         </button>
       </div>
 
       {/* Navigation Mobile */}
-      <nav className={`mobile-nav ${isMenuOpen ? 'active' : ''}`}>
-        <Link to="/" className="mobile-nav-link" onClick={toggleMenu}>Accueil</Link>
-        <Link to="/streamers" className="mobile-nav-link" onClick={toggleMenu}>Streamers</Link>
-        <Link to="/leaderboard" className="mobile-nav-link" onClick={toggleMenu}>Classement</Link>
-        <Link to="/game" className="mobile-nav-link" onClick={toggleMenu}>Jeux</Link>
+      <nav className={`mobile-nav ${isMenuOpen ? "active" : ""}`}>
+        <Link to="/" className="mobile-nav-link" onClick={toggleMenu}>
+          Accueil
+        </Link>
+        <Link to="/streamers" className="mobile-nav-link" onClick={toggleMenu}>
+          Streamers
+        </Link>
+        <Link
+          to="/leaderboard"
+          className="mobile-nav-link"
+          onClick={toggleMenu}
+        >
+          Classement
+        </Link>
+        <Link to="/game" className="mobile-nav-link" onClick={toggleMenu}>
+          Jeux
+        </Link>
+        <Link to="/admin" className="nav-link">
+          ⚙️ Admin
+        </Link>
       </nav>
 
       {/* Modal de connexion */}
-      <LoginModal 
+      <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         onLogin={handleModalLogin}

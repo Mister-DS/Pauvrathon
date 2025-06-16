@@ -8,6 +8,7 @@ import DiscoverPage from './pages/DiscoverPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import GamePage from './pages/GamePage';
 import './App.css';
+import AdminPanel from './components/AdminPanel';
 
 function App() {
   const [connected, setConnected] = useState(false);
@@ -176,6 +177,7 @@ function App() {
             <Route path="/game" element={<GamePage user={user} />} />
             <Route path="/auth/callback" element={<HomePage user={user} />} />
             <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="/admin" element={<AdminPanel user={user} />} />
           </Routes>
         </main>
       </div>
