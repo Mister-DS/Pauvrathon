@@ -1,33 +1,26 @@
-/* App.css */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* App.css - Version corrigée */
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  min-height: 100vh;
-}
+/* Import des variables globales EN PREMIER */
+@import './global-variables.css';
 
+/* ===== STYLES DE BASE ===== */
 .App {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: var(--bg-light);
+  color: var(--text-dark);
 }
 
-/* Contenu principal */
+/* ===== CONTENU PRINCIPAL ===== */
 .main-content {
   flex: 1;
-  padding: 40px 20px;
+  padding: var(--space-lg) var(--space-sm);
+  background: var(--bg-light);
+  color: var(--text-dark);
 }
 
-/* Section hero */
+/* ===== SECTION HERO ===== */
 .hero-section {
   max-width: 1200px;
   margin: 0 auto;
@@ -39,56 +32,57 @@ body {
 
 .hero-content h2 {
   font-size: 2.5rem;
-  color: #2d3748;
-  margin-bottom: 1rem;
+  color: var(--text-dark);
+  margin-bottom: var(--space-sm);
   font-weight: 700;
 }
 
 .hero-content > p {
   font-size: 1.2rem;
-  color: #718096;
-  margin-bottom: 3rem;
+  color: var(--text-medium);
+  margin-bottom: var(--space-xl);
   font-weight: 400;
 }
 
-/* Cards de statut */
+/* ===== CARDS DE STATUT ===== */
 .status-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  margin-bottom: 3rem;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
 }
 
 .status-card {
-  background: white;
-  border-radius: 16px;
-  padding: 2rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  background: var(--bg-white);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-md);
   display: flex;
   align-items: center;
-  gap: 1rem;
-  transition: all 0.3s ease;
+  gap: var(--space-sm);
+  transition: var(--transition-normal);
   border-left: 4px solid transparent;
+  color: var(--text-dark);
 }
 
 .status-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
 }
 
 .status-card.success {
-  border-left-color: #48bb78;
+  border-left-color: var(--color-success);
 }
 
 .status-card.error {
-  border-left-color: #f56565;
+  border-left-color: var(--color-danger);
 }
 
 .status-card.neutral {
-  border-left-color: #4299e1;
+  border-left-color: var(--color-info);
 }
 
 .status-icon {
@@ -98,140 +92,132 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(66, 153, 225, 0.1);
+  background: rgba(102, 153, 225, 0.1);
   border-radius: 50%;
 }
 
 .status-card.success .status-icon {
-  background: rgba(72, 187, 120, 0.1);
+  background: rgba(16, 185, 129, 0.1);
 }
 
 .status-card.error .status-icon {
-  background: rgba(245, 101, 101, 0.1);
+  background: rgba(239, 68, 68, 0.1);
 }
 
 .status-text h4 {
   font-size: 1.1rem;
-  color: #2d3748;
-  margin-bottom: 0.5rem;
+  color: var(--text-dark);
+  margin-bottom: var(--space-xs);
   font-weight: 600;
 }
 
 .status-text p {
-  color: #718096;
+  color: var(--text-medium);
   font-size: 0.9rem;
 }
 
-/* Dashboard utilisateur */
+/* ===== DASHBOARD UTILISATEUR ===== */
 .user-dashboard {
-  margin-top: 2rem;
+  margin-top: var(--space-lg);
 }
 
 .user-dashboard h3 {
   font-size: 2rem;
-  color: #2d3748;
-  margin-bottom: 2rem;
+  color: var(--text-dark);
+  margin-bottom: var(--space-lg);
   font-weight: 600;
 }
 
 .dashboard-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 2rem;
-  margin-top: 2rem;
+  gap: var(--space-lg);
+  margin-top: var(--space-lg);
 }
 
 .dashboard-card {
-  background: white;
-  border-radius: 16px;
-  padding: 2rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  background: var(--bg-white);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-md);
+  transition: var(--transition-normal);
+  color: var(--text-dark);
 }
 
 .dashboard-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
 }
 
 .dashboard-card h4 {
   font-size: 1.3rem;
-  color: #2d3748;
-  margin-bottom: 1rem;
+  color: var(--text-dark);
+  margin-bottom: var(--space-sm);
   font-weight: 600;
 }
 
 .dashboard-card p {
-  color: #718096;
+  color: var(--text-medium);
   line-height: 1.6;
 }
 
-/* Profil info */
+/* ===== PROFIL INFO ===== */
 .profile-info {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-top: 1rem;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
 }
 
 .profile-image {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  border: 3px solid #9146ff;
+  border: 3px solid var(--color-primary);
   object-fit: cover;
 }
 
 .profile-info div p {
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--space-xs);
   font-size: 0.9rem;
+  color: var(--text-medium);
 }
 
 .profile-info strong {
-  color: #2d3748;
+  color: var(--text-dark);
   font-weight: 600;
 }
 
-/* Message de bienvenue */
+/* ===== MESSAGE DE BIENVENUE ===== */
 .welcome-message {
-  background: white;
-  border-radius: 16px;
-  padding: 3rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  background: var(--bg-white);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-md);
   max-width: 600px;
-  margin: 2rem auto;
+  margin: var(--space-lg) auto;
   text-align: center;
+  color: var(--text-dark);
 }
 
 .welcome-message h3 {
   font-size: 1.8rem;
-  color: #2d3748;
-  margin-bottom: 1rem;
+  color: var(--text-dark);
+  margin-bottom: var(--space-sm);
   font-weight: 600;
 }
 
 .welcome-message p {
-  color: #718096;
+  color: var(--text-medium);
   font-size: 1.1rem;
   line-height: 1.6;
 }
 
-/* Animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
+/* ===== ANIMATIONS ===== */
 .status-cards,
 .dashboard-cards,
 .welcome-message {
-  animation: fadeInUp 0.6s ease-out;
+  animation: slideInUp 0.6s ease-out;
 }
 
 .dashboard-card:nth-child(1) {
@@ -246,10 +232,33 @@ body {
   animation-delay: 0.3s;
 }
 
-/* Responsive Design */
+/* ===== SPINNER DE CHARGEMENT ===== */
+.loading-pulse {
+  animation: pulse 2s infinite;
+}
+
+/* ===== SCROLLBAR PERSONNALISÉE ===== */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-light);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-gray);
+  border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-medium);
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 768px) {
   .main-content {
-    padding: 20px 15px;
+    padding: var(--space-sm);
   }
 
   .hero-content h2 {
@@ -258,32 +267,32 @@ body {
 
   .hero-content > p {
     font-size: 1.1rem;
-    margin-bottom: 2rem;
+    margin-bottom: var(--space-lg);
   }
 
   .status-cards {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
   }
 
   .status-card {
-    padding: 1.5rem;
+    padding: var(--space-md);
     flex-direction: column;
     text-align: center;
   }
 
   .status-icon {
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-sm);
   }
 
   .dashboard-cards {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: var(--space-md);
   }
 
   .dashboard-card {
-    padding: 1.5rem;
+    padding: var(--space-md);
   }
 
   .profile-info {
@@ -297,8 +306,8 @@ body {
   }
 
   .welcome-message {
-    padding: 2rem;
-    margin: 1rem auto;
+    padding: var(--space-lg);
+    margin: var(--space-sm) auto;
   }
 
   .welcome-message h3 {
@@ -320,11 +329,11 @@ body {
   }
 
   .status-cards {
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--space-md);
   }
 
   .status-card {
-    padding: 1rem;
+    padding: var(--space-sm);
   }
 
   .status-icon {
@@ -334,7 +343,7 @@ body {
   }
 
   .dashboard-card {
-    padding: 1rem;
+    padding: var(--space-sm);
   }
 
   .dashboard-card h4 {
@@ -342,46 +351,12 @@ body {
   }
 
   .welcome-message {
-    padding: 1.5rem;
+    padding: var(--space-md);
   }
 }
 
-/* Effets de survol pour améliorer l'UX */
+/* ===== EFFETS DE SURVOL ===== */
 .dashboard-card:hover .profile-image {
   transform: scale(1.05);
-}
-
-/* Indicateurs de chargement */
-.loading-pulse {
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-/* Scrollbar personnalisée */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  transition: var(--transition-normal);
 }

@@ -1,0 +1,459 @@
+.participation-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+/* Header du streamer */
+.streamer-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 30px;
+  color: white;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+}
+
+.streamer-info {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.streamer-avatar-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.streamer-details h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.streamer-details p {
+  margin: 0 0 16px;
+  opacity: 0.9;
+  font-size: 16px;
+}
+
+.streamer-stats {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.stat {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+}
+
+.session-stats {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.session-stat {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 16px 20px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.session-stat-value {
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.session-stat-label {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* Section de clics */
+.click-section {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f1f5f9;
+  margin-bottom: 30px;
+}
+
+.click-container {
+  text-align: center;
+}
+
+.click-target-container {
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.click-target {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 50%;
+  margin-bottom: 16px;
+}
+
+.click-target:not(.disabled):hover {
+  transform: scale(1.1);
+}
+
+.click-target.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.click-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 4px solid #10b981;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+}
+
+.click-target.disabled .click-avatar {
+  border-color: #6b7280;
+  filter: grayscale(50%);
+}
+
+.cooldown-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(239, 68, 68, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+}
+
+.click-instruction {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #10b981;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+.click-icon {
+  font-size: 24px;
+}
+
+/* Progression */
+.click-progress {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.progress-info {
+  margin-bottom: 16px;
+}
+
+.progress-info h3 {
+  margin: 0 0 8px;
+  color: #1e293b;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.progress-info p {
+  margin: 0;
+  color: #64748b;
+  font-size: 16px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 12px;
+  background: #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  transition: width 0.5s ease;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+}
+
+.encouragement {
+  color: #10b981;
+  font-weight: 600;
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Cooldown */
+.cooldown-info {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.cooldown-info h3 {
+  margin: 0 0 8px;
+  color: #dc2626;
+  font-size: 18px;
+}
+
+.cooldown-info p {
+  margin: 0;
+  color: #7f1d1d;
+}
+
+/* Container de jeu */
+.game-container {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f1f5f9;
+  margin-bottom: 30px;
+}
+
+.game-header-info {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.game-header-info h2 {
+  margin: 0 0 8px;
+  color: #1e293b;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.game-header-info p {
+  margin: 0;
+  color: #10b981;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Actions de navigation */
+.page-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 30px;
+}
+
+.leave-button {
+  background: #6b7280;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.leave-button:hover {
+  background: #4b5563;
+}
+
+.watch-stream-button {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.3s ease;
+}
+
+.watch-stream-button:hover {
+  transform: translateY(-2px);
+}
+
+/* États communs */
+.auth-required, .loading, .error-section {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f1f5f9;
+}
+
+.auth-required h2, .loading h2, .error-section h2 {
+  margin: 0 0 16px;
+  color: #1e293b;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.auth-required p, .loading p, .error-section p {
+  margin: 0 0 24px;
+  color: #64748b;
+  font-size: 16px;
+}
+
+.back-button {
+  background: #10b981;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.3s ease;
+}
+
+.back-button:hover {
+  background: #059669;
+}
+
+/* Spinner de chargement */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid #10b981;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .participation-page {
+    padding: 16px;
+  }
+
+  .streamer-header {
+    padding: 20px;
+  }
+
+  .streamer-info {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+
+  .streamer-avatar-large {
+    width: 60px;
+    height: 60px;
+  }
+
+  .streamer-details h1 {
+    font-size: 24px;
+  }
+
+  .streamer-stats {
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .session-stats {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .click-section {
+    padding: 24px;
+  }
+
+  .click-target, .click-avatar {
+    width: 100px;
+    height: 100px;
+  }
+
+  .game-container {
+    padding: 20px;
+  }
+
+  .page-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .leave-button, .watch-stream-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .streamer-details h1 {
+    font-size: 20px;
+  }
+
+  .stat {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+
+  .click-target, .click-avatar {
+    width: 80px;
+    height: 80px;
+  }
+
+  .click-instruction {
+    font-size: 16px;
+  }
+
+  .progress-info h3 {
+    font-size: 18px;
+  }
+}

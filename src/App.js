@@ -1,3 +1,4 @@
+import './global-variables.css';
 import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from './lib/supabase';
@@ -7,8 +8,11 @@ import StreamersPage from './pages/StreamersPage';
 import DiscoverPage from './pages/DiscoverPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import GamePage from './pages/GamePage';
+import ParticipationPage from './pages/ParticipationPage';
+import StreamerRequestsPage from './pages/StreamerRequestsPage';
 import './App.css';
 import AdminPanel from './components/AdminPanel';
+import UserStatsPage from './pages/UserStatsPage';
 
 function App() {
   const [connected, setConnected] = useState(false);
@@ -157,6 +161,17 @@ function App() {
     setIsAuthenticated(false);
   };
 
+  // Vérifier si l'utilisateur est admin (vous pouvez ajuster cette logique)
+  const isAdmin = (user) => {
+    // Liste des noms Twitch autorisés en tant qu'admin
+    const adminUsernames = ['mister_ds_']; // ✅ Avec l'underscore !
+    
+    return user && (
+      adminUsernames.includes(user.login.toLowerCase()) || 
+      adminUsernames.includes(user.display_name.toLowerCase())
+    );
+  };
+
   return (
     <Router>
       <div className="App">
@@ -170,14 +185,47 @@ function App() {
 
         <main className="main-content">
           <Routes>
+            {/* Pages publiques */}
             <Route path="/" element={<HomePage user={user} />} />
             <Route path="/streamers" element={<StreamersPage user={user} />} />
             <Route path="/discover" element={<DiscoverPage user={user} />} />
             <Route path="/leaderboard" element={<LeaderboardPage user={user} />} />
             <Route path="/game" element={<GamePage user={user} />} />
+            
+            {/* Page de participation aux Pauvrathons */}
+            <Route path="/participate/:streamerId" element={<ParticipationPage user={user} />} />
+            
+            {/* Pages d'authentification */}
             <Route path="/auth/callback" element={<HomePage user={user} />} />
+            
+            {/* Pages utilisateur */}
+            <Route path="/profile/stats" element={<UserStatsPage user={user} />} />
+            
+            {/* Pages admin - Protégées */}
+            <Route 
+              path="/admin" 
+              element={
+                isAdmin(user) ? (
+                  <AdminPanel user={user} />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              } 
+            />
+            
+            <Route 
+              path="/admin/requests" 
+              element={
+                isAdmin(user) ? (
+                  <StreamerRequestsPage user={user} />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              } 
+            />
+            
+            {/* Redirection par défaut */}
             <Route path="*" element={<Navigate to="/" replace />} />
-            <Route path="/admin" element={<AdminPanel user={user} />} />
           </Routes>
         </main>
       </div>

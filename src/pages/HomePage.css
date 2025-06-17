@@ -1,39 +1,9 @@
-/* Variables CSS cohérentes avec les autres pages */
-:root {
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-  --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-  --glass-bg: rgba(255, 255, 255, 0.25);
-  --glass-border: rgba(255, 255, 255, 0.4);
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.8);
-  --text-muted: rgba(255, 255, 255, 0.6);
-  --shadow-sm: 0 4px 15px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.15);
-  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.2);
-  --border-radius: 20px;
-  --border-radius-sm: 12px;
-  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Fix global pour les textes flous */
-* {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-h1, h2, h3, h4, h5, h6, p, span, div {
-  text-rendering: optimizeLegibility;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-}
+/* HomePage.css - Corrigé avec variables globales */
 
 /* Container principal harmonisé */
 .homepage {
   min-height: 100vh;
-  background: var(--primary-gradient);
+  background: var(--gradient-primary);
   padding: 2rem;
   position: relative;
   overflow-x: hidden;
@@ -42,7 +12,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   gap: 3rem;
 }
 
-/* Effet de particules en arrière-plan (comme les autres pages) */
+/* Effet de particules en arrière-plan */
 .homepage::before {
   content: '';
   position: fixed;
@@ -65,11 +35,11 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .welcome-section {
   text-align: center;
   padding: 4rem 2rem;
-  background: var(--glass-bg);
+  background: var(--bg-glass);
   backdrop-filter: blur(20px);
-  border-radius: var(--border-radius);
-  border: 2px solid var(--glass-border);
-  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-xl);
+  border: 2px solid var(--border-white-strong);
+  box-shadow: var(--shadow-xl);
   position: relative;
   z-index: 1;
 }
@@ -77,7 +47,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .welcome-section h1 {
   font-size: 3.5rem;
   font-weight: 800;
-  color: var(--text-primary);
+  color: var(--text-white);
   margin-bottom: 1rem;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
   animation: titleGlow 3s ease-in-out infinite alternate;
@@ -90,7 +60,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 .welcome-section > p {
   font-size: 1.3rem;
-  color: var(--text-secondary);
+  color: var(--text-white-80);
   margin-bottom: 3rem;
   font-weight: 500;
 }
@@ -103,13 +73,13 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 }
 
 .feature-card {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--bg-glass-light);
   backdrop-filter: blur(15px);
   padding: 2rem;
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  transition: var(--transition);
+  border: 2px solid var(--border-white);
+  transition: var(--transition-normal);
   position: relative;
   overflow: hidden;
 }
@@ -132,7 +102,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .feature-card:hover {
   transform: translateY(-8px);
   box-shadow: var(--shadow-lg);
-  border-color: rgba(255, 255, 255, 0.5);
+  border-color: var(--border-white-strong);
 }
 
 .feature-icon {
@@ -142,29 +112,23 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   animation: bounce 2s infinite;
 }
 
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-10px); }
-  60% { transform: translateY(-5px); }
-}
-
 .feature-card h3 {
   font-size: 1.5rem;
-  color: var(--text-primary);
+  color: var(--text-white);
   margin-bottom: 1rem;
   font-weight: 700;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .feature-card p {
-  color: var(--text-secondary);
+  color: var(--text-white-80);
   line-height: 1.6;
   font-weight: 500;
 }
 
 .cta-text {
   font-size: 1.2rem;
-  color: #4facfe;
+  color: var(--color-info);
   font-weight: 700;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
@@ -173,12 +137,12 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .loading {
   text-align: center;
   padding: 4rem 2rem;
-  background: var(--glass-bg);
+  background: var(--bg-glass);
   backdrop-filter: blur(20px);
-  border-radius: var(--border-radius);
-  border: 2px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  border: 2px solid var(--border-white-strong);
   box-shadow: var(--shadow-lg);
-  color: var(--text-primary);
+  color: var(--text-white);
   position: relative;
   z-index: 1;
 }
@@ -186,26 +150,21 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .spinner {
   width: 50px;
   height: 50px;
-  border: 4px solid rgba(255, 255, 255, 0.2);
-  border-top: 4px solid #4facfe;
+  border: 4px solid var(--border-white);
+  border-top: 4px solid var(--color-info);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 1.5rem;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
 /* Section profil harmonisée */
 .profile-section {
-  background: var(--glass-bg);
+  background: var(--bg-glass);
   backdrop-filter: blur(20px);
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-xl);
   padding: 2rem;
   box-shadow: var(--shadow-lg);
-  border: 2px solid var(--glass-border);
+  border: 2px solid var(--border-white-strong);
   position: relative;
   z-index: 1;
 }
@@ -220,21 +179,21 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .profile-avatar {
   width: 100px;
   height: 100px;
-  border-radius: 50%;
-  border: 4px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-full);
+  border: 4px solid var(--border-white-strong);
   object-fit: cover;
   box-shadow: var(--shadow-md);
-  transition: var(--transition);
+  transition: var(--transition-normal);
 }
 
 .profile-avatar:hover {
   transform: scale(1.05);
-  border-color: rgba(255, 255, 255, 0.8);
+  border-color: var(--border-white-strong);
 }
 
 .profile-info h1 {
   font-size: 2.5rem;
-  color: var(--text-primary);
+  color: var(--text-white);
   margin-bottom: 0.5rem;
   font-weight: 700;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
@@ -242,7 +201,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 .profile-info p {
   font-size: 1.2rem;
-  color: var(--text-secondary);
+  color: var(--text-white-80);
   font-weight: 500;
 }
 
@@ -253,23 +212,23 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 }
 
 .stat-card {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--bg-glass-light);
   backdrop-filter: blur(15px);
-  color: var(--text-primary);
+  color: var(--text-white);
   padding: 1.5rem;
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   gap: 1rem;
-  transition: var(--transition);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: var(--transition-normal);
+  border: 2px solid var(--border-white);
   box-shadow: var(--shadow-md);
 }
 
 .stat-card:hover {
   transform: translateY(-5px);
   box-shadow: var(--shadow-lg);
-  border-color: rgba(255, 255, 255, 0.5);
+  border-color: var(--border-white-strong);
 }
 
 .stat-icon {
@@ -286,18 +245,18 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 .stat-content p {
   font-size: 0.9rem;
-  color: var(--text-secondary);
+  color: var(--text-white-80);
   font-weight: 600;
 }
 
 /* Section jeux récents harmonisée */
 .recent-games-section {
-  background: var(--glass-bg);
+  background: var(--bg-glass);
   backdrop-filter: blur(20px);
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-xl);
   padding: 2rem;
   box-shadow: var(--shadow-lg);
-  border: 2px solid var(--glass-border);
+  border: 2px solid var(--border-white-strong);
   position: relative;
   z-index: 1;
 }
@@ -311,20 +270,20 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 .section-header h2 {
   font-size: 2rem;
-  color: var(--text-primary);
+  color: var(--text-white);
   font-weight: 700;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .play-button {
-  background: var(--secondary-gradient);
-  color: white;
+  background: var(--gradient-secondary);
+  color: var(--text-white);
   padding: 1rem 2rem;
-  border-radius: 50px;
+  border-radius: var(--radius-full);
   text-decoration: none;
   font-weight: 700;
-  transition: var(--transition);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: var(--transition-normal);
+  border: 2px solid var(--border-white);
   box-shadow: var(--shadow-md);
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -333,7 +292,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .play-button:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow-lg);
-  border-color: rgba(255, 255, 255, 0.6);
+  border-color: var(--border-white-strong);
 }
 
 .games-list {
@@ -347,17 +306,17 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   align-items: center;
   gap: 1rem;
   padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-glass-light);
   backdrop-filter: blur(10px);
-  border-radius: var(--border-radius-sm);
-  transition: var(--transition);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-lg);
+  transition: var(--transition-normal);
+  border: 2px solid var(--border-white);
 }
 
 .game-item:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--bg-glass-light);
   transform: translateX(5px);
-  border-color: rgba(255, 255, 255, 0.4);
+  border-color: var(--border-white-strong);
 }
 
 .game-icon {
@@ -373,14 +332,14 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 .game-details h4 {
   font-size: 1.1rem;
-  color: var(--text-primary);
+  color: var(--text-white);
   margin-bottom: 0.25rem;
   font-weight: 700;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .game-details p {
-  color: var(--text-secondary);
+  color: var(--text-white-80);
   font-size: 0.9rem;
   margin-bottom: 0.25rem;
   font-weight: 500;
@@ -388,7 +347,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 .game-date {
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--text-white-60);
   font-weight: 500;
 }
 
@@ -398,21 +357,21 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 }
 
 .status-won {
-  color: #4facfe;
+  color: var(--color-info);
 }
 
 .status-played {
-  color: var(--text-secondary);
+  color: var(--text-white-80);
 }
 
 .no-games {
   text-align: center;
   padding: 2rem;
-  color: var(--text-secondary);
+  color: var(--text-white-80);
 }
 
 .no-games a {
-  color: #4facfe;
+  color: var(--color-info);
   text-decoration: none;
   font-weight: 700;
 }
@@ -423,18 +382,18 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 /* Section streamers harmonisée */
 .streamers-section {
-  background: var(--glass-bg);
+  background: var(--bg-glass);
   backdrop-filter: blur(20px);
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-xl);
   padding: 2rem;
   box-shadow: var(--shadow-lg);
-  border: 2px solid var(--glass-border);
+  border: 2px solid var(--border-white-strong);
   position: relative;
   z-index: 1;
 }
 
 .view-all-link {
-  color: #4facfe;
+  color: var(--color-info);
   text-decoration: none;
   font-weight: 700;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
@@ -451,42 +410,42 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 }
 
 .streamer-card {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-glass-light);
   backdrop-filter: blur(15px);
   padding: 1.5rem;
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--radius-lg);
   text-align: center;
-  transition: var(--transition);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  transition: var(--transition-normal);
+  border: 2px solid var(--border-white);
   box-shadow: var(--shadow-sm);
 }
 
 .streamer-card:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--bg-glass-light);
   transform: translateY(-5px);
   box-shadow: var(--shadow-md);
-  border-color: rgba(255, 255, 255, 0.4);
+  border-color: var(--border-white-strong);
 }
 
 .streamer-avatar {
   width: 60px;
   height: 60px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-full);
+  border: 2px solid var(--border-white-strong);
   margin-bottom: 1rem;
   object-fit: cover;
   box-shadow: var(--shadow-sm);
-  transition: var(--transition);
+  transition: var(--transition-normal);
 }
 
 .streamer-avatar:hover {
   transform: scale(1.1);
-  border-color: rgba(255, 255, 255, 0.8);
+  border-color: var(--border-white-strong);
 }
 
 .streamer-info h4 {
   font-size: 1rem;
-  color: var(--text-primary);
+  color: var(--text-white);
   margin-bottom: 0.25rem;
   font-weight: 700;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
@@ -494,21 +453,21 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 .streamer-info p {
   font-size: 0.9rem;
-  color: var(--text-secondary);
+  color: var(--text-white-80);
   margin-bottom: 1rem;
   font-weight: 500;
 }
 
 .watch-button {
-  background: var(--secondary-gradient);
-  color: white;
+  background: var(--gradient-secondary);
+  color: var(--text-white);
   padding: 0.8rem 1.5rem;
   border-radius: 25px;
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 700;
-  transition: var(--transition);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: var(--transition-normal);
+  border: 1px solid var(--border-white);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -516,26 +475,26 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .watch-button:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
-  border-color: rgba(255, 255, 255, 0.6);
+  border-color: var(--border-white-strong);
 }
 
 .no-streamers {
   text-align: center;
   padding: 2rem;
-  color: var(--text-secondary);
+  color: var(--text-white-80);
 }
 
 .browse-streamers {
   display: inline-block;
   margin-top: 1rem;
-  background: var(--secondary-gradient);
-  color: white;
+  background: var(--gradient-secondary);
+  color: var(--text-white);
   padding: 1rem 2rem;
-  border-radius: 50px;
+  border-radius: var(--radius-full);
   text-decoration: none;
   font-weight: 700;
-  transition: var(--transition);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: var(--transition-normal);
+  border: 2px solid var(--border-white);
   box-shadow: var(--shadow-md);
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -544,7 +503,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .browse-streamers:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow-lg);
-  border-color: rgba(255, 255, 255, 0.6);
+  border-color: var(--border-white-strong);
 }
 
 /* Liens rapides harmonisés */
@@ -555,15 +514,15 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 }
 
 .quick-link-card {
-  background: var(--glass-bg);
+  background: var(--bg-glass);
   backdrop-filter: blur(20px);
   padding: 2rem;
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
-  border: 2px solid var(--glass-border);
+  border: 2px solid var(--border-white-strong);
   text-decoration: none;
   text-align: center;
-  transition: var(--transition);
+  transition: var(--transition-normal);
   position: relative;
   overflow: hidden;
 }
@@ -586,7 +545,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .quick-link-card:hover {
   transform: translateY(-8px);
   box-shadow: var(--shadow-lg);
-  border-color: rgba(255, 255, 255, 0.5);
+  border-color: var(--border-white-strong);
 }
 
 .quick-link-icon {
@@ -598,14 +557,14 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 .quick-link-card h3 {
   font-size: 1.5rem;
-  color: var(--text-primary);
+  color: var(--text-white);
   margin-bottom: 0.5rem;
   font-weight: 700;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .quick-link-card p {
-  color: var(--text-secondary);
+  color: var(--text-white-80);
   font-size: 1rem;
   font-weight: 500;
 }
@@ -616,19 +575,19 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   justify-content: center;
   margin-top: 2rem;
   padding-top: 2rem;
-  border-top: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid var(--border-white);
 }
 
 .refresh-stats-button {
-  background: var(--secondary-gradient);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50px;
+  background: var(--gradient-secondary);
+  border: 2px solid var(--border-white);
+  border-radius: var(--radius-full);
   padding: 1rem 2rem;
-  color: white;
+  color: var(--text-white);
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  transition: var(--transition);
+  transition: var(--transition-normal);
   display: flex;
   align-items: center;
   gap: 0.8rem;
@@ -658,7 +617,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .refresh-stats-button:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow-lg);
-  border-color: rgba(255, 255, 255, 0.6);
+  border-color: var(--border-white-strong);
 }
 
 .refresh-stats-button:active {

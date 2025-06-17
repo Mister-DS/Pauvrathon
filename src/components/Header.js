@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import LoginModal from "./LoginModal";
 import "./Header.css";
@@ -6,6 +6,53 @@ import "./Header.css";
 const Header = ({ user, onLogout, onLogin, isLoading, authError }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Simuler le rôle de l'utilisateur (à remplacer par la vraie logique depuis votre DB)
+  const getUserRole = () => {
+    if (!user) return null;
+    
+    // Méthode 1: Par ID ou username Twitch (temporaire)
+    const adminIds = []; // On récupérera l'ID plus tard
+    const adminUsernames = ['mister_ds_']; // Remplacez par votre username
+    
+    if (adminIds.includes(user.id) || adminUsernames.includes(user.login)) {
+      return 'admin';
+    }
+    
+    // Méthode 2: Si vous avez ajouté la colonne role dans la DB
+    // TODO: Récupérer depuis Supabase avec une requête comme :
+    // const { data } = await supabase.from('users').select('role').eq('twitch_user_id', user.id).single();
+    // return data?.role || 'viewer';
+    
+    return 'viewer'; // Par défaut
+  };
+
+  const userRole = getUserRole();
+
+  // DEBUG: Afficher vos infos utilisateur (à supprimer après)
+  if (user) {
+    console.log('=== VOS INFOS UTILISATEUR ===');
+    console.log('ID Twitch:', user.id);
+    console.log('Username:', user.login);
+    console.log('Display Name:', user.display_name);
+    console.log('Objet complet:', user);
+  }
+
+  // Fermer le dropdown quand on clique ailleurs
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowUserDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleLoginClick = () => {
     setShowLoginModal(true);
@@ -18,6 +65,15 @@ const Header = ({ user, onLogout, onLogin, isLoading, authError }) => {
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const toggleUserDropdown = () => {
+    setShowUserDropdown(!showUserDropdown);
+  };
+
+  const handleLogout = () => {
+    setShowUserDropdown(false);
+    onLogout();
   };
 
   return (
@@ -49,31 +105,130 @@ const Header = ({ user, onLogout, onLogin, isLoading, authError }) => {
         {/* Section utilisateur */}
         <div className="header-user">
           {user ? (
-            <div className="user-section">
-              <div className="user-info">
+            <div className="user-section" ref={dropdownRef}>
+              {/* Profil cliquable */}
+              <div className="user-profile" onClick={toggleUserDropdown}>
                 <img
                   src={user.profile_image_url}
                   alt={user.display_name}
                   className="user-avatar"
                 />
                 <span className="user-name">{user.display_name}</span>
-              </div>
-              <button className="logout-btn" onClick={onLogout}>
-                <svg
-                  className="logout-icon"
-                  fill="none"
-                  stroke="currentColor"
+                <svg 
+                  className={`dropdown-arrow ${showUserDropdown ? 'rotated' : ''}`}
+                  fill="none" 
+                  stroke="currentColor" 
                   viewBox="0 0 24 24"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
-                Déconnexion
-              </button>
+              </div>
+
+              {/* Menu déroulant */}
+              {showUserDropdown && (
+                <div className="user-dropdown">
+                  <div className="dropdown-header">
+                    <img
+                      src={user.profile_image_url}
+                      alt={user.display_name}
+                      className="dropdown-avatar"
+                    />
+                    <div className="dropdown-user-info">
+                      <span className="dropdown-name">{user.display_name}</span>
+                      <span className="dropdown-role">
+                        {userRole === 'admin' ? '👑 Administrateur' : 
+                         userRole === 'streamer' ? '🎬 Streamer' : 
+                         '👤 Viewer'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="dropdown-divider"></div>
+
+                  <div className="dropdown-menu">
+                    {/* Mes statistiques */}
+                    <Link 
+                      to="/profile/stats" 
+                      className="dropdown-item"
+                      onClick={() => setShowUserDropdown(false)}
+                    >
+                      <svg className="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                      Mes statistiques
+                    </Link>
+
+                    {/* Demande de statut streamer (si viewer) */}
+                    {userRole === 'viewer' && (
+                      <Link 
+                        to="/request-streamer" 
+                        className="dropdown-item"
+                        onClick={() => setShowUserDropdown(false)}
+                      >
+                        <svg className="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        Devenir streamer
+                      </Link>
+                    )}
+
+                    {/* Panneau streamer (si streamer) */}
+                    {userRole === 'streamer' && (
+                      <Link 
+                        to="/admin" 
+                        className="dropdown-item"
+                        onClick={() => setShowUserDropdown(false)}
+                      >
+                        <svg className="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        Mon panneau Pauvrathon
+                      </Link>
+                    )}
+
+                    {/* Panneau admin (si admin) */}
+                    {userRole === 'admin' && (
+                      <>
+                        <Link 
+                          to="/admin" 
+                          className="dropdown-item"
+                          onClick={() => setShowUserDropdown(false)}
+                        >
+                          <svg className="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          Mon panneau Pauvrathon
+                        </Link>
+                        <Link 
+                          to="/admin/manage" 
+                          className="dropdown-item"
+                          onClick={() => setShowUserDropdown(false)}
+                        >
+                          <svg className="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                          </svg>
+                          Gérer les streamers
+                        </Link>
+                      </>
+                    )}
+
+                    <div className="dropdown-divider"></div>
+
+                    {/* Déconnexion */}
+                    <button 
+                      className="dropdown-item logout-item"
+                      onClick={handleLogout}
+                    >
+                      <svg className="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
+                      Se déconnecter
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <button
@@ -131,9 +286,6 @@ const Header = ({ user, onLogout, onLogin, isLoading, authError }) => {
         </Link>
         <Link to="/game" className="mobile-nav-link" onClick={toggleMenu}>
           Jeux
-        </Link>
-        <Link to="/admin" className="nav-link">
-          ⚙️ Admin
         </Link>
       </nav>
 
