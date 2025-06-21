@@ -1,47 +1,13 @@
-/* Variables CSS cohérentes avec GamePage */
-:root {
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-  --gold-gradient: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-  --silver-gradient: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
-  --bronze-gradient: linear-gradient(135deg, #cd7f32 0%, #d4a574 100%);
-  --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-  --glass-bg: rgba(255, 255, 255, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.2);
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.8);
-  --text-muted: rgba(255, 255, 255, 0.6);
-  --shadow-sm: 0 4px 15px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.15);
-  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.2);
-  --shadow-xl: 0 30px 60px rgba(0, 0, 0, 0.3);
-  --border-radius: 20px;
-  --border-radius-sm: 12px;
-  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+/* LeaderboardPage.css - Corrigé avec variables globales */
 
-/* Fix global pour les textes flous */
-* {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-h1, h2, h3, h4, h5, h6, p, span, div {
-  text-rendering: optimizeLegibility;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-}
-
-/* Container principal - SUPPRESSION DES BANDES LATÉRALES */
+/* Container principal */
 .leaderboard-page {
   min-height: 100vh;
-  background: var(--primary-gradient);
-  padding: 2rem 1rem; /* Padding réduit */
+  background: var(--gradient-primary);
+  padding: 2rem 1rem;
   position: relative;
   overflow-x: hidden;
-  width: 100%; /* Utilise toute la largeur */
+  width: 100%;
 }
 
 /* Effet de particules en arrière-plan */
@@ -74,7 +40,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .page-header h1 {
   font-size: 4rem;
   font-weight: 900;
-  color: var(--text-primary);
+  color: var(--text-white);
   margin: 0 0 1rem 0;
   text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
   animation: titlePulse 4s ease-in-out infinite;
@@ -102,7 +68,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 .page-header p {
   font-size: 1.3rem;
-  color: var(--text-secondary);
+  color: var(--text-white-80);
   font-weight: 500;
   margin: 0;
 }
@@ -114,27 +80,22 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   align-items: center;
   justify-content: center;
   min-height: 50vh;
-  color: var(--text-primary);
+  color: var(--text-white);
 }
 
 .spinner {
   width: 60px;
   height: 60px;
-  border: 4px solid rgba(255, 255, 255, 0.2);
-  border-top: 4px solid #4facfe;
-  border-radius: 50%;
+  border: 4px solid var(--border-white);
+  border-top: 4px solid var(--color-info);
+  border-radius: var(--radius-full);
   animation: spin 1s linear infinite;
   margin-bottom: 1rem;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
 .loading p {
   font-size: 1.1rem;
-  color: var(--text-secondary);
+  color: var(--text-white-80);
 }
 
 /* Sélecteur de jeu */
@@ -149,16 +110,16 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 }
 
 .game-tab {
-  background: var(--glass-bg);
+  background: var(--bg-glass-light);
   backdrop-filter: blur(20px);
-  border: 2px solid var(--glass-border);
+  border: 2px solid var(--border-white);
   padding: 1rem 2rem;
-  border-radius: 50px;
-  color: var(--text-secondary);
+  border-radius: var(--radius-full);
+  color: var(--text-white-80);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: var(--transition);
+  transition: var(--transition-normal);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -183,15 +144,15 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 .game-tab:hover {
   transform: translateY(-3px);
-  border-color: rgba(255, 255, 255, 0.4);
+  border-color: var(--border-white-strong);
   box-shadow: var(--shadow-lg);
-  color: var(--text-primary);
+  color: var(--text-white);
 }
 
 .game-tab.active {
-  background: var(--secondary-gradient);
+  background: var(--gradient-secondary);
   border-color: transparent;
-  color: white;
+  color: var(--text-white);
   transform: translateY(-3px);
   box-shadow: var(--shadow-lg);
   animation: tabGlow 2s infinite alternate;
@@ -207,20 +168,20 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
-/* Container du leaderboard - SUPPRESSION DES LIMITES */
+/* Container du leaderboard */
 .leaderboard-container {
-  max-width: none; /* SUPPRESSION DE LA LIMITE 900px */
-  width: 100%; /* Utilise toute la largeur */
+  max-width: none;
+  width: 100%;
   margin: 0 auto 3rem auto;
-  background: rgba(255, 255, 255, 0.25);
+  background: var(--bg-glass);
   backdrop-filter: blur(20px);
-  border-radius: var(--border-radius);
-  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--radius-xl);
+  border: 2px solid var(--border-white-strong);
   box-shadow: var(--shadow-xl);
   position: relative;
   z-index: 1;
   overflow: hidden;
-  padding: 0 1rem; /* Padding minimal */
+  padding: 0 1rem;
 }
 
 .leaderboard-container::before {
@@ -243,35 +204,34 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .leaderboard-header {
   text-align: center;
   padding: 3rem 2rem 2rem 2rem;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  border-bottom: 2px solid var(--border-white);
   position: relative;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-glass-light);
 }
 
 .leaderboard-header h2 {
   font-size: 2.5rem;
   font-weight: 800;
-  color: var(--text-primary);
+  color: var(--text-white);
   margin: 0 0 1rem 0;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
 }
 
 .leaderboard-header p {
   font-size: 1.1rem;
-  color: var(--text-primary);
+  color: var(--text-white);
   margin: 0;
   font-weight: 600;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-/* LISTE DU LEADERBOARD TOP 5 OPTIMISÉE */
+/* LISTE DU LEADERBOARD TOP 5 */
 .leaderboard-list {
   padding: 2rem;
   background: rgba(255, 255, 255, 0.08);
   position: relative;
 }
 
-/* Effet de grille subtile en arrière-plan */
 .leaderboard-list::before {
   content: '';
   position: absolute;
@@ -296,21 +256,21 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .leaderboard-item {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--bg-glass-light);
   backdrop-filter: blur(20px);
   padding: 1.8rem 2rem;
   margin-bottom: 1.5rem;
-  border-radius: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.25);
-  transition: var(--transition);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border-white);
+  transition: var(--transition-normal);
   position: relative;
   overflow: hidden;
   min-height: 85px;
   z-index: 1;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-md);
 }
 
-/* Animation d'entrée en cascade pour TOP 5 */
+/* Animation d'entrée en cascade */
 .leaderboard-item {
   animation: itemSlideInSmooth 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
 }
@@ -335,7 +295,6 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   }
 }
 
-/* Effet de bordure animée */
 .leaderboard-item::before {
   content: '';
   position: absolute;
@@ -357,7 +316,6 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   transform: translateX(100%);
 }
 
-/* Ligne de gauche colorée */
 .leaderboard-item::after {
   content: '';
   position: absolute;
@@ -365,7 +323,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   left: 0;
   width: 5px;
   height: 100%;
-  background: var(--secondary-gradient);
+  background: var(--gradient-secondary);
   transform: scaleY(0);
   transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   z-index: 1;
@@ -378,12 +336,12 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 .leaderboard-item:hover {
   transform: translateY(-6px) translateX(8px) scale(1.01);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.18);
-  border-color: rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.2);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border-white-strong);
+  background: var(--bg-glass);
 }
 
-/* Rangs spéciaux pour TOP 5 */
+/* Rangs spéciaux */
 .leaderboard-item.rank-gold {
   background: linear-gradient(135deg, 
     rgba(255, 215, 0, 0.25) 0%, 
@@ -397,7 +355,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 }
 
 .leaderboard-item.rank-gold::after {
-  background: var(--gold-gradient);
+  background: var(--gradient-warning);
   box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
 }
 
@@ -425,10 +383,6 @@ h1, h2, h3, h4, h5, h6, p, span, div {
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
-.leaderboard-item.rank-silver::after {
-  background: var(--silver-gradient);
-}
-
 .leaderboard-item.rank-bronze {
   background: linear-gradient(135deg, 
     rgba(205, 127, 50, 0.25) 0%, 
@@ -440,11 +394,6 @@ h1, h2, h3, h4, h5, h6, p, span, div {
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
-.leaderboard-item.rank-bronze::after {
-  background: var(--bronze-gradient);
-}
-
-/* Positions 4 et 5 avec style spécial */
 .leaderboard-item.rank-other {
   background: linear-gradient(135deg, 
     rgba(102, 126, 234, 0.15) 0%, 
@@ -457,41 +406,40 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 }
 
 .leaderboard-item.rank-other::after {
-  background: var(--primary-gradient);
+  background: var(--gradient-primary);
 }
 
 .leaderboard-item.current-user {
   background: linear-gradient(135deg, 
-    rgba(76, 175, 80, 0.3) 0%, 
-    rgba(102, 187, 106, 0.2) 100%
+    rgba(16, 185, 129, 0.3) 0%, 
+    rgba(16, 185, 129, 0.2) 100%
   );
-  border: 3px solid #4caf50;
+  border: 3px solid var(--color-success);
   box-shadow: 
-    0 12px 40px rgba(76, 175, 80, 0.3),
+    0 12px 40px rgba(16, 185, 129, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   animation: currentUserPulse 3s ease-in-out infinite;
-  position: relative;
 }
 
 .leaderboard-item.current-user::after {
-  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
-  box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+  background: var(--gradient-success);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
 }
 
 @keyframes currentUserPulse {
   0%, 100% { 
     box-shadow: 
-      0 12px 40px rgba(76, 175, 80, 0.3),
+      0 12px 40px rgba(16, 185, 129, 0.3),
       inset 0 1px 0 rgba(255, 255, 255, 0.2);
   }
   50% { 
     box-shadow: 
-      0 16px 50px rgba(76, 175, 80, 0.5),
+      0 16px 50px rgba(16, 185, 129, 0.5),
       inset 0 1px 0 rgba(255, 255, 255, 0.3);
   }
 }
 
-/* Sections des items pour TOP 5 */
+/* Sections des items */
 .rank-section {
   display: flex;
   flex-direction: column;
@@ -521,12 +469,12 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .rank-number {
   font-size: 1.1rem;
   font-weight: 900;
-  color: var(--text-primary);
+  color: var(--text-white);
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--bg-glass-light);
   padding: 0.3rem 0.7rem;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-white);
   backdrop-filter: blur(10px);
 }
 
@@ -537,20 +485,18 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   margin-right: 2rem;
 }
 
-/* Avatar du joueur optimisé */
 .player-avatar {
   width: 60px;
   height: 60px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   margin-right: 1.5rem;
-  border: 3px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-  transition: var(--transition);
+  border: 3px solid var(--border-white-strong);
+  box-shadow: var(--shadow-md);
+  transition: var(--transition-normal);
   position: relative;
   overflow: hidden;
 }
 
-/* Effet de bordure animée pour l'avatar */
 .player-avatar::before {
   content: '';
   position: absolute;
@@ -558,12 +504,12 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   left: -3px;
   right: -3px;
   bottom: -3px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: conic-gradient(
     from 0deg,
-    var(--secondary-gradient),
-    var(--primary-gradient),
-    var(--secondary-gradient)
+    var(--gradient-secondary),
+    var(--gradient-primary),
+    var(--gradient-secondary)
   );
   z-index: -1;
   opacity: 0;
@@ -582,8 +528,8 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 .player-avatar:hover {
   transform: scale(1.1);
-  border-color: rgba(255, 255, 255, 0.6);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  border-color: var(--border-white-strong);
+  box-shadow: var(--shadow-lg);
 }
 
 .player-info {
@@ -593,7 +539,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .player-name {
   font-size: 1.3rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--text-white);
   margin: 0 0 0.6rem 0;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
   display: flex;
@@ -602,44 +548,44 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 }
 
 .you-badge {
-  background: var(--success-gradient);
-  color: white;
+  background: var(--gradient-success);
+  color: var(--text-white);
   padding: 0.25rem 0.8rem;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+  box-shadow: var(--shadow-sm);
   animation: badgeGlow 2.5s ease-in-out infinite;
 }
 
 @keyframes badgeGlow {
   0%, 100% { 
     transform: scale(1);
-    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+    box-shadow: var(--shadow-sm);
   }
   50% { 
     transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(79, 172, 254, 0.5);
+    box-shadow: var(--shadow-md);
   }
 }
 
 .achievement-date, .games-count {
   font-size: 0.9rem;
-  color: var(--text-muted);
+  color: var(--text-white-60);
   margin: 0.2rem 0;
   font-style: italic;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .games-count {
-  color: #4facfe;
+  color: var(--color-info);
   font-weight: 600;
   font-style: normal;
 }
 
-/* Section des scores optimisée */
+/* Section des scores */
 .score-section {
   text-align: right;
 }
@@ -654,32 +600,32 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-glass-light);
   backdrop-filter: blur(10px);
   padding: 1rem;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   min-width: 70px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: var(--transition);
+  border: 1px solid var(--border-white);
+  transition: var(--transition-normal);
 }
 
 .stat-item:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--bg-glass-light);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-sm);
 }
 
 .stat-value {
   font-size: 1.2rem;
   font-weight: 900;
-  color: #4facfe;
+  color: var(--color-info);
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
   margin-bottom: 0.3rem;
 }
 
 .stat-label {
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: var(--text-white-60);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: 600;
@@ -689,25 +635,25 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-glass-light);
   backdrop-filter: blur(10px);
   padding: 1.2rem;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   min-width: 85px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: var(--transition);
+  border: 1px solid var(--border-white);
+  transition: var(--transition-normal);
 }
 
 .game-score:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--bg-glass-light);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-sm);
 }
 
 .score-value {
   font-size: 1.6rem;
   font-weight: 900;
-  color: #4facfe;
+  color: var(--color-info);
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
   margin-bottom: 0.5rem;
   line-height: 1;
@@ -715,39 +661,39 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 .score-label {
   font-size: 0.8rem;
-  color: var(--text-secondary);
+  color: var(--text-white-80);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: 600;
 }
 
-/* Badge champion optimisé */
+/* Badge champion */
 .champion-badge {
   position: absolute;
   top: -15px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--gold-gradient);
+  background: var(--gradient-warning);
   color: #333;
   padding: 0.5rem 1.2rem;
-  border-radius: 20px;
+  border-radius: var(--radius-xl);
   font-size: 0.8rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+  box-shadow: var(--shadow-md);
   animation: championFloat 3.5s ease-in-out infinite;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid var(--border-white);
 }
 
 @keyframes championFloat {
   0%, 100% { 
     transform: translateX(-50%) translateY(0px);
-    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+    box-shadow: var(--shadow-md);
   }
   50% { 
     transform: translateX(-50%) translateY(-4px);
-    box-shadow: 0 12px 35px rgba(255, 215, 0, 0.6);
+    box-shadow: var(--shadow-lg);
   }
 }
 
@@ -776,27 +722,27 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 .empty-content h3 {
   font-size: 1.8rem;
-  color: var(--text-primary);
+  color: var(--text-white);
   margin-bottom: 1rem;
   font-weight: 600;
 }
 
 .empty-content p {
   font-size: 1.1rem;
-  color: var(--text-secondary);
+  color: var(--text-white-80);
   line-height: 1.6;
 }
 
-/* Section stats utilisateur - SUPPRESSION DES LIMITES */
+/* Section stats utilisateur */
 .user-position {
-  max-width: none; /* SUPPRESSION DE LA LIMITE 900px */
-  width: 100%; /* Utilise toute la largeur */
+  max-width: none;
+  width: 100%;
   margin: 0 auto;
-  background: rgba(255, 255, 255, 0.25);
+  background: var(--bg-glass);
   backdrop-filter: blur(20px);
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-xl);
   padding: 3rem 2rem;
-  border: 2px solid rgba(255, 255, 255, 0.4);
+  border: 2px solid var(--border-white-strong);
   box-shadow: var(--shadow-xl);
   position: relative;
   z-index: 1;
@@ -805,7 +751,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .user-position h3 {
   text-align: center;
   font-size: 2rem;
-  color: var(--text-primary);
+  color: var(--text-white);
   margin-bottom: 2rem;
   font-weight: 700;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
@@ -819,13 +765,13 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 }
 
 .user-stat-card {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--bg-glass);
   backdrop-filter: blur(15px);
   padding: 2rem;
-  border-radius: var(--border-radius-sm);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border-white);
   text-align: center;
-  transition: var(--transition);
+  transition: var(--transition-normal);
   position: relative;
   overflow: hidden;
 }
@@ -849,8 +795,8 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .user-stat-card:hover {
   transform: translateY(-10px);
   box-shadow: var(--shadow-lg);
-  border-color: rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.25);
+  border-color: var(--border-white-strong);
+  background: var(--bg-glass);
 }
 
 .stat-icon {
@@ -870,14 +816,14 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   display: block;
   font-size: 2rem;
   font-weight: 900;
-  color: #4facfe;
+  color: var(--color-info);
   margin-bottom: 0.5rem;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .stat-description {
   font-size: 1rem;
-  color: var(--text-secondary);
+  color: var(--text-white-80);
   text-transform: uppercase;
   letter-spacing: 1px;
   font-weight: 600;
@@ -889,7 +835,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 }
 
 .game-positions h4 {
-  color: var(--text-primary);
+  color: var(--text-white);
   font-size: 1.3rem;
   margin-bottom: 1.5rem;
   text-align: center;
@@ -906,16 +852,16 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .position-item {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--bg-glass-light);
   padding: 1rem;
-  border-radius: var(--border-radius-sm);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  transition: var(--transition);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border-white);
+  transition: var(--transition-normal);
 }
 
 .position-item:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: var(--bg-glass);
+  border-color: var(--border-white-strong);
   transform: translateY(-2px);
 }
 
@@ -926,13 +872,13 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 .position-item .game-name {
   flex: 1;
-  color: var(--text-primary);
+  color: var(--text-white);
   font-weight: 600;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .position-item .position {
-  color: #4facfe;
+  color: var(--color-info);
   font-weight: 700;
   font-size: 1.1rem;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
@@ -940,14 +886,14 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 /* Détails utilisateur */
 .user-details {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--bg-glass-light);
   padding: 2rem;
-  border-radius: var(--border-radius-sm);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border-white);
 }
 
 .user-details p {
-  color: var(--text-primary);
+  color: var(--text-white);
   margin: 0.8rem 0;
   font-size: 1rem;
   display: flex;
@@ -958,23 +904,23 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 }
 
 .user-details strong {
-  color: var(--text-primary);
+  color: var(--text-white);
   font-weight: 700;
 }
 
 .stats-note {
   text-align: center;
-  color: var(--text-primary);
+  color: var(--text-white);
   font-style: italic;
   font-size: 1.1rem;
   padding: 2rem;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: var(--border-radius-sm);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: var(--bg-glass-light);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border-white);
   font-weight: 500;
 }
 
-/* RESPONSIVE DESIGN OPTIMISÉ */
+/* RESPONSIVE DESIGN */
 @media (max-width: 1200px) {
   .leaderboard-container {
     padding: 0 0.5rem;
@@ -1158,11 +1104,11 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 }
 
 .avatar-fallback {
-  background: var(--secondary-gradient) !important;
+  background: var(--gradient-secondary) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  color: white !important;
+  color: var(--text-white) !important;
   font-weight: 900 !important;
   font-size: 1.2rem !important;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5) !important;

@@ -3,30 +3,24 @@ import { Link } from "react-router-dom";
 import LoginModal from "./LoginModal";
 import "./Header.css";
 
-const Header = ({ user, onLogout, onLogin, isLoading, authError }) => {
+const Header = ({ user, onLogout, onLogin, isLoading, authError, isAdmin }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Simuler le rôle de l'utilisateur (à remplacer par la vraie logique depuis votre DB)
+  // Déterminer le rôle de l'utilisateur
   const getUserRole = () => {
     if (!user) return null;
     
-    // Méthode 1: Par ID ou username Twitch (temporaire)
-    const adminIds = []; // On récupérera l'ID plus tard
-    const adminUsernames = ['mister_ds_']; // Remplacez par votre username
-    
-    if (adminIds.includes(user.id) || adminUsernames.includes(user.login)) {
+    // Utiliser la fonction isAdmin passée en props
+    if (isAdmin && isAdmin(user)) {
       return 'admin';
     }
     
-    // Méthode 2: Si vous avez ajouté la colonne role dans la DB
-    // TODO: Récupérer depuis Supabase avec une requête comme :
-    // const { data } = await supabase.from('users').select('role').eq('twitch_user_id', user.id).single();
-    // return data?.role || 'viewer';
-    
-    return 'viewer'; // Par défaut
+    // Pour l'instant, tous les autres sont des viewers
+    // Plus tard, vous pourrez ajouter une logique pour détecter les streamers
+    return 'viewer';
   };
 
   const userRole = getUserRole();
@@ -37,6 +31,7 @@ const Header = ({ user, onLogout, onLogin, isLoading, authError }) => {
     console.log('ID Twitch:', user.id);
     console.log('Username:', user.login);
     console.log('Display Name:', user.display_name);
+    console.log('Rôle détecté:', userRole);
     console.log('Objet complet:', user);
   }
 
@@ -201,15 +196,29 @@ const Header = ({ user, onLogout, onLogin, isLoading, authError }) => {
                           </svg>
                           Mon panneau Pauvrathon
                         </Link>
+                        
+                        {/* ✅ NOUVEAU LIEN VERS LES DEMANDES STREAMERS */}
                         <Link 
-                          to="/admin/manage" 
+                          to="/admin/requests" 
                           className="dropdown-item"
                           onClick={() => setShowUserDropdown(false)}
                         >
                           <svg className="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                           </svg>
-                          Gérer les streamers
+                          Demandes streamers
+                        </Link>
+                        
+                        {/* ✅ LIEN DE TEST */}
+                        <Link 
+                          to="/admin/test" 
+                          className="dropdown-item"
+                          onClick={() => setShowUserDropdown(false)}
+                        >
+                          <svg className="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                          </svg>
+                          🧪 Test Admin
                         </Link>
                       </>
                     )}

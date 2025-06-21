@@ -113,22 +113,24 @@ const StreamerRequestsPage = ({ user }) => {
     setFilteredRequests(filtered);
   };
 
-  // Approuver une demande
+  // ✅ FONCTION CORRIGÉE - Approuver une demande
   const approveRequest = async (request) => {
     try {
       setProcessing(request.id);
+      console.log('🔄 Début approbation pour:', request.twitch_display_name);
 
-      // 1. Mettre à jour le statut de la demande
+      // 1. Mettre à jour le statut de la demande (SANS processed_by pour éviter l'erreur UUID)
       const { error: updateError } = await supabase
         .from('streamer_requests')
         .update({ 
           status: 'approved',
-          processed_at: new Date().toISOString(),
-          processed_by: user.id
+          processed_at: new Date().toISOString()
+          // ❌ RETIRÉ: processed_by: user.id (causait l'erreur UUID)
         })
         .eq('id', request.id);
 
       if (updateError) throw updateError;
+      console.log('✅ Statut mis à jour');
 
       // 2. Créer l'utilisateur s'il n'existe pas
       let { data: userData, error: userError } = await supabase
@@ -138,6 +140,7 @@ const StreamerRequestsPage = ({ user }) => {
         .single();
 
       if (userError && userError.code === 'PGRST116') {
+        console.log('👤 Création nouvel utilisateur...');
         const { data: newUser, error: insertUserError } = await supabase
           .from('users')
           .insert([{
@@ -152,76 +155,100 @@ const StreamerRequestsPage = ({ user }) => {
 
         if (insertUserError) throw insertUserError;
         userData = newUser;
+        console.log('✅ Utilisateur créé:', userData.id);
+      } else if (userError) {
+        throw userError;
+      } else {
+        console.log('👤 Utilisateur existant trouvé:', userData.id);
       }
 
-      // 3. Créer la configuration streamer
-      const { error: streamerError } = await supabase
+      // 3. Vérifier si une config streamer existe déjà
+      const { data: existingStreamer, error: checkStreamerError } = await supabase
         .from('streamers')
-        .insert([{
-          user_id: userData.id,
-          is_live: false,
-          subathon_active: false,
-          current_timer: 0,
-          timer_max: 28800, // 8 heures
-          timer_min: 300,   // 5 minutes
-          time_range_min: 10,
-          time_range_max: 60,
-          clicks_required: 50,
-          cooldown_between_games: 30,
-          max_daily_time_per_viewer: 300,
-          max_concurrent_participants: 50,
-          difficulty_multiplier: 1.0,
-          auto_ban_suspicious: true,
-          min_account_age_days: 7,
-          min_followers: 0,
-          welcome_message: `Bienvenue sur mon Pauvrathon ! Cliquez sur mon avatar pour participer ! 🎮`,
-          theme_color: '#9146ff',
-          time_multiplier_weekend: 1.2,
-          time_multiplier_evening: 1.1,
-          auto_notifications: true,
-          discord_webhook: '',
-          victory_sound: true,
-          defeat_sound: true,
-          game_settings: {
-            trouve_le_chiffre: { enabled: true, difficulty: 1.0, time_bonus_min: 30, time_bonus_max: 60 },
-            hangman: { enabled: true, difficulty: 1.0, time_bonus_min: 45, time_bonus_max: 75 },
-            memory: { enabled: true, difficulty: 1.0, time_bonus_min: 60, time_bonus_max: 90 },
-            reaction: { enabled: true, difficulty: 1.0, time_bonus_min: 25, time_bonus_max: 55 }
-          },
-          participation_whitelist: [],
-          participation_blacklist: [],
-          daily_goals: {
-            target_hours: 6,
-            target_participants: 20,
-            rewards_enabled: true
-          }
-        }]);
+        .select('id')
+        .eq('user_id', userData.id)
+        .single();
 
-      if (streamerError) throw streamerError;
+      if (checkStreamerError && checkStreamerError.code !== 'PGRST116') {
+        throw checkStreamerError;
+      }
 
-      // Recharger les demandes
+      // 4. Créer la configuration streamer seulement si elle n'existe pas
+      if (!existingStreamer) {
+        console.log('🎬 Création configuration streamer...');
+        const { error: streamerError } = await supabase
+          .from('streamers')
+          .insert([{
+            user_id: userData.id,
+            is_live: false,
+            subathon_active: false,
+            current_timer: 0,
+            timer_max: 28800, // 8 heures
+            timer_min: 300,   // 5 minutes
+            time_range_min: 10,
+            time_range_max: 60,
+            clicks_required: 50,
+            cooldown_between_games: 30,
+            max_daily_time_per_viewer: 300,
+            max_concurrent_participants: 50,
+            difficulty_multiplier: 1.0,
+            auto_ban_suspicious: true,
+            min_account_age_days: 7,
+            min_followers: 0,
+            welcome_message: `Bienvenue sur mon Pauvrathon ! Cliquez sur mon avatar pour participer ! 🎮`,
+            theme_color: '#9146ff',
+            time_multiplier_weekend: 1.2,
+            time_multiplier_evening: 1.1,
+            auto_notifications: true,
+            discord_webhook: '',
+            victory_sound: true,
+            defeat_sound: true,
+            game_settings: {
+              trouve_le_chiffre: { enabled: true, difficulty: 1.0, time_bonus_min: 30, time_bonus_max: 60 },
+              hangman: { enabled: true, difficulty: 1.0, time_bonus_min: 45, time_bonus_max: 75 },
+              memory: { enabled: true, difficulty: 1.0, time_bonus_min: 60, time_bonus_max: 90 },
+              reaction: { enabled: true, difficulty: 1.0, time_bonus_min: 25, time_bonus_max: 55 }
+            },
+            participation_whitelist: [],
+            participation_blacklist: [],
+            daily_goals: {
+              target_hours: 6,
+              target_participants: 20,
+              rewards_enabled: true
+            }
+          }]);
+
+        if (streamerError) throw streamerError;
+        console.log('✅ Configuration streamer créée');
+      } else {
+        console.log('🎬 Configuration streamer existante trouvée');
+      }
+
+      // 5. Recharger les demandes
       await loadRequests();
+      console.log('🎉 Approbation terminée avec succès !');
       
     } catch (err) {
-      console.error('Erreur approbation:', err);
-      alert(`Erreur: ${err.message}`);
+      console.error('❌ Erreur approbation:', err);
+      alert(`Erreur lors de l'approbation: ${err.message}`);
     } finally {
       setProcessing(null);
     }
   };
 
-  // Rejeter une demande
+  // ✅ FONCTION CORRIGÉE - Rejeter une demande
   const rejectRequest = async (request, message = '') => {
     try {
       setProcessing(request.id);
+      console.log('🔄 Début rejet pour:', request.twitch_display_name);
 
       const { error } = await supabase
         .from('streamer_requests')
         .update({ 
           status: 'rejected',
           processed_at: new Date().toISOString(),
-          processed_by: user.id,
           rejection_reason: message
+          // ❌ RETIRÉ: processed_by: user.id (causait l'erreur UUID)
         })
         .eq('id', request.id);
 
@@ -233,9 +260,11 @@ const StreamerRequestsPage = ({ user }) => {
       setRejectMessage('');
       setSelectedRequest(null);
       
+      console.log('✅ Demande rejetée avec succès');
+      
     } catch (err) {
-      console.error('Erreur rejet:', err);
-      alert(`Erreur: ${err.message}`);
+      console.error('❌ Erreur rejet:', err);
+      alert(`Erreur lors du rejet: ${err.message}`);
     } finally {
       setProcessing(null);
     }
