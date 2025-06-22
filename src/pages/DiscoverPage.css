@@ -1,64 +1,162 @@
-/* Styles spécifiques Pauvrathon pour DiscoverPage.css */
+
+:root {
+  /* Couleurs spécifiques au thème mauve de cette page, basées sur les couleurs globales si possible */
+  --mauve-clair: #f3e9fa; /* Mauve très léger, peut être proche de var(--bg-lighter) ou une nouvelle teinte */
+  --mauve-moyen: #d8b4eb; /* Mauve plus présent, doux */
+  --mauve-fonce: #a67cde; /* Mauve plus profond pour les accents, proche de var(--color-primary-dark) */
+  --mauve-primaire: #8a4bff; /* Mauve vif pour les éléments importants, proche de var(--color-primary) */
+  --mauve-secondaire: #b070f8; /* Mauve secondaire pour les dégradés, une nouvelle teinte */
+
+  /* Redéfinition de certaines variables globales pour la spécificité de la page si nécessaire */
+  --text-page-header: var(--text-dark); /* Pour les titres foncés sur fond clair */
+  --text-page-subheader: var(--text-medium); /* Pour les sous-titres */
+  --text-card-title: var(--text-dark);
+  --text-card-subtitle: var(--text-medium);
+  --text-card-label: var(--text-light);
+
+  --border-card: var(--border-white); /* Bordure des cartes en verre */
+  --border-card-active: var(--mauve-primaire); /* Bordure carte active */
+  --shadow-card-active: rgba(138, 75, 255, 0.3); /* Ombre de la carte active */
+
+  --bg-card-inactive: rgba(255, 255, 255, 0.15); /* Fond carte inactive plus transparent */
+}
+
+/* Page principale */
+.discover-page {
+  /* Utilise un dégradé qui incorpore tes couleurs primaires et les nouvelles nuances mauves */
+  background: linear-gradient(135deg, var(--mauve-moyen) 0%, var(--mauve-fonce) 100%);
+  min-height: 100vh;
+  padding: var(--space-xl) var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden; /* Pour les particules */
+}
+
+/* Effet de particules en arrière-plan */
+.discover-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="25" cy="25" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="70" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="40" r="1.5" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+  background-size: 80px 80px; /* Plus grand pour un effet plus doux */
+  animation: floatParticles 30s infinite linear;
+  pointer-events: none;
+  z-index: var(--z-base); /* Utilise la variable globale pour z-index */
+}
+
+@keyframes floatParticles {
+  0% { transform: translateY(0px) rotate(0deg); }
+  100% { transform: translateY(-150px) rotate(360deg); } /* Montée plus longue */
+}
+
+body {
+  /* Le body global est déjà stylisé par global-variables.css */
+  /* Ici on s'assure que la couleur de fond spécifiée pour la page Discover prévaut */
+  background-color: var(--mauve-moyen);
+  font-family: var(--font-sans); /* Utilise la police globale */
+}
 
 .streamers-container {
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: var(--space-xl); /* Utilise les espacements globaux */
+  background: var(--bg-glass-light); /* Utilise la variable globale pour le fond de verre */
+  backdrop-filter: blur(15px); /* Flou plus prononcé pour l'effet verre */
+  border: 1px solid var(--border-white); /* Bordure légère en blanc transparent */
+  padding: var(--space-xl) var(--space-md);
+  border-radius: var(--radius-xl); /* Utilise le rayon global */
+  box-shadow: var(--shadow-lg); /* Utilise l'ombre globale */
+  position: relative;
+  z-index: var(--z-base); /* Utilise la variable globale pour z-index */
+  max-width: 1400px;
+  width: 100%;
 }
 
 .streamers-section {
-  margin-bottom: 30px;
+  margin-bottom: var(--space-lg);
 }
 
 .section-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: var(--space-2xl); /* Marge plus grande */
 }
 
 .section-header h2 {
-  margin: 0 0 8px;
-  color: #1e293b;
-  font-size: 28px;
-  font-weight: 700;
+  margin: 0 0 var(--space-xs);
+  color: var(--text-page-header);
+  font-size: var(--text-3xl); /* Taille de police plus grande */
+  font-weight: 800;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .section-header p {
   margin: 0;
-  color: #64748b;
-  font-size: 16px;
+  color: var(--text-page-subheader);
+  font-size: var(--text-lg); /* Taille de police plus grande */
+  font-weight: 500;
 }
 
 .streamers-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: var(--space-md); /* Espacement plus grand */
   max-width: 1200px;
   margin: 0 auto;
 }
 
 /* Cartes streamers */
 .streamer-card {
-  background: white;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid #f1f5f9;
-  transition: all 0.3s ease;
+  background: var(--bg-glass-light); /* Fond de carte en verre clair */
+  border-radius: var(--radius-lg); /* Utilise le rayon global */
+  padding: var(--space-md); /* Padding augmenté */
+  box-shadow: var(--shadow-md); /* Utilise l'ombre globale */
+  border: 1px solid var(--border-card);
+  transition: all var(--transition-normal); /* Utilise la transition globale */
   position: relative;
+  overflow: hidden; /* Pour les effets internes */
+}
+
+.streamer-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  transition: left var(--transition-normal);
+}
+
+.streamer-card:hover::before {
+  left: 100%;
+}
+
+.streamer-card:hover {
+  transform: translateY(-8px) scale(1.01); /* Effet de lévitation plus prononcé */
+  box-shadow: var(--shadow-lg); /* Ombre plus prononcée au hover */
+  border-color: var(--border-white-strong); /* Bordure plus visible au hover */
 }
 
 .streamer-card.active {
-  border-color: #10b981;
+  border-color: var(--border-card-active);
+  box-shadow: 0 10px 30px var(--shadow-card-active); /* Ombre colorée */
 }
 
 .streamer-card.active:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(16, 185, 129, 0.2);
+  transform: translateY(-8px) scale(1.01);
+  box-shadow: 0 18px 45px var(--shadow-card-active); /* Ombre plus prononcée au hover */
 }
 
 .streamer-card.inactive {
-  opacity: 0.7;
-  border-color: #d1d5db;
+  opacity: 0.6; /* Moins opaque */
+  border-color: var(--border-medium);
+  filter: grayscale(80%); /* Plus grisé */
+  background: var(--bg-card-inactive);
 }
 
 .streamer-link {
@@ -71,74 +169,75 @@
 .streamer-header {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: var(--space-md); /* Espacement plus grand */
+  margin-bottom: var(--space-md); /* Marge plus grande */
 }
 
 .avatar-container {
   position: relative;
-  width: 64px;
-  height: 64px;
+  width: 70px; /* Avatar plus grand */
+  height: 70px; /* Avatar plus grand */
 }
 
 .streamer-avatar {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  border: 3px solid #e5e7eb;
-  transition: all 0.3s ease;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-full); /* Utilise le rayon global pour cercle */
+  border: 4px solid var(--mauve-moyen); /* Bordure plus épaisse, couleur thème */
+  transition: all var(--transition-normal);
+  object-fit: cover; /* Assure que l'image couvre bien */
 }
 
 .streamer-avatar.clickable {
-  border-color: #10b981;
+  border-color: var(--mauve-primaire);
   cursor: pointer;
 }
 
 .streamer-avatar.clickable:hover {
-  border-color: #059669;
-  transform: scale(1.05);
+  border-color: var(--mauve-fonce);
+  transform: scale(1.1); /* Effet d'agrandissement plus marqué */
+  box-shadow: 0 0 15px rgba(138, 75, 255, 0.5); /* Halo lumineux */
 }
 
 .streamer-avatar.disabled {
-  filter: grayscale(100%);
-  opacity: 0.5;
+  filter: grayscale(100%) brightness(0.8); /* Plus sombre */
+  opacity: 0.4; /* Plus transparent */
 }
 
 .click-indicator {
   position: absolute;
-  top: -8px;
-  right: -8px;
-  background: #10b981;
-  color: white;
-  border-radius: 20px;
-  padding: 4px 8px;
-  font-size: 10px;
-  font-weight: 600;
+  top: -10px; /* Position ajustée */
+  right: -10px; /* Position ajustée */
+  background: var(--gradient-danger); /* Utilise le dégradé danger pour LIVE */
+  color: var(--text-white);
+  border-radius: var(--radius-full);
+  padding: 5px 10px; /* Padding augmenté */
+  font-size: var(--text-xs); /* Taille légèrement augmentée */
+  font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 2px;
-  animation: pulse 2s infinite;
+  gap: 4px; /* Espacement augmenté */
+  animation: pulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1); /* Utilise l'animation pulse globale */
+  box-shadow: 0 0 10px rgba(233, 30, 99, 0.6); /* Ombre lumineuse */
 }
 
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.1); opacity: 0.8; }
-}
+/* Pas besoin de @keyframes pulse ici car déjà dans global-variables.css */
 
 .disabled-overlay {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(239, 68, 68, 0.9);
-  color: white;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
+  background: var(--color-danger); /* Utilise la couleur danger globale */
+  color: var(--text-white);
+  border-radius: var(--radius-full);
+  width: 28px; /* Plus grand */
+  height: 28px; /* Plus grand */
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: var(--text-sm); /* Taille icône plus grande */
+  box-shadow: var(--shadow-sm);
 }
 
 .streamer-info {
@@ -146,65 +245,87 @@
 }
 
 .streamer-info h3 {
-  margin: 0 0 4px;
-  color: #1e293b;
-  font-size: 18px;
-  font-weight: 600;
+  margin: 0 0 var(--space-xs);
+  color: var(--text-card-title);
+  font-size: var(--text-xl); /* Taille de police plus grande */
+  font-weight: 700;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .streamer-username {
-  margin: 0 0 8px;
-  color: #64748b;
-  font-size: 14px;
+  margin: 0 0 var(--space-sm);
+  color: var(--text-card-subtitle);
+  font-size: var(--text-sm); /* Taille de police légèrement augmentée */
 }
 
 .status-badge {
   display: inline-block;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-  color: white;
+  padding: 5px 14px; /* Padding augmenté */
+  border-radius: var(--radius-lg);
+  font-size: var(--text-xs); /* Taille de police légèrement augmentée */
+  font-weight: 700;
+  color: var(--text-white);
+  box-shadow: var(--shadow-xs);
+}
+
+/* Statuts spécifiques */
+.status-badge.active {
+  background: var(--color-success); /* Utilise la couleur success globale */
+}
+
+.status-badge.inactive {
+  background: var(--color-gray); /* Utilise la couleur gray globale */
 }
 
 /* Stats Pauvrathon */
 .pauvrathon-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: var(--space-md); /* Espacement plus grand */
+  margin-bottom: var(--space-md); /* Marge plus grande */
 }
 
 .stat {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px;
-  background: #f8fafc;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  gap: var(--space-xs); /* Espacement plus grand */
+  padding: var(--space-sm); /* Padding augmenté */
+  background: var(--bg-glass-light); /* Fond de verre plus transparent */
+  border-radius: var(--radius-md); /* Rayon plus grand */
+  border: 1px solid var(--border-white);
+  box-shadow: var(--shadow-xs);
+  transition: all var(--transition-fast);
+}
+
+.stat:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border-white-strong);
 }
 
 .stat-icon {
-  font-size: 18px;
+  font-size: var(--text-lg); /* Icône plus grande */
+  color: var(--mauve-fonce); /* Couleur d'icône plus vive */
 }
 
 .stat-content {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px; /* Espacement légèrement augmenté */
 }
 
 .stat-value {
-  font-weight: 700;
-  color: #1e293b;
-  font-size: 14px;
+  font-weight: 800; /* Plus gras */
+  color: var(--text-dark);
+  font-size: var(--text-base); /* Taille de police plus grande */
 }
 
 .stat-label {
-  font-size: 11px;
-  color: #64748b;
-  font-weight: 500;
+  font-size: var(--text-xs); /* Taille de police légèrement augmentée */
+  color: var(--text-card-label);
+  font-weight: 600; /* Plus gras */
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* Infos live */
@@ -212,40 +333,49 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
-  margin-bottom: 16px;
+  padding: var(--space-xs) var(--space-sm);
+  background: rgba(var(--color-danger-rgb), 0.1); /* Utilise la couleur danger globale avec opacité */
+  border: 1px solid rgba(var(--color-danger-rgb), 0.3); /* Bordure rouge */
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-md); /* Marge augmentée */
+  backdrop-filter: blur(8px);
 }
+
+/* Note: Pour utiliser 'rgba(var(--color-danger-rgb), 0.1)', tu devras ajouter une variable RGB dans tes globales si tu n'en as pas, par exemple:
+   --color-danger-rgb: 239, 68, 68;
+   Sinon, reviens à `rgba(233, 30, 99, 0.1)` comme dans la proposition précédente si tu ne veux pas modifier tes globales.
+*/
 
 .live-badge {
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: #dc2626;
-  font-size: 12px;
-  font-weight: 600;
+  gap: var(--space-xs);
+  color: var(--color-danger); /* Utilise la couleur danger globale */
+  font-size: var(--text-sm); /* Taille de police plus grande */
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
 .live-dot {
-  width: 8px;
-  height: 8px;
-  background: #dc2626;
-  border-radius: 50%;
-  animation: blink 1s infinite;
+  width: 10px; /* Plus grand */
+  height: 10px; /* Plus grand */
+  background: var(--color-danger); /* Utilise la couleur danger globale */
+  border-radius: var(--radius-full);
+  animation: blink 1s infinite cubic-bezier(0.4, 0, 0.6, 1);
+  box-shadow: 0 0 8px var(--color-danger); /* Halo lumineux */
 }
 
 @keyframes blink {
   0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0.3; }
+  51%, 100% { opacity: 0.4; } /* Opacité légèrement plus faible */
 }
 
 .live-stats {
   display: flex;
-  gap: 12px;
-  font-size: 12px;
-  color: #6b7280;
+  gap: var(--space-xs);
+  font-size: var(--text-sm);
+  color: var(--text-medium);
+  font-weight: 600;
 }
 
 /* Prompt de participation */
@@ -253,120 +383,212 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 0.3s ease;
+  padding: var(--space-sm) var(--space-md);
+  background: linear-gradient(135deg, var(--mauve-primaire) 0%, var(--mauve-fonce) 100%); /* Dégradé mauve */
+  color: var(--text-white);
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  transition: all var(--transition-normal);
+  box-shadow: 0 8px 20px var(--shadow-md); /* Utilise ombre globale */
 }
 
 .streamer-card.active:hover .participate-prompt {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  background: linear-gradient(135deg, var(--mauve-fonce) 0%, var(--mauve-secondaire) 100%); /* Dégradé inversé au hover */
+  transform: scale(1.02);
+  box-shadow: 0 12px 30px var(--shadow-lg); /* Utilise ombre globale */
 }
 
 .participate-arrow {
-  font-size: 18px;
-  transition: transform 0.3s ease;
+  font-size: var(--text-xl);
+  transition: transform var(--transition-normal);
 }
 
 .streamer-card.active:hover .participate-arrow {
-  transform: translateX(4px);
+  transform: translateX(8px); /* Translation plus marquée */
 }
 
 /* Message inactif */
 .inactive-message {
   text-align: center;
-  padding: 20px;
+  padding: var(--space-md);
 }
 
 .inactive-message p {
-  margin: 0 0 16px;
-  color: #6b7280;
+  margin: 0 0 var(--space-sm);
+  color: var(--text-medium);
   font-style: italic;
+  font-size: var(--text-base);
 }
 
 .visit-channel-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: #6366f1;
-  color: white;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--mauve-secondaire); /* Couleur du bouton */
+  color: var(--text-white);
   text-decoration: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  transition: background 0.3s ease;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  transition: background var(--transition-normal);
+  box-shadow: var(--shadow-xs);
 }
 
 .visit-channel-btn:hover {
-  background: #5b21b6;
+  background: var(--mauve-fonce); /* Changement de couleur au hover */
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Section vide */
 .no-active-streamers {
   text-align: center;
-  padding: 60px 20px;
+  padding: var(--space-2xl) var(--space-md);
 }
 
 .no-active-content {
-  background: #f8fafc;
-  padding: 40px;
-  border-radius: 16px;
-  border: 2px dashed #cbd5e1;
-  max-width: 500px;
+  background: var(--bg-glass-light); /* Fond de verre */
+  padding: var(--space-2xl);
+  border-radius: var(--radius-xl);
+  border: 2px dashed var(--mauve-secondaire); /* Bordure en pointillé mauve */
+  max-width: 550px;
   margin: 0 auto;
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(12px);
 }
 
 .no-active-content h3 {
-  margin: 0 0 16px;
-  color: #1e293b;
-  font-size: 24px;
+  margin: 0 0 var(--space-md);
+  color: var(--text-dark);
+  font-size: var(--text-2xl);
 }
 
 .no-active-content p {
-  margin: 0 0 12px;
-  color: #64748b;
-  line-height: 1.6;
+  margin: 0 0 var(--space-sm);
+  color: var(--text-medium);
+  line-height: 1.7;
+  font-size: var(--text-base);
 }
 
 .no-active-content p:last-child {
   margin-bottom: 0;
-  font-weight: 600;
-  color: #10b981;
+  font-weight: 700;
+  color: var(--mauve-primaire); /* Couleur vive pour l'appel à l'action */
 }
 
 /* Responsive */
 @media (max-width: 768px) {
   .streamers-grid {
     grid-template-columns: 1fr;
-    gap: 16px;
-    padding: 0 10px;
+    gap: var(--space-md);
+    padding: 0 var(--space-sm);
   }
-  
+
   .streamer-card {
-    padding: 16px;
+    padding: var(--space-md);
   }
-  
+
   .pauvrathon-stats {
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: var(--space-xs);
   }
-  
+
   .stat {
-    padding: 8px;
+    padding: var(--space-xs);
   }
-  
+
   .streamer-header {
     flex-direction: column;
     text-align: center;
-    gap: 12px;
+    gap: var(--space-xs);
   }
-  
+
   .live-info {
     flex-direction: column;
-    gap: 8px;
+    gap: var(--space-xs);
     text-align: center;
+  }
+
+  .section-header h2 {
+    font-size: var(--text-2xl);
+  }
+}
+
+@media (max-width: 480px) {
+  .discover-page {
+    padding: var(--space-xs) var(--space-0);
+  }
+
+  .streamers-container {
+    padding: var(--space-xl) var(--space-sm);
+    gap: var(--space-lg);
+  }
+
+  .section-header h2 {
+    font-size: var(--text-xl);
+  }
+
+  .section-header p {
+    font-size: var(--text-sm);
+  }
+
+  .streamer-card {
+    padding: var(--space-sm);
+  }
+
+  .streamer-header {
+    gap: var(--space-xs);
+  }
+
+  .avatar-container {
+    width: 60px;
+    height: 60px;
+  }
+
+  .streamer-info h3 {
+    font-size: var(--text-lg);
+  }
+
+  .streamer-username {
+    font-size: var(--text-sm);
+  }
+
+  .pauvrathon-stats {
+    gap: var(--space-xs);
+  }
+
+  .stat {
+    padding: var(--space-xs);
+  }
+
+  .stat-value {
+    font-size: var(--text-sm);
+  }
+
+  .stat-label {
+    font-size: var(--text-xs);
+  }
+
+  .participate-prompt {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: var(--text-sm);
+  }
+
+  .visit-channel-btn {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: var(--text-sm);
+  }
+
+  .no-active-content {
+    padding: var(--space-lg);
+  }
+
+  .no-active-content h3 {
+    font-size: var(--text-xl);
+  }
+
+  .no-active-content p {
+    font-size: var(--text-sm);
   }
 }

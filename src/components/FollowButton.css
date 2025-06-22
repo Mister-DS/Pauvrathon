@@ -1,0 +1,539 @@
+/* ==========================================================================
+   FOLLOW BUTTON - THÈME MAUVE CLAIR
+   src/components/FollowButton.css
+   ========================================================================== */
+
+:root {
+  --follow-primary: #a855f7;
+  --follow-primary-light: #c084fc;
+  --follow-bg: rgba(255, 255, 255, 0.9);
+  --follow-border: #d8b4fe;
+  --follow-text: #2d1b69;
+  --follow-success: #22c55e;
+  --follow-danger: #ef4444;
+}
+
+.follow-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  border: 1px solid var(--follow-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.follow-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* ==========================================================================
+   VARIANTE DEFAULT
+   ========================================================================== */
+
+.follow-button.default {
+  padding: 0.75rem 1.25rem;
+  font-size: 0.9rem;
+  min-width: 160px;
+  background: var(--follow-bg);
+  color: var(--follow-text);
+}
+
+.follow-button.default:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.2);
+}
+
+.follow-button.default.not-following {
+  border-color: var(--follow-primary);
+}
+
+.follow-button.default.not-following:hover:not(:disabled) {
+  background: rgba(168, 85, 247, 0.1);
+  border-color: var(--follow-primary);
+}
+
+.follow-button.default.following {
+  background: linear-gradient(135deg, var(--follow-success) 0%, #16a34a 100%);
+  color: white;
+  border-color: var(--follow-success);
+}
+
+.follow-button.default.following:hover:not(:disabled) {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+}
+
+.follow-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.follow-status {
+  font-size: 0.75rem;
+  opacity: 0.9;
+  font-weight: 400;
+}
+
+/* ==========================================================================
+   VARIANTE COMPACT
+   ========================================================================== */
+
+.follow-button.compact {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  min-width: 90px;
+  background: var(--follow-bg);
+  color: var(--follow-text);
+}
+
+.follow-button.compact:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(168, 85, 247, 0.2);
+}
+
+.follow-button.compact.not-following {
+  border-color: var(--follow-primary);
+}
+
+.follow-button.compact.not-following:hover:not(:disabled) {
+  background: rgba(168, 85, 247, 0.1);
+}
+
+.follow-button.compact.following {
+  background: linear-gradient(135deg, var(--follow-success) 0%, #16a34a 100%);
+  color: white;
+  border-color: var(--follow-success);
+}
+
+.follow-button.compact.following:hover:not(:disabled) {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+}
+
+/* ==========================================================================
+   VARIANTE HEART
+   ========================================================================== */
+
+.follow-button.heart {
+  padding: 0.5rem;
+  font-size: 1rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--follow-bg);
+  color: var(--follow-text);
+}
+
+.follow-button.heart:hover:not(:disabled) {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.2);
+}
+
+.follow-button.heart.not-following {
+  border-color: var(--follow-border);
+  color: var(--follow-text);
+}
+
+.follow-button.heart.not-following:hover:not(:disabled) {
+  background: rgba(168, 85, 247, 0.1);
+  border-color: var(--follow-primary);
+  color: var(--follow-primary);
+}
+
+.follow-button.heart.following {
+  background: linear-gradient(135deg, var(--follow-danger) 0%, #dc2626 100%);
+  color: white;
+  border-color: var(--follow-danger);
+  animation: heart-beat 1.5s ease-in-out infinite;
+}
+
+.follow-button.heart.following:hover:not(:disabled) {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: scale(1.15);
+}
+
+@keyframes heart-beat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.loading-heart {
+  animation: heart-pulse 1s ease-in-out infinite;
+}
+
+@keyframes heart-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+}
+
+/* ==========================================================================
+   ÉTATS DE CHARGEMENT
+   ========================================================================== */
+
+.loading-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.loading-spinner-small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(168, 85, 247, 0.2);
+  border-left: 2px solid var(--follow-primary);
+  border-radius: 50%;
+  animation: spin-small 1s linear infinite;
+}
+
+@keyframes spin-small {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.follow-button.loading-initial {
+  background: rgba(168, 85, 247, 0.1);
+  border-color: rgba(168, 85, 247, 0.3);
+  color: var(--follow-primary);
+}
+
+/* ==========================================================================
+   EFFETS VISUELS AVANCÉS
+   ========================================================================== */
+
+.follow-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.follow-button:hover::before {
+  left: 100%;
+}
+
+/* Effet de particules pour le suivi actif */
+.follow-button.following::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, transparent, rgba(34, 197, 94, 0.3), transparent);
+  border-radius: inherit;
+  z-index: -1;
+  animation: follow-glow 3s linear infinite;
+}
+
+@keyframes follow-glow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .follow-button.default {
+    padding: 0.625rem 1rem;
+    font-size: 0.85rem;
+    min-width: 140px;
+  }
+
+  .follow-button.compact {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    min-width: 80px;
+  }
+
+  .follow-button.heart {
+    width: 40px;
+    height: 40px;
+    padding: 0.4rem;
+  }
+
+  .follow-content {
+    gap: 0.125rem;
+  }
+
+  .follow-status {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .follow-button.default {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.8rem;
+    min-width: 120px;
+  }
+
+  .follow-button.compact {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
+    min-width: 70px;
+  }
+
+  .follow-button.heart {
+    width: 36px;
+    height: 36px;
+    padding: 0.3rem;
+  }
+
+  .follow-content {
+    flex-direction: row;
+    gap: 0.25rem;
+  }
+
+  .follow-status {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   VARIATIONS DE COULEUR
+   ========================================================================== */
+
+/* Variante bleue */
+.follow-button.blue.not-following {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.follow-button.blue.not-following:hover:not(:disabled) {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.follow-button.blue.following {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border-color: #3b82f6;
+}
+
+/* Variante verte */
+.follow-button.green.not-following {
+  border-color: #22c55e;
+  color: #22c55e;
+}
+
+.follow-button.green.not-following:hover:not(:disabled) {
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.follow-button.green.following {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  border-color: #22c55e;
+}
+
+/* ==========================================================================
+   TOOLTIPS INTÉGRÉS
+   ========================================================================== */
+
+.follow-button[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  background: var(--follow-text);
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 1000;
+  animation: tooltip-appear 0.2s ease-out;
+}
+
+.follow-button[title]:hover::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-2px);
+  border: 4px solid transparent;
+  border-top-color: var(--follow-text);
+  z-index: 1000;
+  animation: tooltip-appear 0.2s ease-out;
+}
+
+@keyframes tooltip-appear {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-8px);
+  }
+}
+
+/* ==========================================================================
+   ACCESSIBILITÉ
+   ========================================================================== */
+
+.follow-button:focus-visible {
+  outline: 2px solid var(--follow-primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.2);
+}
+
+/* Mode contraste élevé */
+@media (prefers-contrast: high) {
+  .follow-button {
+    border-width: 2px;
+  }
+  
+  .follow-button.following {
+    border-width: 3px;
+  }
+}
+
+/* Mode mouvement réduit */
+@media (prefers-reduced-motion: reduce) {
+  .follow-button,
+  .follow-button::before,
+  .follow-button::after,
+  .loading-spinner-small,
+  .loading-heart {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .follow-button:hover {
+    transform: none !important;
+  }
+}
+
+/* ==========================================================================
+   ÉTATS SPÉCIAUX
+   ========================================================================== */
+
+/* Bouton en erreur */
+.follow-button.error {
+  border-color: var(--follow-danger);
+  color: var(--follow-danger);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.follow-button.error:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+/* Bouton en succès */
+.follow-button.success {
+  border-color: var(--follow-success);
+  color: white;
+  background: var(--follow-success);
+  animation: success-flash 0.6s ease-out;
+}
+
+@keyframes success-flash {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* ==========================================================================
+   VERSIONS AVEC ICÔNES SPÉCIALES
+   ========================================================================== */
+
+.follow-button.with-notification-icon {
+  padding-left: 1rem;
+}
+
+.follow-button.with-notification-icon.compact {
+  padding-left: 0.75rem;
+}
+
+.follow-button .notification-indicator {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 12px;
+  height: 12px;
+  background: #22c55e;
+  border: 2px solid white;
+  border-radius: 50%;
+  animation: notification-pulse 2s infinite;
+}
+
+@keyframes notification-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* ==========================================================================
+   THÈME SOMBRE (optionnel)
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  .theme-auto {
+    --follow-bg: rgba(45, 27, 105, 0.9);
+    --follow-border: #6b46c1;
+    --follow-text: #f3f1ff;
+  }
+}
+
+/* ==========================================================================
+   GROUPE DE BOUTONS
+   ========================================================================== */
+
+.follow-button-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.follow-button-group .follow-button {
+  margin: 0;
+}
+
+.follow-button-group .follow-button:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.follow-button-group .follow-button:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: none;
+}
+
+.follow-button-group .follow-button:not(:first-child):not(:last-child) {
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+}
+
+/* ==========================================================================
+   INTÉGRATION AVEC AUTRES COMPOSANTS
+   ========================================================================== */
+
+/* Dans une card */
+.streamer-card .follow-button {
+  margin-top: 1rem;
+}
+
+/* Dans un header */
+.streamer-header .follow-button {
+  margin-left: auto;
+}
+
+/* Dans une liste */
+.streamer-list-item .follow-button {
+  align-self: flex-start;
+}

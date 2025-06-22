@@ -1,39 +1,9 @@
-/* Variables CSS pour un thème cohérent */
-:root {
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-  --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-  --glass-bg: rgba(255, 255, 255, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.2);
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.8);
-  --text-muted: rgba(255, 255, 255, 0.6);
-  --shadow-sm: 0 4px 15px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.15);
-  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.2);
-  --border-radius: 20px;
-  --border-radius-sm: 12px;
-  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Fix global pour les textes flous */
-* {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-h1, h2, h3, h4, h5, h6, p, span, div {
-  text-rendering: optimizeLegibility;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-}
+/* GamePage.css - Version corrigée avec thème mauve unifié */
 
 /* Container principal */
 .game-page {
   min-height: 100vh;
-  background: var(--primary-gradient);
+  background: var(--gradient-primary);
   padding: 2rem 1rem;
   position: relative;
   overflow-x: hidden;
@@ -54,11 +24,6 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   z-index: 0;
 }
 
-@keyframes float {
-  0% { transform: translateY(0px) rotate(0deg); }
-  100% { transform: translateY(-100px) rotate(360deg); }
-}
-
 /* Header de la page */
 .game-header {
   text-align: center;
@@ -70,7 +35,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .game-header h1 {
   font-size: 3.5rem;
   font-weight: 800;
-  color: var(--text-primary);
+  color: var(--text-white);
   margin: 0 0 1rem 0;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
   animation: titleGlow 3s ease-in-out infinite alternate;
@@ -83,7 +48,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 .game-header p {
   font-size: 1.2rem;
-  color: var(--text-secondary);
+  color: var(--text-white-80);
   margin-bottom: 1.5rem;
 }
 
@@ -96,17 +61,17 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 }
 
 .explanation-card {
-  background: var(--glass-bg);
+  background: var(--bg-glass-medium);
   backdrop-filter: blur(20px);
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-2xl);
   padding: 2.5rem;
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-white-strong);
+  box-shadow: var(--shadow-xl);
   text-align: center;
 }
 
 .explanation-card h3 {
-  color: var(--text-primary);
+  color: var(--text-white);
   font-size: 1.8rem;
   margin-bottom: 2rem;
   font-weight: 700;
@@ -125,35 +90,35 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   align-items: center;
   text-align: center;
   padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: var(--border-radius-sm);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: var(--transition);
+  background: var(--bg-glass-light);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-white);
+  transition: var(--transition-normal);
 }
 
 .step:hover {
   transform: translateY(-5px);
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--bg-glass-medium);
+  border-color: var(--border-white-strong);
 }
 
 .step-number {
   width: 50px;
   height: 50px;
-  background: var(--secondary-gradient);
+  background: var(--gradient-secondary);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
   font-weight: 800;
-  color: white;
+  color: var(--text-white);
   margin-bottom: 1rem;
   box-shadow: var(--shadow-md);
 }
 
 .step p {
-  color: var(--text-secondary);
+  color: var(--text-white-80);
   font-size: 1rem;
   margin: 0;
   line-height: 1.5;
@@ -169,7 +134,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 .streamers-section h2 {
   text-align: center;
-  color: var(--text-primary);
+  color: var(--text-white);
   font-size: 2.5rem;
   margin-bottom: 3rem;
   font-weight: 700;
@@ -184,7 +149,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   transform: translateX(-50%);
   width: 80px;
   height: 4px;
-  background: var(--success-gradient);
+  background: var(--gradient-success);
   border-radius: 2px;
 }
 
@@ -195,26 +160,26 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 }
 
 .streamer-card {
-  background: var(--glass-bg);
+  background: var(--bg-glass-medium);
   backdrop-filter: blur(20px);
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-2xl);
   padding: 2rem;
-  border: 2px solid var(--glass-border);
-  box-shadow: var(--shadow-lg);
-  transition: var(--transition);
+  border: 2px solid var(--border-white-strong);
+  box-shadow: var(--shadow-xl);
+  transition: var(--transition-normal);
   position: relative;
   overflow: hidden;
 }
 
 .streamer-card.active {
-  border-color: #4ade80;
-  box-shadow: 0 0 30px rgba(74, 222, 128, 0.3);
+  border-color: var(--color-success);
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
 }
 
 .streamer-card:hover {
   transform: translateY(-8px);
-  box-shadow: var(--shadow-lg);
-  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--text-white);
 }
 
 .streamer-image-container {
@@ -227,19 +192,19 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  border: 4px solid rgba(255, 255, 255, 0.3);
+  border: 4px solid var(--border-white-medium);
   box-shadow: var(--shadow-md);
-  transition: var(--transition);
+  transition: var(--transition-normal);
 }
 
 .streamer-image.clickable {
-  border-color: #4ade80;
+  border-color: var(--color-success);
   animation: pulse 2s infinite;
 }
 
 .streamer-image:hover {
   transform: scale(1.05);
-  border-color: rgba(255, 255, 255, 0.6);
+  border-color: var(--text-white);
 }
 
 .active-indicator {
@@ -247,8 +212,8 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   top: -10px;
   right: 50%;
   transform: translateX(50%);
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: white;
+  background: var(--gradient-danger);
+  color: var(--text-white);
   padding: 0.3rem 0.8rem;
   border-radius: 15px;
   font-size: 0.75rem;
@@ -268,7 +233,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 }
 
 .streamer-info h3 {
-  color: var(--text-primary);
+  color: var(--text-white);
   font-size: 1.4rem;
   margin-bottom: 1.5rem;
   font-weight: 600;
@@ -285,8 +250,8 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   flex-direction: column;
   align-items: center;
   padding: 0.8rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: var(--border-radius-sm);
+  background: var(--bg-glass-light);
+  border-radius: var(--radius-lg);
   flex: 1;
   margin: 0 0.3rem;
 }
@@ -294,17 +259,18 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .stat-icon {
   font-size: 1.2rem;
   margin-bottom: 0.3rem;
+  color: var(--text-white-80);
 }
 
 .stat-value {
-  color: var(--text-primary);
+  color: var(--text-white);
   font-weight: 700;
   font-size: 1rem;
   margin-bottom: 0.2rem;
 }
 
 .stat-label {
-  color: var(--text-muted);
+  color: var(--text-white-70);
   font-size: 0.75rem;
   text-align: center;
 }
@@ -316,13 +282,13 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 }
 
 .participate-button {
-  background: var(--success-gradient);
-  color: white;
+  background: var(--gradient-success);
+  color: var(--text-white);
   padding: 1rem 2rem;
   border-radius: 50px;
   text-decoration: none;
   font-weight: 700;
-  transition: var(--transition);
+  transition: var(--transition-normal);
   flex: 1;
   text-align: center;
   box-shadow: var(--shadow-md);
@@ -332,17 +298,17 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .participate-button:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow-lg);
-  border-color: rgba(255, 255, 255, 0.3);
+  border-color: var(--text-white);
 }
 
 .watch-button {
-  background: var(--secondary-gradient);
-  color: white;
+  background: var(--gradient-secondary);
+  color: var(--text-white);
   padding: 1rem 1.5rem;
   border-radius: 50px;
   text-decoration: none;
   font-weight: 600;
-  transition: var(--transition);
+  transition: var(--transition-normal);
   text-align: center;
   box-shadow: var(--shadow-md);
 }
@@ -362,23 +328,23 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 }
 
 .no-streamers-content {
-  background: var(--glass-bg);
+  background: var(--bg-glass-medium);
   backdrop-filter: blur(20px);
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-2xl);
   padding: 4rem 3rem;
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-white-strong);
+  box-shadow: var(--shadow-xl);
 }
 
 .no-streamers-content h2 {
-  color: var(--text-primary);
+  color: var(--text-white);
   font-size: 2.5rem;
   margin-bottom: 1.5rem;
   font-weight: 700;
 }
 
 .no-streamers-content p {
-  color: var(--text-secondary);
+  color: var(--text-white-80);
   font-size: 1.2rem;
   margin-bottom: 2rem;
   line-height: 1.6;
@@ -390,14 +356,14 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 }
 
 .no-streamers-suggestions h3 {
-  color: var(--text-primary);
+  color: var(--text-white);
   font-size: 1.3rem;
   margin-bottom: 1rem;
   text-align: center;
 }
 
 .no-streamers-suggestions ul {
-  color: var(--text-secondary);
+  color: var(--text-white-80);
   list-style: none;
   padding: 0;
 }
@@ -416,14 +382,14 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 }
 
 .refresh-button {
-  background: var(--dark-gradient);
-  color: white;
+  background: var(--gradient-dark);
+  color: var(--text-white);
   padding: 1rem 2rem;
   border: none;
   border-radius: 50px;
   font-weight: 600;
   cursor: pointer;
-  transition: var(--transition);
+  transition: var(--transition-normal);
   font-size: 1rem;
   box-shadow: var(--shadow-md);
 }
@@ -443,7 +409,7 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 .global-stats-section h2 {
   text-align: center;
-  color: var(--text-primary);
+  color: var(--text-white);
   font-size: 2rem;
   margin-bottom: 2rem;
   font-weight: 700;
@@ -456,14 +422,14 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 }
 
 .global-stat {
-  background: var(--glass-bg);
+  background: var(--bg-glass-medium);
   backdrop-filter: blur(20px);
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--radius-lg);
   padding: 2rem;
   text-align: center;
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border-white-strong);
   box-shadow: var(--shadow-md);
-  transition: var(--transition);
+  transition: var(--transition-normal);
 }
 
 .global-stat:hover {
@@ -475,13 +441,13 @@ h1, h2, h3, h4, h5, h6, p, span, div {
   display: block;
   font-size: 2.5rem;
   font-weight: 800;
-  color: var(--text-primary);
+  color: var(--text-white);
   margin-bottom: 0.5rem;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .global-stat-label {
-  color: var(--text-secondary);
+  color: var(--text-white-80);
   font-size: 0.9rem;
   font-weight: 500;
 }
@@ -495,13 +461,13 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 }
 
 .cta-card {
-  background: var(--glass-bg);
+  background: var(--bg-glass-medium);
   backdrop-filter: blur(20px);
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-2xl);
   padding: 3rem;
   text-align: center;
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-white-strong);
+  box-shadow: var(--shadow-xl);
   position: relative;
   overflow: hidden;
 }
@@ -524,28 +490,28 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 }
 
 .cta-card h3 {
-  color: var(--text-primary);
+  color: var(--text-white);
   font-size: 2rem;
   margin-bottom: 1rem;
   font-weight: 700;
 }
 
 .cta-card p {
-  color: var(--text-secondary);
+  color: var(--text-white-80);
   font-size: 1.1rem;
   margin-bottom: 2rem;
   line-height: 1.6;
 }
 
 .cta-button {
-  background: var(--warning-gradient);
-  color: white;
+  background: var(--gradient-warning);
+  color: var(--text-white);
   padding: 1.2rem 3rem;
   border-radius: 50px;
   text-decoration: none;
   font-weight: 700;
   font-size: 1.1rem;
-  transition: var(--transition);
+  transition: var(--transition-normal);
   display: inline-block;
   box-shadow: var(--shadow-lg);
   border: 2px solid transparent;
@@ -554,18 +520,18 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .cta-button:hover {
   transform: translateY(-5px);
   box-shadow: 0 25px 50px rgba(250, 112, 154, 0.4);
-  border-color: rgba(255, 255, 255, 0.3);
+  border-color: var(--text-white);
 }
 
 /* États communs */
 .auth-required, .loading, .error-section {
   text-align: center;
   padding: 4rem 2rem;
-  background: var(--glass-bg);
+  background: var(--bg-glass-medium);
   backdrop-filter: blur(20px);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-lg);
-  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--border-white-strong);
   max-width: 600px;
   margin: 0 auto;
   position: relative;
@@ -574,27 +540,27 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 
 .auth-required h2, .loading h2, .error-section h2 {
   margin: 0 0 1rem;
-  color: var(--text-primary);
+  color: var(--text-white);
   font-size: 2rem;
   font-weight: 700;
 }
 
 .auth-required p, .loading p, .error-section p {
   margin: 0 0 2rem;
-  color: var(--text-secondary);
+  color: var(--text-white-80);
   font-size: 1.1rem;
   line-height: 1.6;
 }
 
 .retry-button {
-  background: var(--dark-gradient);
-  color: white;
+  background: var(--gradient-dark);
+  color: var(--text-white);
   padding: 1rem 2rem;
   border: none;
   border-radius: 50px;
   font-weight: 600;
   cursor: pointer;
-  transition: var(--transition);
+  transition: var(--transition-normal);
   font-size: 1rem;
   box-shadow: var(--shadow-md);
 }
@@ -608,22 +574,11 @@ h1, h2, h3, h4, h5, h6, p, span, div {
 .spinner {
   width: 50px;
   height: 50px;
-  border: 4px solid rgba(255, 255, 255, 0.2);
-  border-top: 4px solid var(--text-primary);
+  border: 4px solid var(--border-white);
+  border-top: 4px solid var(--text-white);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 2rem;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Animations communes */
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
 }
 
 /* Responsive Design */

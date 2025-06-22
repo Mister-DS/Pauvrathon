@@ -8,6 +8,8 @@ import {
   Volume2, Webhook, ToggleLeft, ToggleRight, Sliders,
   Calendar, UserCheck, UserX, Trophy, Gift
 } from 'lucide-react';
+// 🔔 NOUVEAU: Import du service de notifications
+import notificationService from './NotificationService';
 import './AdminPanel.css';
 
 const AdminPanel = ({ user }) => {
@@ -24,6 +26,10 @@ const AdminPanel = ({ user }) => {
     active_sessions: 0,
     total_games_today: 0
   });
+
+  // 🔔 NOUVEAU: États pour les notifications
+  const [followerCount, setFollowerCount] = useState(0);
+  const [sendingNotification, setSendingNotification] = useState(false);
 
   // Jeux disponibles avec configuration par défaut
   const [availableGames] = useState([
@@ -62,6 +68,13 @@ const AdminPanel = ({ user }) => {
       initializeStreamerConfig();
     }
   }, [user]);
+
+  // 🔔 NOUVEAU: Charger le nombre de followers
+  useEffect(() => {
+    if (streamerConfig?.id) {
+      loadFollowerCount();
+    }
+  }, [streamerConfig?.id]);
 
   // Initialiser ou récupérer la configuration du streamer
   const initializeStreamerConfig = async () => {
@@ -136,7 +149,7 @@ const AdminPanel = ({ user }) => {
             min_followers: 0,
             // Nouvelles configurations
             welcome_message: `Bienvenue sur mon Pauvrathon ! Cliquez sur mon avatar pour participer ! 🎮`,
-            theme_color: '#9146ff',
+            theme_color: '#a855f7',
             time_multiplier_weekend: 1.2,
             time_multiplier_evening: 1.1,
             auto_notifications: true,
@@ -224,7 +237,23 @@ const AdminPanel = ({ user }) => {
     }
   };
 
-  // Démarrer/arrêter le Pauvrathon
+  // 🔔 NOUVEAU: Charger le nombre de followers
+  const loadFollowerCount = async () => {
+    try {
+      const { count, error } = await supabase
+        .from('streamer_followers')
+        .select('*', { count: 'exact', head: true })
+        .eq('streamer_id', streamerConfig.id)
+        .eq('notification_enabled', true);
+
+      if (error) throw error;
+      setFollowerCount(count || 0);
+    } catch (err) {
+      console.error('Erreur chargement followers:', err);
+    }
+  };
+
+  // 🔔 MODIFIÉ: Démarrer/arrêter le Pauvrathon avec notifications
   const toggleSubathon = async (active) => {
     try {
       setSaving(true);
@@ -238,11 +267,109 @@ const AdminPanel = ({ user }) => {
 
       setStreamerConfig(prev => ({ ...prev, subathon_active: active }));
       
+      // 🔔 NOUVEAU : Notifications automatiques
+      if (active) {
+        console.log('🔄 Envoi notifications Pauvrathon démarré...');
+        
+        try {
+          const result = await notificationService.notifyPauvrathonStart(
+            streamerConfig.id,
+            streamerConfig.user_data?.twitch_display_name
+          );
+          
+          if (result.success) {
+            console.log(`📢 ${result.count} notifications envoyées`);
+            
+            // Afficher un message de succès à l'admin
+            if (result.count > 0) {
+              setTimeout(() => {
+                alert(`🎉 Pauvrathon démarré !\n\n📢 ${result.count} followers ont été notifiés automatiquement.`);
+              }, 500);
+            } else {
+              setTimeout(() => {
+                alert(`🎉 Pauvrathon démarré !\n\n💡 Aucun follower à notifier pour le moment.`);
+              }, 500);
+            }
+          } else {
+            console.warn('⚠️ Erreur envoi notifications:', result.error);
+          }
+        } catch (notifError) {
+          console.warn('⚠️ Service de notifications non disponible:', notifError);
+          // Le Pauvrathon fonctionne même sans notifications
+        }
+      } else {
+        // Optionnel : Notifier la fin du Pauvrathon
+        const finalTime = streamerConfig.current_timer;
+        if (finalTime > 0) {
+          try {
+            const result = await notificationService.notifyPauvrathonEnd(
+              streamerConfig.id,
+              streamerConfig.user_data?.twitch_display_name,
+              finalTime
+            );
+            
+            if (result.success && result.count > 0) {
+              console.log(`📢 ${result.count} notifications de fin envoyées`);
+            }
+          } catch (notifError) {
+            console.warn('⚠️ Erreur notification fin:', notifError);
+          }
+        }
+      }
+      
     } catch (err) {
       console.error('Erreur toggle subathon:', err);
       setError(`Erreur: ${err.message}`);
     } finally {
       setSaving(false);
+    }
+  };
+
+  // 🔔 NOUVEAU: Envoyer notification personnalisée
+  const sendCustomNotification = async () => {
+    const title = prompt('Titre de la notification:');
+    if (!title) return;
+    
+    const message = prompt('Message de la notification:');
+    if (!message) return;
+    
+    try {
+      setSendingNotification(true);
+      
+      // Récupérer tous les followers
+      const { data: followers, error } = await supabase
+        .from('streamer_followers')
+        .select('user_id')
+        .eq('streamer_id', streamerConfig.id)
+        .eq('notification_enabled', true);
+
+      if (error) throw error;
+
+      let sentCount = 0;
+      
+      // Envoyer à chaque follower
+      for (const follower of followers) {
+        const result = await notificationService.sendCustomNotification(
+          follower.user_id,
+          title,
+          message,
+          'custom',
+          {
+            streamer_id: streamerConfig.id,
+            streamer_name: streamerConfig.user_data?.twitch_display_name
+          }
+        );
+        
+        if (result.success) sentCount++;
+      }
+      
+      alert(`✅ Notification envoyée à ${sentCount} followers !`);
+      
+    } catch (error) {
+      console.error('Erreur notification personnalisée:', error);
+      alert('❌ Erreur lors de l\'envoi');
+    } finally {
+      setSendingNotification(false);
     }
   };
 
@@ -397,7 +524,7 @@ const AdminPanel = ({ user }) => {
 
   // Prévisualiser les couleurs
   const previewTheme = () => {
-    const color = tempSettings.theme_color || '#9146ff';
+    const color = tempSettings.theme_color || '#a855f7';
     document.documentElement.style.setProperty('--preview-color', color);
   };
 
@@ -536,6 +663,45 @@ const AdminPanel = ({ user }) => {
               <Edit3 size={14} /> Modifier Timer
             </button>
           </div>
+
+          {/* 🔔 NOUVELLE SECTION: Notifications */}
+          {!editingSettings && (
+            <div className="notifications-section">
+              <h4>📢 Notifications</h4>
+              <div className="notification-controls">
+                <div className="notification-stats">
+                  <span className="notification-stat">
+                    <Bell size={16} />
+                    {followerCount} followers avec notifications
+                  </span>
+                  <span className="notification-stat">
+                    <MessageSquare size={16} />
+                    Notifications {streamerConfig.auto_notifications ? 'activées' : 'désactivées'}
+                  </span>
+                </div>
+                
+                <button 
+                  onClick={sendCustomNotification}
+                  className="btn btn-info"
+                  disabled={sendingNotification}
+                  title="Envoyer une notification personnalisée à vos followers"
+                >
+                  {sendingNotification ? '⏳' : <Bell size={16} />}
+                  {sendingNotification ? 'Envoi...' : 'Notification personnalisée'}
+                </button>
+              </div>
+              
+              <div className="notification-info">
+                <p>
+                  💡 <strong>Notifications automatiques :</strong> Vos followers seront automatiquement 
+                  notifiés quand vous démarrez/arrêtez votre Pauvrathon.
+                  {followerCount === 0 && (
+                    <span style={{ color: '#f59e0b' }}> Aucun follower pour le moment - partagez votre page pour que les gens puissent vous suivre !</span>
+                  )}
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Onglets de configuration */}
           {editingSettings && (
@@ -1174,7 +1340,7 @@ const AdminPanel = ({ user }) => {
                   <span>🎨 Thème:</span>
                   <div 
                     className="color-dot" 
-                    style={{ backgroundColor: streamerConfig.theme_color || '#9146ff' }}
+                    style={{ backgroundColor: streamerConfig.theme_color || '#a855f7' }}
                   ></div>
                 </div>
               </div>

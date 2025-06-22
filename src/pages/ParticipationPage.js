@@ -6,6 +6,7 @@ import NumberGuessGame from '../games/NumberGuessGame';
 import MemoryGame from '../games/MemoryGame';
 import ReactionGame from '../games/ReactionGame';
 import NotificationSystem, { useNotifications } from '../components/NotificationSystem';
+import { NotificationCenter } from '../components/NotificationCenter';
 import './ParticipationPage.css';
 
 const ParticipationPage = ({ user }) => {
@@ -163,7 +164,7 @@ const ParticipationPage = ({ user }) => {
     }
   };
 
-  // Gérer les clics sur le streamer
+  // ✅ CORRECTION : Gérer les clics sur le streamer
   const handleStreamerClick = async () => {
     if (onCooldown || gameUnlocked || !streamer || !participationSession) return;
 
@@ -171,28 +172,64 @@ const ParticipationPage = ({ user }) => {
     setClickCount(newCount);
 
     try {
-      // Mettre à jour la session et les stats utilisateur
-      await Promise.all([
-        supabase
+      // ✅ CORRECTION : Utiliser RPC au lieu de SQL
+      const { data: clickResult, error: clickError } = await supabase
+        .rpc('increment_clicks', {
+          p_streamer_id: streamer.id,
+          p_viewer_id: participationSession.viewer_id
+        });
+
+      if (clickError) {
+        console.warn('RPC increment_clicks échoué, fallback manuel:', clickError);
+        // Fallback manuel si RPC échoue
+        await supabase
           .from('pauvrathon_sessions')
           .update({ 
             clicks_count: newCount,
             updated_at: new Date().toISOString()
           })
-          .eq('id', participationSession.id),
-        
-        supabase
+          .eq('id', participationSession.id);
+      }
+
+      // ✅ CORRECTION : Incrémenter les stats sans SQL
+      const { data: currentStats } = await supabase
+        .from('user_stats')
+        .select('total_clicks')
+        .eq('user_id', participationSession.viewer_id)
+        .single();
+
+      if (currentStats) {
+        await supabase
           .from('user_stats')
           .update({ 
-            total_clicks: supabase.sql`total_clicks + 1`,
+            total_clicks: (currentStats.total_clicks || 0) + 1,
             updated_at: new Date().toISOString()
           })
-          .eq('user_id', participationSession.viewer_id)
-      ]);
+          .eq('user_id', participationSession.viewer_id);
+      } else {
+        // Créer les stats si elles n'existent pas
+        await supabase
+          .from('user_stats')
+          .insert({
+            user_id: participationSession.viewer_id,
+            total_clicks: 1,
+            total_games_played: 0,
+            total_games_won: 0,
+            best_score: 0
+          });
+      }
 
       // Vérifier si le jeu doit être débloqué
       if (newCount >= streamer.clicks_required) {
-        const randomGame = availableGames[Math.floor(Math.random() * availableGames.length)];
+        // Filtrer les jeux activés
+        const enabledGames = availableGames.filter(game => 
+          streamer.game_settings?.[game.id]?.enabled !== false
+        );
+        
+        const randomGame = enabledGames.length > 0 
+          ? enabledGames[Math.floor(Math.random() * enabledGames.length)]
+          : availableGames[Math.floor(Math.random() * availableGames.length)];
+          
         setSelectedGameType(randomGame);
         setGameUnlocked(true);
         showSuccess(`🎮 Jeu débloqué ! "${randomGame.name}" sélectionné !`);
@@ -204,7 +241,7 @@ const ParticipationPage = ({ user }) => {
     }
   };
 
-  // Gérer la completion du jeu
+  // ✅ CORRECTION : Gérer la completion du jeu
   const handleGameComplete = async (result) => {
     if (!streamer || !participationSession) return;
 
@@ -264,16 +301,35 @@ const ParticipationPage = ({ user }) => {
           })
           .eq('id', participationSession.id);
 
-        // Mettre à jour les stats utilisateur
-        await supabase
+        // ✅ CORRECTION : Mettre à jour les stats sans SQL
+        const { data: currentStats } = await supabase
           .from('user_stats')
-          .update({
-            total_games_played: supabase.sql`total_games_played + 1`,
-            total_games_won: supabase.sql`total_games_won + 1`,
-            best_score: supabase.sql`GREATEST(best_score, ${result.score})`,
-            updated_at: new Date().toISOString()
-          })
-          .eq('user_id', participationSession.viewer_id);
+          .select('total_games_played, total_games_won, best_score')
+          .eq('user_id', participationSession.viewer_id)
+          .single();
+
+        if (currentStats) {
+          await supabase
+            .from('user_stats')
+            .update({
+              total_games_played: (currentStats.total_games_played || 0) + 1,
+              total_games_won: (currentStats.total_games_won || 0) + 1,
+              best_score: Math.max(currentStats.best_score || 0, result.score),
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', participationSession.viewer_id);
+        } else {
+          // Créer les stats si elles n'existent pas
+          await supabase
+            .from('user_stats')
+            .insert({
+              user_id: participationSession.viewer_id,
+              total_clicks: 0,
+              total_games_played: 1,
+              total_games_won: 1,
+              best_score: result.score
+            });
+        }
 
         // Mettre à jour les états locaux
         setStreamer(prev => ({ ...prev, current_timer: newTimer }));
@@ -290,14 +346,33 @@ const ParticipationPage = ({ user }) => {
         const newFailures = consecutiveFailures + 1;
         setConsecutiveFailures(newFailures);
 
-        // Mettre à jour les stats utilisateur
-        await supabase
+        // ✅ CORRECTION : Mettre à jour les stats sans SQL
+        const { data: currentStats } = await supabase
           .from('user_stats')
-          .update({
-            total_games_played: supabase.sql`total_games_played + 1`,
-            updated_at: new Date().toISOString()
-          })
-          .eq('user_id', participationSession.viewer_id);
+          .select('total_games_played')
+          .eq('user_id', participationSession.viewer_id)
+          .single();
+
+        if (currentStats) {
+          await supabase
+            .from('user_stats')
+            .update({
+              total_games_played: (currentStats.total_games_played || 0) + 1,
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', participationSession.viewer_id);
+        } else {
+          // Créer les stats si elles n'existent pas
+          await supabase
+            .from('user_stats')
+            .insert({
+              user_id: participationSession.viewer_id,
+              total_clicks: 0,
+              total_games_played: 1,
+              total_games_won: 0,
+              best_score: 0
+            });
+        }
 
         // Reset après 3 échecs consécutifs
         if (newFailures >= 3) {
@@ -429,7 +504,7 @@ const ParticipationPage = ({ user }) => {
 
   return (
     <div className="participation-page">
-      {/* Header du streamer */}
+      {/* Header du streamer avec notifications */}
       <div className="streamer-header">
         <div className="streamer-info">
           <img 
@@ -448,14 +523,17 @@ const ParticipationPage = ({ user }) => {
           </div>
         </div>
         
-        <div className="session-stats">
-          <div className="session-stat">
-            <span className="session-stat-value">{totalTimeAdded}</span>
-            <span className="session-stat-label">Secondes ajoutées</span>
-          </div>
-          <div className="session-stat">
-            <span className="session-stat-value">{consecutiveFailures}/3</span>
-            <span className="session-stat-label">Échecs consécutifs</span>
+        <div className="header-actions">
+          {user && <NotificationCenter user={user} />}
+          <div className="session-stats">
+            <div className="session-stat">
+              <span className="session-stat-value">{totalTimeAdded}</span>
+              <span className="session-stat-label">Secondes ajoutées</span>
+            </div>
+            <div className="session-stat">
+              <span className="session-stat-value">{consecutiveFailures}/3</span>
+              <span className="session-stat-label">Échecs consécutifs</span>
+            </div>
           </div>
         </div>
       </div>
