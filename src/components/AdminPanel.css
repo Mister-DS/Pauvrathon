@@ -2141,3 +2141,777 @@ textarea:focus-visible {
     font-size: 0.8rem;
   }
 }
+/* ==========================================================================
+   AJOUTS CSS POUR LES CONTRÔLES TEMPS RÉEL - AdminPanel.css
+   À ajouter à votre fichier AdminPanel.css existant
+   ========================================================================== */
+
+/* ==========================================================================
+   SECTION CONTRÔLES TEMPS RÉEL
+   ========================================================================== */
+
+.real-time-controls {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  backdrop-filter: blur(10px);
+  border-left: 4px solid var(--color-success);
+}
+
+.real-time-controls h4 {
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.real-time-controls h5 {
+  margin: 0 0 0.75rem 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: 600;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* ==========================================================================
+   CONTRÔLES DE TIMER
+   ========================================================================== */
+
+.timer-controls {
+  margin-bottom: 1.5rem;
+}
+
+.timer-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background: rgba(34, 197, 94, 0.1);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.timer-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-success);
+  font-family: 'Courier New', monospace;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  min-width: 140px;
+  text-align: center;
+}
+
+.timer-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.timer-buttons .btn {
+  font-size: 0.8rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--border-radius-sm);
+  font-weight: 600;
+  min-width: auto;
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   PARAMÈTRES RAPIDES
+   ========================================================================== */
+
+.quick-settings {
+  margin-bottom: 1.5rem;
+}
+
+.quick-settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.quick-setting-item {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  transition: all 0.3s ease;
+}
+
+.quick-setting-item:hover {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: var(--primary-color);
+  box-shadow: 0 2px 8px rgba(168, 85, 247, 0.1);
+}
+
+.quick-setting-item label {
+  display: block;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* ==========================================================================
+   ÉDITION RAPIDE
+   ========================================================================== */
+
+.quick-edit {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.quick-edit input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.quick-edit input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2);
+}
+
+.quick-edit .btn {
+  padding: 0.5rem;
+  min-width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quick-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.quick-display span {
+  font-weight: 600;
+  color: var(--text-primary);
+  background: rgba(168, 85, 247, 0.1);
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  font-family: 'Courier New', monospace;
+}
+
+.quick-display .btn {
+  padding: 0.4rem;
+  min-width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   CONFIGURATION AVANCÉE
+   ========================================================================== */
+
+.advanced-config {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  backdrop-filter: blur(10px);
+}
+
+.advanced-config h4 {
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+/* ==========================================================================
+   ANIMATIONS ET EFFETS
+   ========================================================================== */
+
+.timer-value {
+  animation: timerPulse 2s infinite;
+}
+
+@keyframes timerPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+  }
+}
+
+.quick-setting-item.editing {
+  border-color: var(--primary-color);
+  background: rgba(168, 85, 247, 0.05);
+  box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.1);
+}
+
+/* ==========================================================================
+   ÉTATS DE SAUVEGARDE
+   ========================================================================== */
+
+.saving-indicator {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: var(--color-success);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  font-size: 0.9rem;
+  font-weight: 600;
+  z-index: 1000;
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.auto-save-indicator {
+  color: var(--color-success);
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-left: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.auto-save-indicator.show {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN POUR CONTRÔLES TEMPS RÉEL
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .timer-display {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .timer-value {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .timer-buttons {
+    justify-content: center;
+  }
+
+  .quick-settings-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .quick-edit {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .quick-edit .btn {
+    width: 100%;
+    height: 40px;
+  }
+
+  .quick-display {
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: center;
+  }
+
+  .quick-display .btn {
+    width: 100%;
+    height: 40px;
+    justify-content: center;
+  }
+
+  .real-time-controls {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .timer-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .timer-buttons .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .quick-setting-item {
+    padding: 0.75rem;
+  }
+
+  .real-time-controls h4 {
+    font-size: 1.1rem;
+  }
+
+  .real-time-controls h5 {
+    font-size: 0.95rem;
+  }
+
+  .advanced-config {
+    padding: 1rem;
+  }
+}
+
+/* ==========================================================================
+   THÈMES SPÉCIAUX POUR LES CONTRÔLES
+   ========================================================================== */
+
+/* Mode Pauvrathon Actif */
+.streamer-card.pauvrathon-active .real-time-controls {
+  border-left-color: var(--color-success);
+  background: rgba(34, 197, 94, 0.05);
+}
+
+.streamer-card.pauvrathon-active .timer-display {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+.streamer-card.pauvrathon-active .timer-value {
+  color: var(--color-success);
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+}
+
+/* Mode Pauvrathon Inactif */
+.streamer-card.pauvrathon-inactive .real-time-controls {
+  border-left-color: var(--color-gray);
+  background: rgba(107, 114, 128, 0.05);
+}
+
+.streamer-card.pauvrathon-inactive .timer-display {
+  background: rgba(107, 114, 128, 0.1);
+  border-color: rgba(107, 114, 128, 0.3);
+}
+
+.streamer-card.pauvrathon-inactive .timer-value {
+  color: var(--color-gray);
+  animation: none;
+}
+
+/* ==========================================================================
+   EFFETS VISUELS AVANCÉS
+   ========================================================================== */
+
+/* Glow effect pour les valeurs importantes */
+.timer-value:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+}
+
+/* Effet de highlight pour les changements */
+.quick-display span.changed {
+  animation: valueChanged 1s ease-out;
+}
+
+@keyframes valueChanged {
+  0% {
+    background: rgba(34, 197, 94, 0.4);
+    transform: scale(1.05);
+  }
+  100% {
+    background: rgba(168, 85, 247, 0.1);
+    transform: scale(1);
+  }
+}
+
+/* Indicateur de modification en cours */
+.quick-setting-item.modified::after {
+  content: '●';
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  color: var(--color-warning);
+  font-size: 1.2rem;
+  animation: pulse 2s infinite;
+}
+
+.quick-setting-item {
+  position: relative;
+}
+
+/* ==========================================================================
+   TOOLTIPS POUR LES CONTRÔLES
+   ========================================================================== */
+
+.timer-buttons .btn[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text-primary);
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.8rem;
+  white-space: nowrap;
+  z-index: 1000;
+  margin-bottom: 0.5rem;
+}
+
+.timer-buttons .btn[title]:hover::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: var(--text-primary);
+  z-index: 1000;
+  margin-bottom: 0.1rem;
+}
+
+.timer-buttons .btn {
+  position: relative;
+}
+
+/* ==========================================================================
+   INDICATEURS D'ÉTAT
+   ========================================================================== */
+
+.connection-status {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-success);
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+  animation: pulse 2s infinite;
+}
+
+.connection-status.disconnected {
+  background: var(--color-danger);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+.real-time-controls {
+  position: relative;
+}
+
+/* ==========================================================================
+   BOUTONS SPÉCIALISÉS
+   ========================================================================== */
+
+.btn-timer-add {
+  background: linear-gradient(135deg, var(--color-success) 0%, #16a34a 100%);
+  border-color: var(--color-success);
+}
+
+.btn-timer-subtract {
+  background: linear-gradient(135deg, var(--color-warning) 0%, #d97706 100%);
+  border-color: var(--color-warning);
+}
+
+.btn-timer-set {
+  background: linear-gradient(135deg, var(--color-info) 0%, #2563eb 100%);
+  border-color: var(--color-info);
+}
+
+.btn-timer-reset {
+  background: linear-gradient(135deg, var(--color-danger) 0%, #dc2626 100%);
+  border-color: var(--color-danger);
+}
+
+/* Hover effects pour les boutons timer */
+.timer-buttons .btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* ==========================================================================
+   MODE COMPACT POUR PETITS ÉCRANS
+   ========================================================================== */
+
+@media (max-width: 360px) {
+  .real-time-controls {
+    padding: 0.75rem;
+  }
+
+  .timer-display {
+    padding: 0.75rem;
+  }
+
+  .timer-value {
+    font-size: 1.1rem;
+    padding: 0.4rem 0.6rem;
+  }
+
+  .timer-buttons .btn {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.6rem;
+  }
+
+  .quick-setting-item {
+    padding: 0.5rem;
+  }
+
+  .quick-settings-grid {
+    gap: 0.5rem;
+  }
+}
+
+/* ==========================================================================
+   DARK MODE SUPPORT
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  .real-time-controls {
+    background: rgba(30, 30, 30, 0.8);
+    border-color: #4b5563;
+  }
+
+  .timer-display {
+    background: rgba(34, 197, 94, 0.15);
+  }
+
+  .timer-value {
+    background: rgba(60, 60, 60, 0.8);
+    color: var(--color-success);
+  }
+
+  .quick-setting-item {
+    background: rgba(40, 40, 40, 0.6);
+    border-color: #4b5563;
+  }
+
+  .quick-display span {
+    background: rgba(168, 85, 247, 0.2);
+    border-color: rgba(168, 85, 247, 0.3);
+  }
+}
+
+/* ==========================================================================
+   ACCESSIBILITY IMPROVEMENTS
+   ========================================================================== */
+
+.timer-buttons .btn:focus-visible,
+.quick-edit .btn:focus-visible,
+.quick-display .btn:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.2);
+}
+
+.quick-edit input:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .real-time-controls {
+    border-width: 2px;
+  }
+
+  .timer-display {
+    border-width: 2px;
+  }
+
+  .quick-setting-item {
+    border-width: 2px;
+  }
+
+  .timer-buttons .btn,
+  .quick-edit .btn,
+  .quick-display .btn {
+    border-width: 2px;
+  }
+}
+
+/* ==========================================================================
+   PRINT STYLES
+   ========================================================================== */
+
+@media print {
+  .real-time-controls,
+  .timer-buttons,
+  .quick-edit,
+  .quick-display .btn {
+    display: none;
+  }
+
+  .timer-value,
+  .quick-display span {
+    background: transparent !important;
+    border: 1px solid #000 !important;
+    color: #000 !important;
+  }
+}
+/* Ajoutez ce CSS à votre AdminPanel.css */
+
+/* Container pour les notifications admin */
+.admin-notifications-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* Notification individuelle */
+.admin-notification {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  margin-bottom: 12px;
+  max-width: 400px;
+  min-width: 300px;
+  pointer-events: all;
+  transform: translateX(100%);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.admin-notification.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+/* Contenu de la notification */
+.notification-content {
+  display: flex;
+  align-items: flex-start;
+  padding: 16px;
+  gap: 12px;
+  position: relative;
+}
+
+/* Icône de la notification */
+.notification-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Message de la notification */
+.notification-message {
+  flex: 1;
+}
+
+.notification-message h4 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.notification-message p {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+/* Bouton fermer */
+.notification-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #9ca3af;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.notification-close:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/* Variantes de couleur selon le type */
+.admin-notification[data-type="success"] {
+  border-left: 4px solid #10b981;
+}
+
+.admin-notification[data-type="error"] {
+  border-left: 4px solid #ef4444;
+}
+
+.admin-notification[data-type="warning"] {
+  border-left: 4px solid #f59e0b;
+}
+
+.admin-notification[data-type="info"] {
+  border-left: 4px solid #3b82f6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-notifications-container {
+    left: 20px;
+    right: 20px;
+    top: 20px;
+  }
+  
+  .admin-notification {
+    max-width: none;
+    min-width: auto;
+  }
+}
+
+/* Animation d'entrée plus fluide */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.admin-notification.show {
+  animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}

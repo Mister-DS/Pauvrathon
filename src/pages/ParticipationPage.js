@@ -6,7 +6,7 @@ import NumberGuessGame from '../games/NumberGuessGame';
 import MemoryGame from '../games/MemoryGame';
 import ReactionGame from '../games/ReactionGame';
 import NotificationSystem, { useNotifications } from '../components/NotificationSystem';
-import { NotificationCenter } from '../components/NotificationCenter';
+import NotificationCenter from '../components/NotificationCenter';
 import './ParticipationPage.css';
 
 const ParticipationPage = ({ user }) => {

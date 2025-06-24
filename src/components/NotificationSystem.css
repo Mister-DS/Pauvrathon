@@ -1,0 +1,688 @@
+/* ===================================================================
+   NOTIFICATION SYSTEM CSS - THÈME PAUVRATHON HARMONISÉ
+   src/components/NotificationSystem.css
+   =================================================================== */
+
+/* Import des variables globales */
+@import '../global-variables.css';
+
+/* ==========================================================================
+   OVERLAY ET CONTAINER PRINCIPAL
+   ========================================================================== */
+
+.notification-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(168, 85, 247, 0.4);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: overlayFadeIn 0.3s ease-out;
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(8px);
+  }
+}
+
+/* ==========================================================================
+   NOTIFICATION PRINCIPALE
+   ========================================================================== */
+
+.notification {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-xl);
+  padding: 2rem 2.5rem;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 
+    0 25px 50px rgba(168, 85, 247, 0.2),
+    0 10px 25px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  animation: notificationSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes notificationSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ==========================================================================
+   BOUTON DE FERMETURE
+   ========================================================================== */
+
+.notification-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: var(--text-medium);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.notification-close:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+  transform: scale(1.1);
+}
+
+/* ==========================================================================
+   CONTENU DE LA NOTIFICATION
+   ========================================================================== */
+
+.notification-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+.notification-icon {
+  font-size: 3rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  animation: iconPulse 2s infinite;
+}
+
+@keyframes iconPulse {
+  0%, 100% { 
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.7);
+  }
+  50% { 
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(168, 85, 247, 0);
+  }
+}
+
+.notification-text {
+  flex: 1;
+  padding-top: 0.5rem;
+}
+
+.notification-title {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  line-height: 1.3;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.notification-message {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-medium);
+  line-height: 1.6;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.notification-sub {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-light);
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+/* ==========================================================================
+   TYPES DE NOTIFICATIONS - COULEURS HARMONISÉES
+   ========================================================================== */
+
+/* Notification Victoire */
+.notification-victory {
+  background: linear-gradient(135deg, 
+    rgba(34, 197, 94, 0.95) 0%, 
+    rgba(16, 185, 129, 0.95) 100%);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.notification-victory .notification-title {
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.notification-victory .notification-message,
+.notification-victory .notification-sub {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.notification-victory .notification-icon {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+}
+
+/* Notification Erreur */
+.notification-error {
+  background: linear-gradient(135deg, 
+    rgba(239, 68, 68, 0.95) 0%, 
+    rgba(220, 38, 38, 0.95) 100%);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.notification-error .notification-title {
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.notification-error .notification-message,
+.notification-error .notification-sub {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.notification-error .notification-icon {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+}
+
+/* Notification Warning */
+.notification-warning {
+  background: linear-gradient(135deg, 
+    rgba(245, 158, 11, 0.95) 0%, 
+    rgba(217, 119, 6, 0.95) 100%);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.notification-warning .notification-title {
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.notification-warning .notification-message,
+.notification-warning .notification-sub {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.notification-warning .notification-icon {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+}
+
+/* Notification Info */
+.notification-info {
+  background: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.95) 0%, 
+    rgba(37, 99, 235, 0.95) 100%);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.notification-info .notification-title {
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.notification-info .notification-message,
+.notification-info .notification-sub {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.notification-info .notification-icon {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+}
+
+/* Notification Success */
+.notification-success {
+  background: linear-gradient(135deg, 
+    rgba(34, 197, 94, 0.95) 0%, 
+    rgba(16, 185, 129, 0.95) 100%);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.notification-success .notification-title {
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.notification-success .notification-message,
+.notification-success .notification-sub {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.notification-success .notification-icon {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+}
+
+/* Notification Default - Thème Pauvrathon */
+.notification-default {
+  background: linear-gradient(135deg, 
+    rgba(168, 85, 247, 0.95) 0%, 
+    rgba(192, 132, 252, 0.95) 100%);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.notification-default .notification-title {
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.notification-default .notification-message,
+.notification-default .notification-sub {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.notification-default .notification-icon {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 25px rgba(168, 85, 247, 0.4);
+}
+
+/* ==========================================================================
+   ANIMATIONS SPÉCIFIQUES PAR TYPE
+   ========================================================================== */
+
+/* Animation Bounce pour Victory */
+.notification-bounce {
+  animation: notificationBounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes notificationBounce {
+  0% {
+    transform: scale(0.3) translateY(50px);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05) translateY(-10px);
+    opacity: 0.8;
+  }
+  70% {
+    transform: scale(0.98) translateY(5px);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Animation Shake pour Error */
+.notification-shake {
+  animation: notificationShake 0.6s ease-in-out;
+}
+
+@keyframes notificationShake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* Animation Pulse pour Warning */
+.notification-pulse {
+  animation: notificationPulse 0.6s ease-in-out;
+}
+
+@keyframes notificationPulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Animation Slide pour Info */
+.notification-slide {
+  animation: notificationSlide 0.5s ease-out;
+}
+
+@keyframes notificationSlide {
+  from {
+    transform: translateY(-100%) scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Animation Zoom pour Success */
+.notification-zoom {
+  animation: notificationZoom 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes notificationZoom {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Animation Fade pour Default */
+.notification-fade {
+  animation: notificationFade 0.5s ease-out;
+}
+
+@keyframes notificationFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ==========================================================================
+   SPARKLES ET EFFETS VISUELS
+   ========================================================================== */
+
+.notification-sparkles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+  z-index: 1;
+}
+
+.sparkle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  animation: sparkleFloat 3s infinite;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+.sparkle-1 {
+  top: 15%;
+  left: 15%;
+  animation-delay: 0s;
+  animation-duration: 2.5s;
+}
+
+.sparkle-2 {
+  top: 25%;
+  right: 20%;
+  animation-delay: 0.8s;
+  animation-duration: 3s;
+}
+
+.sparkle-3 {
+  bottom: 30%;
+  left: 25%;
+  animation-delay: 1.2s;
+  animation-duration: 2.8s;
+}
+
+.sparkle-4 {
+  bottom: 20%;
+  right: 30%;
+  animation-delay: 0.4s;
+  animation-duration: 3.2s;
+}
+
+@keyframes sparkleFloat {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  25% {
+    opacity: 1;
+    transform: scale(1) rotate(90deg);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.2) rotate(180deg);
+  }
+  75% {
+    opacity: 0.6;
+    transform: scale(0.8) rotate(270deg);
+  }
+}
+
+/* Sparkles spéciales pour Victory */
+.notification-victory .sparkle {
+  background: rgba(255, 215, 0, 0.9);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .notification {
+    margin: 1rem;
+    padding: 1.5rem;
+    width: calc(100% - 2rem);
+    max-width: none;
+  }
+  
+  .notification-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+  
+  .notification-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 2rem;
+    align-self: center;
+  }
+  
+  .notification-title {
+    font-size: 1.25rem;
+  }
+  
+  .notification-message {
+    font-size: 0.9rem;
+  }
+  
+  .notification-close {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .notification {
+    padding: 1.25rem;
+    margin: 0.5rem;
+    width: calc(100% - 1rem);
+  }
+  
+  .notification-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+  }
+  
+  .notification-title {
+    font-size: 1.1rem;
+  }
+  
+  .notification-message {
+    font-size: 0.85rem;
+  }
+  
+  .notification-sub {
+    font-size: 0.8rem;
+  }
+}
+
+/* ==========================================================================
+   ACCESSIBILITÉ
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .notification,
+  .notification-icon,
+  .sparkle {
+    animation: none !important;
+  }
+  
+  .notification {
+    transform: none !important;
+  }
+}
+
+/* Focus pour l'accessibilité */
+.notification-close:focus-visible {
+  outline: 2px solid rgba(168, 85, 247, 0.8);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.2);
+}
+
+/* Mode contraste élevé */
+@media (prefers-contrast: high) {
+  .notification {
+    border-width: 3px;
+    border-color: #000000;
+  }
+  
+  .notification-close {
+    border-width: 2px;
+    border-color: #000000;
+  }
+}
+
+/* ==========================================================================
+   EFFETS SPÉCIAUX POUR PAUVRATHON
+   ========================================================================== */
+
+/* Effet de particules pour les victoires importantes */
+.notification-victory::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    transparent,
+    rgba(255, 215, 0, 0.1),
+    transparent,
+    rgba(255, 215, 0, 0.1),
+    transparent
+  );
+  animation: rotateParticles 4s linear infinite;
+  z-index: 0;
+}
+
+@keyframes rotateParticles {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Glow effect pour les notifications importantes */
+.notification-victory,
+.notification-success {
+  box-shadow: 
+    0 25px 50px rgba(168, 85, 247, 0.2),
+    0 10px 25px rgba(0, 0, 0, 0.1),
+    0 0 40px rgba(34, 197, 94, 0.3);
+}
+
+/* ==========================================================================
+   THÈME SOMBRE (optionnel)
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  .notification {
+    background: rgba(30, 30, 30, 0.95);
+    border-color: rgba(168, 85, 247, 0.3);
+  }
+  
+  .notification .notification-title {
+    color: #ffffff;
+  }
+  
+  .notification .notification-message {
+    color: #d1d5db;
+  }
+  
+  .notification .notification-sub {
+    color: #9ca3af;
+  }
+  
+  .notification-close {
+    background: rgba(60, 60, 60, 0.8);
+    color: #d1d5db;
+  }
+  
+  .notification-close:hover {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ffffff;
+  }
+}

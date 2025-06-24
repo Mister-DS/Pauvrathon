@@ -6,16 +6,46 @@ import {
   Timer, Target, Award, Ban, Eye, Zap, RefreshCw, Plus,
   Palette, Bell, MessageSquare, TrendingUp, Star, Heart,
   Volume2, Webhook, ToggleLeft, ToggleRight, Sliders,
-  Calendar, UserCheck, UserX, Trophy, Gift
+  Calendar, UserCheck, UserX, Trophy, Gift, Edit, Check,
+  Minus, PlayCircle, PauseCircle, RotateCcw
 } from 'lucide-react';
-// 🔔 NOUVEAU: Import du service de notifications
-import notificationService from './NotificationService';
+import notificationService from '../services/NotificationService';
 import './AdminPanel.css';
+
+// 🆕 Composant pour les notifications dans l'AdminPanel
+const AdminNotification = ({ notification, onClose }) => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => setIsVisible(true), 100);
+  }, []);
+
+  const handleClose = () => {
+    setIsVisible(false);
+    setTimeout(onClose, 300);
+  };
+
+  return (
+    <div className={`admin-notification ${isVisible ? 'show' : ''}`} data-type={notification.type}>
+      <div className="notification-content">
+        <div className="notification-icon">
+          {notification.type === 'success' && '✅'}
+          {notification.type === 'error' && '❌'}
+          {notification.type === 'info' && 'ℹ️'}
+          {notification.type === 'warning' && '⚠️'}
+        </div>
+        <div className="notification-message">
+          <h4>{notification.title}</h4>
+          <p>{notification.message}</p>
+        </div>
+        <button className="notification-close" onClick={handleClose}>×</button>
+      </div>
+    </div>
+  );
+};
 
 const AdminPanel = ({ user }) => {
   const [streamerConfig, setStreamerConfig] = useState(null);
-  const [editingSettings, setEditingSettings] = useState(false);
-  const [tempSettings, setTempSettings] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -27,9 +57,17 @@ const AdminPanel = ({ user }) => {
     total_games_today: 0
   });
 
-  // 🔔 NOUVEAU: États pour les notifications
+  // 🆕 NOUVEAUX ÉTATS pour l'édition en temps réel
+  const [quickEditMode, setQuickEditMode] = useState(false);
+  const [editingField, setEditingField] = useState(null);
+  const [tempValues, setTempValues] = useState({});
+
+  // 🔔 États pour les notifications
   const [followerCount, setFollowerCount] = useState(0);
   const [sendingNotification, setSendingNotification] = useState(false);
+
+  // 🆕 État pour les notifications admin
+  const [adminNotifications, setAdminNotifications] = useState([]);
 
   // Jeux disponibles avec configuration par défaut
   const [availableGames] = useState([
@@ -63,17 +101,50 @@ const AdminPanel = ({ user }) => {
     }
   ]);
 
+  // 🆕 Fonction pour afficher une notification admin
+  const showAdminNotification = (type, title, message) => {
+    const notification = {
+      id: Date.now(),
+      type,
+      title,
+      message
+    };
+    
+    setAdminNotifications(prev => [...prev, notification]);
+    
+    // Auto-supprimer après 5 secondes
+    setTimeout(() => {
+      setAdminNotifications(prev => prev.filter(n => n.id !== notification.id));
+    }, 5000);
+  };
+
+  // 🆕 Fonction pour supprimer une notification
+  const removeAdminNotification = (id) => {
+    setAdminNotifications(prev => prev.filter(n => n.id !== id));
+  };
+
   useEffect(() => {
     if (user) {
       initializeStreamerConfig();
     }
   }, [user]);
 
-  // 🔔 NOUVEAU: Charger le nombre de followers
+  // Charger le nombre de followers
   useEffect(() => {
     if (streamerConfig?.id) {
       loadFollowerCount();
     }
+  }, [streamerConfig?.id]);
+
+  // 🆕 Actualisation automatique des stats toutes les 30 secondes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (streamerConfig?.id) {
+        fetchTodayStats(streamerConfig.id);
+      }
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, [streamerConfig?.id]);
 
   // Initialiser ou récupérer la configuration du streamer
@@ -147,7 +218,6 @@ const AdminPanel = ({ user }) => {
             auto_ban_suspicious: true,
             min_account_age_days: 7,
             min_followers: 0,
-            // Nouvelles configurations
             welcome_message: `Bienvenue sur mon Pauvrathon ! Cliquez sur mon avatar pour participer ! 🎮`,
             theme_color: '#a855f7',
             time_multiplier_weekend: 1.2,
@@ -177,9 +247,20 @@ const AdminPanel = ({ user }) => {
       setStreamerConfig({ ...streamerData, user_data: userData });
       await fetchTodayStats(streamerData.id);
 
+      showAdminNotification(
+        'success',
+        '🎮 Panneau chargé',
+        'Configuration récupérée avec succès'
+      );
+
     } catch (err) {
       console.error('Erreur initialisation:', err);
       setError(`Erreur: ${err.message}`);
+      showAdminNotification(
+        'error',
+        'Erreur de chargement',
+        `Impossible de charger la configuration: ${err.message}`
+      );
     } finally {
       setLoading(false);
     }
@@ -237,7 +318,7 @@ const AdminPanel = ({ user }) => {
     }
   };
 
-  // 🔔 NOUVEAU: Charger le nombre de followers
+  // Charger le nombre de followers
   const loadFollowerCount = async () => {
     try {
       const { count, error } = await supabase
@@ -253,7 +334,7 @@ const AdminPanel = ({ user }) => {
     }
   };
 
-  // 🔔 MODIFIÉ: Démarrer/arrêter le Pauvrathon avec notifications
+  // 🆕 Démarrer/arrêter le Pauvrathon avec belles notifications
   const toggleSubathon = async (active) => {
     try {
       setSaving(true);
@@ -267,7 +348,7 @@ const AdminPanel = ({ user }) => {
 
       setStreamerConfig(prev => ({ ...prev, subathon_active: active }));
       
-      // 🔔 NOUVEAU : Notifications automatiques
+      // Notifications automatiques
       if (active) {
         console.log('🔄 Envoi notifications Pauvrathon démarré...');
         
@@ -280,25 +361,36 @@ const AdminPanel = ({ user }) => {
           if (result.success) {
             console.log(`📢 ${result.count} notifications envoyées`);
             
-            // Afficher un message de succès à l'admin
             if (result.count > 0) {
-              setTimeout(() => {
-                alert(`🎉 Pauvrathon démarré !\n\n📢 ${result.count} followers ont été notifiés automatiquement.`);
-              }, 500);
+              showAdminNotification(
+                'success',
+                '🎉 Pauvrathon démarré !',
+                `${result.count} followers ont été notifiés automatiquement`
+              );
             } else {
-              setTimeout(() => {
-                alert(`🎉 Pauvrathon démarré !\n\n💡 Aucun follower à notifier pour le moment.`);
-              }, 500);
+              showAdminNotification(
+                'info',
+                '🎉 Pauvrathon démarré !',
+                'Aucun follower à notifier pour le moment'
+              );
             }
           } else {
-            console.warn('⚠️ Erreur envoi notifications:', result.error);
+            showAdminNotification(
+              'warning',
+              'Pauvrathon démarré',
+              'Erreur lors de l\'envoi des notifications'
+            );
           }
         } catch (notifError) {
           console.warn('⚠️ Service de notifications non disponible:', notifError);
-          // Le Pauvrathon fonctionne même sans notifications
+          showAdminNotification(
+            'warning',
+            'Pauvrathon démarré',
+            'Service de notifications temporairement indisponible'
+          );
         }
       } else {
-        // Optionnel : Notifier la fin du Pauvrathon
+        // Notifier la fin du Pauvrathon
         const finalTime = streamerConfig.current_timer;
         if (finalTime > 0) {
           try {
@@ -309,23 +401,167 @@ const AdminPanel = ({ user }) => {
             );
             
             if (result.success && result.count > 0) {
-              console.log(`📢 ${result.count} notifications de fin envoyées`);
+              showAdminNotification(
+                'info',
+                '⏰ Pauvrathon terminé',
+                `${result.count} followers ont été notifiés de la fin`
+              );
+            } else {
+              showAdminNotification(
+                'info',
+                '⏰ Pauvrathon terminé',
+                `Durée finale : ${Math.floor(finalTime / 3600)}h ${Math.floor((finalTime % 3600) / 60)}m`
+              );
             }
           } catch (notifError) {
             console.warn('⚠️ Erreur notification fin:', notifError);
           }
+        } else {
+          showAdminNotification(
+            'info',
+            '⏰ Pauvrathon terminé',
+            'Timer remis à zéro'
+          );
         }
       }
       
     } catch (err) {
       console.error('Erreur toggle subathon:', err);
-      setError(`Erreur: ${err.message}`);
+      showAdminNotification(
+        'error',
+        'Erreur',
+        `Impossible de ${active ? 'démarrer' : 'arrêter'} le Pauvrathon`
+      );
     } finally {
       setSaving(false);
     }
   };
 
-  // 🔔 NOUVEAU: Envoyer notification personnalisée
+  // 🆕 FONCTIONS D'ÉDITION EN TEMPS RÉEL
+
+  // Démarrer l'édition d'un champ
+  const startQuickEdit = (field, currentValue) => {
+    setEditingField(field);
+    setTempValues({ ...tempValues, [field]: currentValue });
+    setQuickEditMode(true);
+  };
+
+  // Sauvegarder un champ en temps réel
+  const saveQuickEdit = async (field) => {
+    try {
+      setSaving(true);
+      const newValue = tempValues[field];
+      
+      const { error } = await supabase
+        .from('streamers')
+        .update({ [field]: newValue })
+        .eq('id', streamerConfig.id);
+
+      if (error) throw error;
+
+      setStreamerConfig(prev => ({ ...prev, [field]: newValue }));
+      setEditingField(null);
+      setQuickEditMode(false);
+      
+      showAdminNotification(
+        'success',
+        '⚙️ Configuration sauvegardée',
+        `${field} mis à jour avec succès`
+      );
+      
+    } catch (err) {
+      console.error('Erreur sauvegarde rapide:', err);
+      showAdminNotification(
+        'error',
+        'Erreur de sauvegarde',
+        'Impossible de sauvegarder la modification'
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Annuler l'édition
+  const cancelQuickEdit = () => {
+    setEditingField(null);
+    setQuickEditMode(false);
+    setTempValues({});
+  };
+
+  // 🆕 Modifier le timer manuellement avec notifications
+  const updateTimer = async (operation, value = null) => {
+    try {
+      setSaving(true);
+      let newTimer;
+      
+      switch (operation) {
+        case 'set':
+          const inputTimer = prompt(
+            `Timer actuel: ${Math.floor(streamerConfig.current_timer / 3600)}h ${Math.floor((streamerConfig.current_timer % 3600) / 60)}m\n\nNouveau timer (en secondes):`, 
+            streamerConfig.current_timer
+          );
+          if (inputTimer === null) return;
+          newTimer = parseInt(inputTimer);
+          break;
+        case 'add':
+          newTimer = streamerConfig.current_timer + (value || 60);
+          showAdminNotification(
+            'success',
+            '⏰ Timer modifié',
+            `+${value || 60} secondes ajoutées`
+          );
+          break;
+        case 'subtract':
+          newTimer = Math.max(0, streamerConfig.current_timer - (value || 60));
+          showAdminNotification(
+            'info',
+            '⏰ Timer modifié',
+            `${value || 60} secondes retirées`
+          );
+          break;
+        case 'reset':
+          newTimer = 0;
+          showAdminNotification(
+            'warning',
+            '⏰ Timer remis à zéro',
+            'Le timer a été reset'
+          );
+          break;
+        default:
+          return;
+      }
+      
+      if (isNaN(newTimer) || newTimer < 0) {
+        showAdminNotification('error', 'Erreur', 'Valeur invalide pour le timer');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('streamers')
+        .update({ current_timer: newTimer })
+        .eq('id', streamerConfig.id);
+
+      if (error) throw error;
+
+      setStreamerConfig(prev => ({ ...prev, current_timer: newTimer }));
+      
+      if (operation === 'set') {
+        showAdminNotification(
+          'success',
+          '⏰ Timer défini',
+          `Nouveau timer: ${Math.floor(newTimer / 3600)}h ${Math.floor((newTimer % 3600) / 60)}m`
+        );
+      }
+      
+    } catch (err) {
+      console.error('Erreur update timer:', err);
+      showAdminNotification('error', 'Erreur', 'Impossible de modifier le timer');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // 🆕 Envoyer notification personnalisée avec belle notification
   const sendCustomNotification = async () => {
     const title = prompt('Titre de la notification:');
     if (!title) return;
@@ -336,7 +572,6 @@ const AdminPanel = ({ user }) => {
     try {
       setSendingNotification(true);
       
-      // Récupérer tous les followers
       const { data: followers, error } = await supabase
         .from('streamer_followers')
         .select('user_id')
@@ -347,7 +582,6 @@ const AdminPanel = ({ user }) => {
 
       let sentCount = 0;
       
-      // Envoyer à chaque follower
       for (const follower of followers) {
         const result = await notificationService.sendCustomNotification(
           follower.user_id,
@@ -363,169 +597,30 @@ const AdminPanel = ({ user }) => {
         if (result.success) sentCount++;
       }
       
-      alert(`✅ Notification envoyée à ${sentCount} followers !`);
+      showAdminNotification(
+        'success',
+        '📢 Notification envoyée',
+        `Message envoyé à ${sentCount} followers`
+      );
       
     } catch (error) {
       console.error('Erreur notification personnalisée:', error);
-      alert('❌ Erreur lors de l\'envoi');
+      showAdminNotification(
+        'error',
+        'Erreur d\'envoi',
+        'Impossible d\'envoyer la notification'
+      );
     } finally {
       setSendingNotification(false);
     }
   };
 
-  // Modifier le timer manuellement
-  const updateTimer = async () => {
-    const currentTimer = streamerConfig.current_timer || 0;
-    const newTimer = prompt(`Timer actuel: ${Math.floor(currentTimer / 3600)}h ${Math.floor((currentTimer % 3600) / 60)}m\n\nNouveau timer (en secondes):`, currentTimer);
-    
-    if (newTimer === null) return;
-    const timerValue = parseInt(newTimer);
-    if (isNaN(timerValue) || timerValue < 0) {
-      alert('Valeur invalide');
-      return;
-    }
-
-    try {
-      setSaving(true);
-      
-      const { error } = await supabase
-        .from('streamers')
-        .update({ current_timer: timerValue })
-        .eq('id', streamerConfig.id);
-
-      if (error) throw error;
-
-      setStreamerConfig(prev => ({ ...prev, current_timer: timerValue }));
-      
-    } catch (err) {
-      console.error('Erreur update timer:', err);
-      setError(`Erreur: ${err.message}`);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  // Commencer l'édition des paramètres
-  const startEditing = () => {
-    setEditingSettings(true);
-    setTempSettings({ ...streamerConfig });
-  };
-
-  // Annuler l'édition
-  const cancelEditing = () => {
-    setEditingSettings(false);
-    setTempSettings({});
-  };
-
-  // Sauvegarder les paramètres
-  const saveSettings = async () => {
-    try {
-      setSaving(true);
-      setError('');
-
-      // Préparer les données à sauvegarder
-      const dataToUpdate = {
-        // Paramètres généraux
-        time_range_min: tempSettings.time_range_min,
-        time_range_max: tempSettings.time_range_max,
-        clicks_required: tempSettings.clicks_required,
-        cooldown_between_games: tempSettings.cooldown_between_games,
-        timer_max: tempSettings.timer_max,
-        timer_min: tempSettings.timer_min,
-        
-        // Participation
-        max_daily_time_per_viewer: tempSettings.max_daily_time_per_viewer,
-        max_concurrent_participants: tempSettings.max_concurrent_participants,
-        min_followers: tempSettings.min_followers,
-        min_account_age_days: tempSettings.min_account_age_days,
-        
-        // Sécurité
-        difficulty_multiplier: tempSettings.difficulty_multiplier,
-        auto_ban_suspicious: tempSettings.auto_ban_suspicious,
-        
-        // Personnalisation
-        welcome_message: tempSettings.welcome_message,
-        theme_color: tempSettings.theme_color,
-        victory_sound: tempSettings.victory_sound,
-        defeat_sound: tempSettings.defeat_sound,
-        
-        // Multiplicateurs
-        time_multiplier_weekend: tempSettings.time_multiplier_weekend,
-        time_multiplier_evening: tempSettings.time_multiplier_evening,
-        
-        // Notifications
-        auto_notifications: tempSettings.auto_notifications,
-        discord_webhook: tempSettings.discord_webhook,
-        
-        // Jeux et objectifs
-        game_settings: tempSettings.game_settings,
-        daily_goals: tempSettings.daily_goals,
-        participation_whitelist: tempSettings.participation_whitelist || [],
-        participation_blacklist: tempSettings.participation_blacklist || []
-      };
-
-      const { error } = await supabase
-        .from('streamers')
-        .update(dataToUpdate)
-        .eq('id', streamerConfig.id);
-
-      if (error) throw error;
-
-      setStreamerConfig(prev => ({ ...prev, ...tempSettings }));
-      setEditingSettings(false);
-      setTempSettings({});
-      
-    } catch (err) {
-      console.error('Erreur sauvegarde:', err);
-      setError(`Erreur lors de la sauvegarde: ${err.message}`);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  // Mettre à jour un paramètre temporaire
-  const updateTempSetting = (key, value) => {
-    setTempSettings(prev => ({ ...prev, [key]: value }));
-  };
-
-  // Mettre à jour les paramètres d'un jeu
-  const updateGameSetting = (gameId, setting, value) => {
-    setTempSettings(prev => ({
-      ...prev,
-      game_settings: {
-        ...prev.game_settings,
-        [gameId]: {
-          ...prev.game_settings[gameId],
-          [setting]: value
-        }
-      }
-    }));
-  };
-
-  // Ajouter/retirer de la whitelist
-  const updateWhitelist = (username, action) => {
-    const currentList = tempSettings.participation_whitelist || [];
-    if (action === 'add' && username.trim()) {
-      updateTempSetting('participation_whitelist', [...currentList, username.trim()]);
-    } else if (action === 'remove') {
-      updateTempSetting('participation_whitelist', currentList.filter(u => u !== username));
-    }
-  };
-
-  // Ajouter/retirer de la blacklist
-  const updateBlacklist = (username, action) => {
-    const currentList = tempSettings.participation_blacklist || [];
-    if (action === 'add' && username.trim()) {
-      updateTempSetting('participation_blacklist', [...currentList, username.trim()]);
-    } else if (action === 'remove') {
-      updateTempSetting('participation_blacklist', currentList.filter(u => u !== username));
-    }
-  };
-
-  // Prévisualiser les couleurs
-  const previewTheme = () => {
-    const color = tempSettings.theme_color || '#a855f7';
-    document.documentElement.style.setProperty('--preview-color', color);
+  // Fonction pour vérifier si l'utilisateur est admin
+  const isAdmin = (user) => {
+    if (!user) return false;
+    const adminIds = ["498366489"];
+    const adminUsernames = ["mister_ds_"];
+    return adminIds.includes(user.id) || adminUsernames.includes(user.login?.toLowerCase());
   };
 
   // Interface si pas connecté
@@ -579,10 +674,19 @@ const AdminPanel = ({ user }) => {
     );
   }
 
-  const settings = editingSettings ? tempSettings : streamerConfig;
-
   return (
     <div className="admin-panel">
+      {/* 🆕 Container pour les notifications admin */}
+      <div className="admin-notifications-container">
+        {adminNotifications.map(notification => (
+          <AdminNotification
+            key={notification.id}
+            notification={notification}
+            onClose={() => removeAdminNotification(notification.id)}
+          />
+        ))}
+      </div>
+
       <div className="admin-header">
         <h1>🎮 Panneau Admin Pauvrathon</h1>
         <div className="global-stats">
@@ -618,26 +722,174 @@ const AdminPanel = ({ user }) => {
                 {streamerConfig.subathon_active ? <Pause size={16} /> : <Play size={16} />}
                 {streamerConfig.subathon_active ? 'Arrêter' : 'Démarrer'}
               </button>
-              
-              {!editingSettings ? (
-                <button onClick={startEditing} className="btn btn-primary">
-                  <Edit3 size={16} /> Configurer
-                </button>
-              ) : (
-                <div className="edit-controls">
-                  <button 
-                    onClick={saveSettings} 
-                    className="btn btn-success"
-                    disabled={saving}
-                  >
-                    {saving ? '⏳' : <Save size={16} />} 
-                    {saving ? 'Sauvegarde...' : 'Sauver'}
+            </div>
+          </div>
+
+          {/* 🆕 SECTION CONTRÔLES TEMPS RÉEL - TOUJOURS VISIBLE */}
+          <div className="real-time-controls">
+            <h4>⚡ Contrôles Temps Réel</h4>
+            
+            {/* Timer Controls */}
+            <div className="timer-controls">
+              <h5>⏰ Gestion du Timer</h5>
+              <div className="timer-display">
+                <span className="timer-value">
+                  {Math.floor(streamerConfig.current_timer / 3600)}h {Math.floor((streamerConfig.current_timer % 3600) / 60)}m {streamerConfig.current_timer % 60}s
+                </span>
+                <div className="timer-buttons">
+                  <button onClick={() => updateTimer('add', 60)} className="btn btn-success btn-small">
+                    <Plus size={14} /> +1min
                   </button>
-                  <button onClick={cancelEditing} className="btn btn-secondary">
-                    <X size={16} /> Annuler
+                  <button onClick={() => updateTimer('add', 300)} className="btn btn-success btn-small">
+                    <Plus size={14} /> +5min
+                  </button>
+                  <button onClick={() => updateTimer('subtract', 60)} className="btn btn-warning btn-small">
+                    <Minus size={14} /> -1min
+                  </button>
+                  <button onClick={() => updateTimer('set')} className="btn btn-info btn-small">
+                    <Edit size={14} /> Définir
+                  </button>
+                  <button onClick={() => updateTimer('reset')} className="btn btn-danger btn-small">
+                    <RotateCcw size={14} /> Reset
                   </button>
                 </div>
-              )}
+              </div>
+            </div>
+
+            {/* Quick Settings */}
+            <div className="quick-settings">
+              <h5>⚙️ Paramètres Rapides</h5>
+              <div className="quick-settings-grid">
+                
+                {/* Clics requis */}
+                <div className="quick-setting-item">
+                  <label>🎯 Clics requis:</label>
+                  {editingField === 'clicks_required' ? (
+                    <div className="quick-edit">
+                      <input
+                        type="number"
+                        min="1"
+                        max="200"
+                        value={tempValues.clicks_required || ''}
+                        onChange={(e) => setTempValues(prev => ({ ...prev, clicks_required: parseInt(e.target.value) }))}
+                      />
+                      <button onClick={() => saveQuickEdit('clicks_required')} className="btn btn-success btn-small">
+                        <Check size={14} />
+                      </button>
+                      <button onClick={cancelQuickEdit} className="btn btn-secondary btn-small">
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="quick-display">
+                      <span>{streamerConfig.clicks_required}</span>
+                      <button 
+                        onClick={() => startQuickEdit('clicks_required', streamerConfig.clicks_required)}
+                        className="btn btn-info btn-small"
+                      >
+                        <Edit3 size={14} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Temps min ajouté */}
+                <div className="quick-setting-item">
+                  <label>⏰ Temps min (s):</label>
+                  {editingField === 'time_range_min' ? (
+                    <div className="quick-edit">
+                      <input
+                        type="number"
+                        min="1"
+                        max="300"
+                        value={tempValues.time_range_min || ''}
+                        onChange={(e) => setTempValues(prev => ({ ...prev, time_range_min: parseInt(e.target.value) }))}
+                      />
+                      <button onClick={() => saveQuickEdit('time_range_min')} className="btn btn-success btn-small">
+                        <Check size={14} />
+                      </button>
+                      <button onClick={cancelQuickEdit} className="btn btn-secondary btn-small">
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="quick-display">
+                      <span>{streamerConfig.time_range_min}s</span>
+                      <button 
+                        onClick={() => startQuickEdit('time_range_min', streamerConfig.time_range_min)}
+                        className="btn btn-info btn-small"
+                      >
+                        <Edit3 size={14} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Temps max ajouté */}
+                <div className="quick-setting-item">
+                  <label>⏰ Temps max (s):</label>
+                  {editingField === 'time_range_max' ? (
+                    <div className="quick-edit">
+                      <input
+                        type="number"
+                        min="1"
+                        max="300"
+                        value={tempValues.time_range_max || ''}
+                        onChange={(e) => setTempValues(prev => ({ ...prev, time_range_max: parseInt(e.target.value) }))}
+                      />
+                      <button onClick={() => saveQuickEdit('time_range_max')} className="btn btn-success btn-small">
+                        <Check size={14} />
+                      </button>
+                      <button onClick={cancelQuickEdit} className="btn btn-secondary btn-small">
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="quick-display">
+                      <span>{streamerConfig.time_range_max}s</span>
+                      <button 
+                        onClick={() => startQuickEdit('time_range_max', streamerConfig.time_range_max)}
+                        className="btn btn-info btn-small"
+                      >
+                        <Edit3 size={14} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Cooldown */}
+                <div className="quick-setting-item">
+                  <label>⏱️ Cooldown (s):</label>
+                  {editingField === 'cooldown_between_games' ? (
+                    <div className="quick-edit">
+                      <input
+                        type="number"
+                        min="0"
+                        max="300"
+                        value={tempValues.cooldown_between_games || ''}
+                        onChange={(e) => setTempValues(prev => ({ ...prev, cooldown_between_games: parseInt(e.target.value) }))}
+                      />
+                      <button onClick={() => saveQuickEdit('cooldown_between_games')} className="btn btn-success btn-small">
+                        <Check size={14} />
+                      </button>
+                      <button onClick={cancelQuickEdit} className="btn btn-secondary btn-small">
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="quick-display">
+                      <span>{streamerConfig.cooldown_between_games}s</span>
+                      <button 
+                        onClick={() => startQuickEdit('cooldown_between_games', streamerConfig.cooldown_between_games)}
+                        className="btn btn-info btn-small"
+                      >
+                        <Edit3 size={14} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+              </div>
             </div>
           </div>
 
@@ -659,52 +911,52 @@ const AdminPanel = ({ user }) => {
               <Gamepad2 size={16} />
               <span>Jeux: {stats.total_games_today}</span>
             </div>
-            <button onClick={updateTimer} className="btn btn-warning btn-small">
-              <Edit3 size={14} /> Modifier Timer
+            <button onClick={() => fetchTodayStats(streamerConfig.id)} className="btn btn-secondary btn-small">
+              <RefreshCw size={14} /> Actualiser
             </button>
           </div>
 
-          {/* 🔔 NOUVELLE SECTION: Notifications */}
-          {!editingSettings && (
-            <div className="notifications-section">
-              <h4>📢 Notifications</h4>
-              <div className="notification-controls">
-                <div className="notification-stats">
-                  <span className="notification-stat">
-                    <Bell size={16} />
-                    {followerCount} followers avec notifications
-                  </span>
-                  <span className="notification-stat">
-                    <MessageSquare size={16} />
-                    Notifications {streamerConfig.auto_notifications ? 'activées' : 'désactivées'}
-                  </span>
-                </div>
-                
-                <button 
-                  onClick={sendCustomNotification}
-                  className="btn btn-info"
-                  disabled={sendingNotification}
-                  title="Envoyer une notification personnalisée à vos followers"
-                >
-                  {sendingNotification ? '⏳' : <Bell size={16} />}
-                  {sendingNotification ? 'Envoi...' : 'Notification personnalisée'}
-                </button>
+          {/* Section Notifications */}
+          <div className="notifications-section">
+            <h4>📢 Notifications</h4>
+            <div className="notification-controls">
+              <div className="notification-stats">
+                <span className="notification-stat">
+                  <Bell size={16} />
+                  {followerCount} followers avec notifications
+                </span>
+                <span className="notification-stat">
+                  <MessageSquare size={16} />
+                  Notifications {streamerConfig.auto_notifications ? 'activées' : 'désactivées'}
+                </span>
               </div>
               
-              <div className="notification-info">
-                <p>
-                  💡 <strong>Notifications automatiques :</strong> Vos followers seront automatiquement 
-                  notifiés quand vous démarrez/arrêtez votre Pauvrathon.
-                  {followerCount === 0 && (
-                    <span style={{ color: '#f59e0b' }}> Aucun follower pour le moment - partagez votre page pour que les gens puissent vous suivre !</span>
-                  )}
-                </p>
-              </div>
+              <button 
+                onClick={sendCustomNotification}
+                className="btn btn-info"
+                disabled={sendingNotification}
+                title="Envoyer une notification personnalisée à vos followers"
+              >
+                {sendingNotification ? '⏳' : <Bell size={16} />}
+                {sendingNotification ? 'Envoi...' : 'Notification personnalisée'}
+              </button>
             </div>
-          )}
+            
+            <div className="notification-info">
+              <p>
+                💡 <strong>Notifications automatiques :</strong> Vos followers seront automatiquement 
+                notifiés quand vous démarrez/arrêtez votre Pauvrathon.
+                {followerCount === 0 && (
+                  <span style={{ color: '#f59e0b' }}> Aucun follower pour le moment - partagez votre page pour que les gens puissent vous suivre !</span>
+                )}
+              </p>
+            </div>
+          </div>
 
-          {/* Onglets de configuration */}
-          {editingSettings && (
+          {/* Configuration Avancée - Mode Onglets */}
+          <div className="advanced-config">
+            <h4>⚙️ Configuration Avancée</h4>
+            
             <div className="config-tabs">
               <button 
                 className={`tab ${activeTab === 'general' ? 'active' : ''}`}
@@ -731,77 +983,18 @@ const AdminPanel = ({ user }) => {
                 <Palette size={16} /> Personnalisation
               </button>
               <button 
-                className={`tab ${activeTab === 'notifications' ? 'active' : ''}`}
-                onClick={() => setActiveTab('notifications')}
-              >
-                <Bell size={16} /> Notifications
-              </button>
-              <button 
                 className={`tab ${activeTab === 'security' ? 'active' : ''}`}
                 onClick={() => setActiveTab('security')}
               >
                 <Shield size={16} /> Sécurité
               </button>
             </div>
-          )}
 
-          {/* Configuration selon l'onglet actif */}
-          {editingSettings && (
             <div className="config-content">
               
               {/* Onglet Général */}
               {activeTab === 'general' && (
                 <div className="settings-grid">
-                  <div className="setting-group">
-                    <h4><Clock size={16} /> Temps ajouté par victoire</h4>
-                    <div className="range-inputs">
-                      <label>
-                        Min (secondes):
-                        <input
-                          type="number"
-                          min="1"
-                          max="300"
-                          value={settings.time_range_min}
-                          onChange={(e) => updateTempSetting('time_range_min', parseInt(e.target.value))}
-                        />
-                      </label>
-                      <label>
-                        Max (secondes):
-                        <input
-                          type="number"
-                          min="1"
-                          max="300"
-                          value={settings.time_range_max}
-                          onChange={(e) => updateTempSetting('time_range_max', parseInt(e.target.value))}
-                        />
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="setting-group">
-                    <h4><MousePointer size={16} /> Système de clics</h4>
-                    <label>
-                      Clics requis pour mini-jeu:
-                      <input
-                        type="number"
-                        min="5"
-                        max="200"
-                        value={settings.clicks_required}
-                        onChange={(e) => updateTempSetting('clicks_required', parseInt(e.target.value))}
-                      />
-                    </label>
-                    <label>
-                      Cooldown entre jeux (secondes):
-                      <input
-                        type="number"
-                        min="0"
-                        max="300"
-                        value={settings.cooldown_between_games}
-                        onChange={(e) => updateTempSetting('cooldown_between_games', parseInt(e.target.value))}
-                      />
-                    </label>
-                  </div>
-
                   <div className="setting-group">
                     <h4><Timer size={16} /> Limites du timer</h4>
                     <label>
@@ -810,10 +1003,18 @@ const AdminPanel = ({ user }) => {
                         type="number"
                         min="1800"
                         max="86400"
-                        value={settings.timer_max}
-                        onChange={(e) => updateTempSetting('timer_max', parseInt(e.target.value))}
+                        value={streamerConfig.timer_max}
+                        onChange={(e) => {
+                          const newValue = parseInt(e.target.value);
+                          setStreamerConfig(prev => ({ ...prev, timer_max: newValue }));
+                          // Sauvegarde automatique après 1 seconde d'inactivité
+                          clearTimeout(window.autoSaveTimer);
+                          window.autoSaveTimer = setTimeout(() => {
+                            supabase.from('streamers').update({ timer_max: newValue }).eq('id', streamerConfig.id);
+                          }, 1000);
+                        }}
                       />
-                      <small>{Math.floor(settings.timer_max / 3600)}h {Math.floor((settings.timer_max % 3600) / 60)}m</small>
+                      <small>{Math.floor(streamerConfig.timer_max / 3600)}h {Math.floor((streamerConfig.timer_max % 3600) / 60)}m</small>
                     </label>
                     <label>
                       Timer minimum (secondes):
@@ -821,35 +1022,56 @@ const AdminPanel = ({ user }) => {
                         type="number"
                         min="60"
                         max="3600"
-                        value={settings.timer_min}
-                        onChange={(e) => updateTempSetting('timer_min', parseInt(e.target.value))}
+                        value={streamerConfig.timer_min}
+                        onChange={(e) => {
+                          const newValue = parseInt(e.target.value);
+                          setStreamerConfig(prev => ({ ...prev, timer_min: newValue }));
+                          clearTimeout(window.autoSaveTimer2);
+                          window.autoSaveTimer2 = setTimeout(() => {
+                            supabase.from('streamers').update({ timer_min: newValue }).eq('id', streamerConfig.id);
+                          }, 1000);
+                        }}
                       />
-                      <small>{Math.floor(settings.timer_min / 60)}m</small>
+                      <small>{Math.floor(streamerConfig.timer_min / 60)}m</small>
                     </label>
                   </div>
 
                   <div className="setting-group">
                     <h4><TrendingUp size={16} /> Multiplicateurs de temps</h4>
                     <label>
-                      Weekend (x{settings.time_multiplier_weekend}):
+                      Weekend (x{streamerConfig.time_multiplier_weekend}):
                       <input
                         type="range"
                         min="1"
                         max="2"
                         step="0.1"
-                        value={settings.time_multiplier_weekend}
-                        onChange={(e) => updateTempSetting('time_multiplier_weekend', parseFloat(e.target.value))}
+                        value={streamerConfig.time_multiplier_weekend}
+                        onChange={(e) => {
+                          const newValue = parseFloat(e.target.value);
+                          setStreamerConfig(prev => ({ ...prev, time_multiplier_weekend: newValue }));
+                          clearTimeout(window.autoSaveTimer3);
+                          window.autoSaveTimer3 = setTimeout(() => {
+                            supabase.from('streamers').update({ time_multiplier_weekend: newValue }).eq('id', streamerConfig.id);
+                          }, 500);
+                        }}
                       />
                     </label>
                     <label>
-                      Soirée 18h-23h (x{settings.time_multiplier_evening}):
+                      Soirée 18h-23h (x{streamerConfig.time_multiplier_evening}):
                       <input
                         type="range"
                         min="1"
                         max="2"
                         step="0.1"
-                        value={settings.time_multiplier_evening}
-                        onChange={(e) => updateTempSetting('time_multiplier_evening', parseFloat(e.target.value))}
+                        value={streamerConfig.time_multiplier_evening}
+                        onChange={(e) => {
+                          const newValue = parseFloat(e.target.value);
+                          setStreamerConfig(prev => ({ ...prev, time_multiplier_evening: newValue }));
+                          clearTimeout(window.autoSaveTimer4);
+                          window.autoSaveTimer4 = setTimeout(() => {
+                            supabase.from('streamers').update({ time_multiplier_evening: newValue }).eq('id', streamerConfig.id);
+                          }, 500);
+                        }}
                       />
                     </label>
                   </div>
@@ -861,7 +1083,7 @@ const AdminPanel = ({ user }) => {
                 <div className="games-config">
                   <h4><Gamepad2 size={16} /> Configuration des mini-jeux</h4>
                   {availableGames.map(game => {
-                    const gameSettings = settings.game_settings?.[game.id] || {
+                    const gameSettings = streamerConfig.game_settings?.[game.id] || {
                       enabled: true,
                       difficulty: 1.0,
                       time_bonus_min: 30,
@@ -879,7 +1101,15 @@ const AdminPanel = ({ user }) => {
                             <input
                               type="checkbox"
                               checked={gameSettings.enabled}
-                              onChange={(e) => updateGameSetting(game.id, 'enabled', e.target.checked)}
+                              onChange={(e) => {
+                                const newSettings = {
+                                  ...streamerConfig.game_settings,
+                                  [game.id]: { ...gameSettings, enabled: e.target.checked }
+                                };
+                                setStreamerConfig(prev => ({ ...prev, game_settings: newSettings }));
+                                // Sauvegarde immédiate pour les jeux
+                                supabase.from('streamers').update({ game_settings: newSettings }).eq('id', streamerConfig.id);
+                              }}
                             />
                             <span className="toggle-slider"></span>
                           </label>
@@ -895,7 +1125,17 @@ const AdminPanel = ({ user }) => {
                                 max="2"
                                 step="0.1"
                                 value={gameSettings.difficulty}
-                                onChange={(e) => updateGameSetting(game.id, 'difficulty', parseFloat(e.target.value))}
+                                onChange={(e) => {
+                                  const newSettings = {
+                                    ...streamerConfig.game_settings,
+                                    [game.id]: { ...gameSettings, difficulty: parseFloat(e.target.value) }
+                                  };
+                                  setStreamerConfig(prev => ({ ...prev, game_settings: newSettings }));
+                                  clearTimeout(window[`gameTimer_${game.id}_diff`]);
+                                  window[`gameTimer_${game.id}_diff`] = setTimeout(() => {
+                                    supabase.from('streamers').update({ game_settings: newSettings }).eq('id', streamerConfig.id);
+                                  }, 500);
+                                }}
                               />
                             </label>
                             <div className="time-bonus-range">
@@ -906,7 +1146,17 @@ const AdminPanel = ({ user }) => {
                                   min="5"
                                   max="300"
                                   value={gameSettings.time_bonus_min}
-                                  onChange={(e) => updateGameSetting(game.id, 'time_bonus_min', parseInt(e.target.value))}
+                                  onChange={(e) => {
+                                    const newSettings = {
+                                      ...streamerConfig.game_settings,
+                                      [game.id]: { ...gameSettings, time_bonus_min: parseInt(e.target.value) }
+                                    };
+                                    setStreamerConfig(prev => ({ ...prev, game_settings: newSettings }));
+                                    clearTimeout(window[`gameTimer_${game.id}_min`]);
+                                    window[`gameTimer_${game.id}_min`] = setTimeout(() => {
+                                      supabase.from('streamers').update({ game_settings: newSettings }).eq('id', streamerConfig.id);
+                                    }, 1000);
+                                  }}
                                 />
                               </label>
                               <label>
@@ -916,7 +1166,17 @@ const AdminPanel = ({ user }) => {
                                   min="5"
                                   max="300"
                                   value={gameSettings.time_bonus_max}
-                                  onChange={(e) => updateGameSetting(game.id, 'time_bonus_max', parseInt(e.target.value))}
+                                  onChange={(e) => {
+                                    const newSettings = {
+                                      ...streamerConfig.game_settings,
+                                      [game.id]: { ...gameSettings, time_bonus_max: parseInt(e.target.value) }
+                                    };
+                                    setStreamerConfig(prev => ({ ...prev, game_settings: newSettings }));
+                                    clearTimeout(window[`gameTimer_${game.id}_max`]);
+                                    window[`gameTimer_${game.id}_max`] = setTimeout(() => {
+                                      supabase.from('streamers').update({ game_settings: newSettings }).eq('id', streamerConfig.id);
+                                    }, 1000);
+                                  }}
                                 />
                               </label>
                             </div>
@@ -939,8 +1199,15 @@ const AdminPanel = ({ user }) => {
                         type="number"
                         min="1"
                         max="500"
-                        value={settings.max_concurrent_participants}
-                        onChange={(e) => updateTempSetting('max_concurrent_participants', parseInt(e.target.value))}
+                        value={streamerConfig.max_concurrent_participants}
+                        onChange={(e) => {
+                          const newValue = parseInt(e.target.value);
+                          setStreamerConfig(prev => ({ ...prev, max_concurrent_participants: newValue }));
+                          clearTimeout(window.autoSaveParticipants);
+                          window.autoSaveParticipants = setTimeout(() => {
+                            supabase.from('streamers').update({ max_concurrent_participants: newValue }).eq('id', streamerConfig.id);
+                          }, 1000);
+                        }}
                       />
                     </label>
                     <label>
@@ -949,10 +1216,17 @@ const AdminPanel = ({ user }) => {
                         type="number"
                         min="60"
                         max="3600"
-                        value={settings.max_daily_time_per_viewer}
-                        onChange={(e) => updateTempSetting('max_daily_time_per_viewer', parseInt(e.target.value))}
+                        value={streamerConfig.max_daily_time_per_viewer}
+                        onChange={(e) => {
+                          const newValue = parseInt(e.target.value);
+                          setStreamerConfig(prev => ({ ...prev, max_daily_time_per_viewer: newValue }));
+                          clearTimeout(window.autoSaveDaily);
+                          window.autoSaveDaily = setTimeout(() => {
+                            supabase.from('streamers').update({ max_daily_time_per_viewer: newValue }).eq('id', streamerConfig.id);
+                          }, 1000);
+                        }}
                       />
-                      <small>{Math.floor(settings.max_daily_time_per_viewer / 60)}m par jour</small>
+                      <small>{Math.floor(streamerConfig.max_daily_time_per_viewer / 60)}m par jour</small>
                     </label>
                   </div>
 
@@ -964,8 +1238,15 @@ const AdminPanel = ({ user }) => {
                         type="number"
                         min="0"
                         max="10000"
-                        value={settings.min_followers}
-                        onChange={(e) => updateTempSetting('min_followers', parseInt(e.target.value))}
+                        value={streamerConfig.min_followers}
+                        onChange={(e) => {
+                          const newValue = parseInt(e.target.value);
+                          setStreamerConfig(prev => ({ ...prev, min_followers: newValue }));
+                          clearTimeout(window.autoSaveFollowers);
+                          window.autoSaveFollowers = setTimeout(() => {
+                            supabase.from('streamers').update({ min_followers: newValue }).eq('id', streamerConfig.id);
+                          }, 1000);
+                        }}
                       />
                     </label>
                     <label>
@@ -974,88 +1255,17 @@ const AdminPanel = ({ user }) => {
                         type="number"
                         min="0"
                         max="365"
-                        value={settings.min_account_age_days}
-                        onChange={(e) => updateTempSetting('min_account_age_days', parseInt(e.target.value))}
+                        value={streamerConfig.min_account_age_days}
+                        onChange={(e) => {
+                          const newValue = parseInt(e.target.value);
+                          setStreamerConfig(prev => ({ ...prev, min_account_age_days: newValue }));
+                          clearTimeout(window.autoSaveAge);
+                          window.autoSaveAge = setTimeout(() => {
+                            supabase.from('streamers').update({ min_account_age_days: newValue }).eq('id', streamerConfig.id);
+                          }, 1000);
+                        }}
                       />
                     </label>
-                  </div>
-
-                  <div className="setting-group">
-                    <h4><UserCheck size={16} /> Whitelist (Participants autorisés)</h4>
-                    <div className="user-list">
-                      {(settings.participation_whitelist || []).map((username, index) => (
-                        <div key={index} className="user-item">
-                          <span>{username}</span>
-                          <button 
-                            onClick={() => updateWhitelist(username, 'remove')}
-                            className="btn-remove"
-                          >
-                            <X size={14} />
-                          </button>
-                        </div>
-                      ))}
-                      <div className="add-user">
-                        <input
-                          type="text"
-                          placeholder="Nom d'utilisateur Twitch"
-                          onKeyPress={(e) => {
-                            if (e.key === 'Enter') {
-                              updateWhitelist(e.target.value, 'add');
-                              e.target.value = '';
-                            }
-                          }}
-                        />
-                        <button 
-                          onClick={(e) => {
-                            const input = e.target.previousElementSibling;
-                            updateWhitelist(input.value, 'add');
-                            input.value = '';
-                          }}
-                          className="btn btn-success btn-small"
-                        >
-                          <Plus size={14} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="setting-group">
-                    <h4><UserX size={16} /> Blacklist (Participants bannis)</h4>
-                    <div className="user-list">
-                      {(settings.participation_blacklist || []).map((username, index) => (
-                        <div key={index} className="user-item">
-                          <span>{username}</span>
-                          <button 
-                            onClick={() => updateBlacklist(username, 'remove')}
-                            className="btn-remove"
-                          >
-                            <X size={14} />
-                          </button>
-                        </div>
-                      ))}
-                      <div className="add-user">
-                        <input
-                          type="text"
-                          placeholder="Nom d'utilisateur à bannir"
-                          onKeyPress={(e) => {
-                            if (e.key === 'Enter') {
-                              updateBlacklist(e.target.value, 'add');
-                              e.target.value = '';
-                            }
-                          }}
-                        />
-                        <button 
-                          onClick={(e) => {
-                            const input = e.target.previousElementSibling;
-                            updateBlacklist(input.value, 'add');
-                            input.value = '';
-                          }}
-                          className="btn btn-danger btn-small"
-                        >
-                          <Ban size={14} />
-                        </button>
-                      </div>
-                    </div>
                   </div>
                 </div>
               )}
@@ -1068,11 +1278,18 @@ const AdminPanel = ({ user }) => {
                     <textarea
                       rows="3"
                       placeholder="Message affiché aux participants sur votre page..."
-                      value={settings.welcome_message}
-                      onChange={(e) => updateTempSetting('welcome_message', e.target.value)}
+                      value={streamerConfig.welcome_message}
+                      onChange={(e) => {
+                        const newValue = e.target.value;
+                        setStreamerConfig(prev => ({ ...prev, welcome_message: newValue }));
+                        clearTimeout(window.autoSaveWelcome);
+                        window.autoSaveWelcome = setTimeout(() => {
+                          supabase.from('streamers').update({ welcome_message: newValue }).eq('id', streamerConfig.id);
+                        }, 1500);
+                      }}
                       maxLength="500"
                     />
-                    <small>{settings.welcome_message?.length || 0}/500 caractères</small>
+                    <small>{streamerConfig.welcome_message?.length || 0}/500 caractères</small>
                   </div>
 
                   <div className="setting-group">
@@ -1082,28 +1299,17 @@ const AdminPanel = ({ user }) => {
                       <div className="color-picker">
                         <input
                           type="color"
-                          value={settings.theme_color}
+                          value={streamerConfig.theme_color}
                           onChange={(e) => {
-                            updateTempSetting('theme_color', e.target.value);
-                            previewTheme();
+                            const newValue = e.target.value;
+                            setStreamerConfig(prev => ({ ...prev, theme_color: newValue }));
+                            // Sauvegarde immédiate pour les couleurs
+                            supabase.from('streamers').update({ theme_color: newValue }).eq('id', streamerConfig.id);
                           }}
                         />
-                        <span>{settings.theme_color}</span>
+                        <span>{streamerConfig.theme_color}</span>
                       </div>
                     </label>
-                    <div className="theme-preview">
-                      <div 
-                        className="preview-card"
-                        style={{ borderColor: settings.theme_color }}
-                      >
-                        <div 
-                          className="preview-button"
-                          style={{ backgroundColor: settings.theme_color }}
-                        >
-                          Aperçu du thème
-                        </div>
-                      </div>
-                    </div>
                   </div>
 
                   <div className="setting-group">
@@ -1111,122 +1317,27 @@ const AdminPanel = ({ user }) => {
                     <label className="checkbox-label">
                       <input
                         type="checkbox"
-                        checked={settings.victory_sound}
-                        onChange={(e) => updateTempSetting('victory_sound', e.target.checked)}
+                        checked={streamerConfig.victory_sound}
+                        onChange={(e) => {
+                          const newValue = e.target.checked;
+                          setStreamerConfig(prev => ({ ...prev, victory_sound: newValue }));
+                          supabase.from('streamers').update({ victory_sound: newValue }).eq('id', streamerConfig.id);
+                        }}
                       />
                       Son de victoire
                     </label>
                     <label className="checkbox-label">
                       <input
                         type="checkbox"
-                        checked={settings.defeat_sound}
-                        onChange={(e) => updateTempSetting('defeat_sound', e.target.checked)}
+                        checked={streamerConfig.defeat_sound}
+                        onChange={(e) => {
+                          const newValue = e.target.checked;
+                          setStreamerConfig(prev => ({ ...prev, defeat_sound: newValue }));
+                          supabase.from('streamers').update({ defeat_sound: newValue }).eq('id', streamerConfig.id);
+                        }}
                       />
                       Son de défaite
                     </label>
-                  </div>
-
-                  <div className="setting-group">
-                    <h4><Trophy size={16} /> Objectifs quotidiens</h4>
-                    <label>
-                      Objectif d'heures de stream:
-                      <input
-                        type="number"
-                        min="1"
-                        max="24"
-                        value={settings.daily_goals?.target_hours || 6}
-                        onChange={(e) => updateTempSetting('daily_goals', {
-                          ...settings.daily_goals,
-                          target_hours: parseInt(e.target.value)
-                        })}
-                      />
-                    </label>
-                    <label>
-                      Objectif de participants:
-                      <input
-                        type="number"
-                        min="1"
-                        max="1000"
-                        value={settings.daily_goals?.target_participants || 20}
-                        onChange={(e) => updateTempSetting('daily_goals', {
-                          ...settings.daily_goals,
-                          target_participants: parseInt(e.target.value)
-                        })}
-                      />
-                    </label>
-                    <label className="checkbox-label">
-                      <input
-                        type="checkbox"
-                        checked={settings.daily_goals?.rewards_enabled}
-                        onChange={(e) => updateTempSetting('daily_goals', {
-                          ...settings.daily_goals,
-                          rewards_enabled: e.target.checked
-                        })}
-                      />
-                      Récompenses automatiques
-                    </label>
-                  </div>
-                </div>
-              )}
-
-              {/* Onglet Notifications */}
-              {activeTab === 'notifications' && (
-                <div className="settings-grid">
-                  <div className="setting-group">
-                    <h4><Bell size={16} /> Notifications automatiques</h4>
-                    <label className="checkbox-label">
-                      <input
-                        type="checkbox"
-                        checked={settings.auto_notifications}
-                        onChange={(e) => updateTempSetting('auto_notifications', e.target.checked)}
-                      />
-                      Activer les notifications automatiques
-                    </label>
-                    <small>Notifications lors des victoires, nouveaux records, etc.</small>
-                  </div>
-
-                  <div className="setting-group">
-                    <h4><Webhook size={16} /> Discord Webhook</h4>
-                    <label>
-                      URL du webhook Discord:
-                      <input
-                        type="url"
-                        placeholder="https://discord.com/api/webhooks/..."
-                        value={settings.discord_webhook}
-                        onChange={(e) => updateTempSetting('discord_webhook', e.target.value)}
-                      />
-                    </label>
-                    <small>Recevez des notifications Discord lors d'événements importants</small>
-                    
-                    {settings.discord_webhook && (
-                      <button 
-                        className="btn btn-info btn-small"
-                        onClick={async () => {
-                          try {
-                            await fetch(settings.discord_webhook, {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({
-                                content: `🧪 Test de webhook depuis le Pauvrathon de ${streamerConfig.user_data?.twitch_display_name} !`
-                              })
-                            });
-                            alert('Test envoyé !');
-                          } catch (err) {
-                            alert('Erreur lors du test');
-                          }
-                        }}
-                      >
-                        <Zap size={14} /> Tester webhook
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="setting-group">
-                    <h4><MessageSquare size={16} /> Messages de chat automatiques</h4>
-                    <p className="info-text">
-                      <AlertTriangle size={16} />
-                      Fonctionnalité en développement - Intégration avec les bots Twitch à venir
-                    </p>
                   </div>
                 </div>
               )}
@@ -1239,8 +1350,12 @@ const AdminPanel = ({ user }) => {
                     <label className="checkbox-label">
                       <input
                         type="checkbox"
-                        checked={settings.auto_ban_suspicious}
-                        onChange={(e) => updateTempSetting('auto_ban_suspicious', e.target.checked)}
+                        checked={streamerConfig.auto_ban_suspicious}
+                        onChange={(e) => {
+                          const newValue = e.target.checked;
+                          setStreamerConfig(prev => ({ ...prev, auto_ban_suspicious: newValue }));
+                          supabase.from('streamers').update({ auto_ban_suspicious: newValue }).eq('id', streamerConfig.id);
+                        }}
                       />
                       Ban automatique activité suspecte
                     </label>
@@ -1264,28 +1379,10 @@ const AdminPanel = ({ user }) => {
                       </div>
                     </div>
                   </div>
-
-                  <div className="setting-group">
-                    <h4><Eye size={16} /> Logs et surveillance</h4>
-                    <div className="monitoring-stats">
-                      <div className="monitor-stat">
-                        <span>Bans automatiques aujourd'hui:</span>
-                        <span className="stat-value">0</span>
-                      </div>
-                      <div className="monitor-stat">
-                        <span>Activités suspectes détectées:</span>
-                        <span className="stat-value">0</span>
-                      </div>
-                      <div className="monitor-stat">
-                        <span>Dernière vérification:</span>
-                        <span className="stat-value">Il y a {Math.floor(Math.random() * 5)} min</span>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               )}
             </div>
-          )}
+          </div>
 
           {/* Actions rapides */}
           <div className="quick-actions">
@@ -1310,42 +1407,40 @@ const AdminPanel = ({ user }) => {
           </div>
 
           {/* Résumé des paramètres actuels */}
-          {!editingSettings && (
-            <div className="current-settings-summary">
-              <h4>⚙️ Configuration actuelle</h4>
-              <div className="settings-summary-grid">
-                <div className="summary-item">
-                  <span>🎯 Clics requis:</span>
-                  <strong>{streamerConfig.clicks_required}</strong>
-                </div>
-                <div className="summary-item">
-                  <span>⏱️ Cooldown:</span>
-                  <strong>{streamerConfig.cooldown_between_games}s</strong>
-                </div>
-                <div className="summary-item">
-                  <span>⏰ Temps ajouté:</span>
-                  <strong>{streamerConfig.time_range_min}-{streamerConfig.time_range_max}s</strong>
-                </div>
-                <div className="summary-item">
-                  <span>👥 Max participants:</span>
-                  <strong>{streamerConfig.max_concurrent_participants || 50}</strong>
-                </div>
-                <div className="summary-item">
-                  <span>🎮 Jeux actifs:</span>
-                  <strong>
-                    {Object.values(streamerConfig.game_settings || {}).filter(g => g.enabled).length}/{availableGames.length}
-                  </strong>
-                </div>
-                <div className="summary-item">
-                  <span>🎨 Thème:</span>
-                  <div 
-                    className="color-dot" 
-                    style={{ backgroundColor: streamerConfig.theme_color || '#a855f7' }}
-                  ></div>
-                </div>
+          <div className="current-settings-summary">
+            <h4>⚙️ Configuration actuelle</h4>
+            <div className="settings-summary-grid">
+              <div className="summary-item">
+                <span>🎯 Clics requis:</span>
+                <strong>{streamerConfig.clicks_required}</strong>
+              </div>
+              <div className="summary-item">
+                <span>⏱️ Cooldown:</span>
+                <strong>{streamerConfig.cooldown_between_games}s</strong>
+              </div>
+              <div className="summary-item">
+                <span>⏰ Temps ajouté:</span>
+                <strong>{streamerConfig.time_range_min}-{streamerConfig.time_range_max}s</strong>
+              </div>
+              <div className="summary-item">
+                <span>👥 Max participants:</span>
+                <strong>{streamerConfig.max_concurrent_participants || 50}</strong>
+              </div>
+              <div className="summary-item">
+                <span>🎮 Jeux actifs:</span>
+                <strong>
+                  {Object.values(streamerConfig.game_settings || {}).filter(g => g.enabled).length}/{availableGames.length}
+                </strong>
+              </div>
+              <div className="summary-item">
+                <span>🎨 Thème:</span>
+                <div 
+                  className="color-dot" 
+                  style={{ backgroundColor: streamerConfig.theme_color || '#a855f7' }}
+                ></div>
               </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

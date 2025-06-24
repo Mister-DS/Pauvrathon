@@ -1,3 +1,4 @@
+// src/components/NotificationSystem.js
 import React, { useState, useEffect } from 'react';
 import './NotificationSystem.css';
 
