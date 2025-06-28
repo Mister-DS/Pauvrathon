@@ -32,110 +32,6 @@
 /* Logo */
 .header-logo h1 {
   color: var(--text-white);
-  margin: 0;
-  font-size: 1.8rem;
-  font-weight: 800;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  transition: transform 0.2s ease;
-  will-change: transform;
-}
-
-.header-logo h1:hover {
-  transform: scale(1.05);
-}
-
-/* Navigation desktop */
-.desktop-nav {
-  display: flex;
-  gap: var(--space-lg);
-  align-items: center;
-}
-
-.nav-link {
-  color: var(--text-white);
-  text-decoration: none;
-  font-weight: 600;
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: var(--radius-full);
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.2s cubic-bezier(0.32, 0.72, 0, 1);
-  will-change: transform;
-}
-
-.nav-link::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: var(--bg-glass-light);
-  transition: left 0.4s cubic-bezier(0.32, 0.72, 0, 1);
-  z-index: -1;
-  will-change: left;
-}
-
-.nav-link:hover {
-  transform: translateY(-2px);
-}
-
-.nav-link:hover::before {
-  left: 0;
-}
-
-/* Section utilisateur */
-.user-section {
-  position: relative;
-}
-
-.user-profile {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  padding: var(--space-xs) var(--space-sm);
-  background: var(--bg-glass-light);
-  border-radius: var(--radius-full);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--border-white-medium);
-  cursor: pointer;
-  transition: 
-    transform 0.2s ease,
-    background 0.2s ease;
-  will-change: transform, background;
-}
-
-.user-profile:hover {
-  background: var(--bg-glass-medium);
-  transform: translateY(-2px);
-}
-
-.user-avatar {
-  width: var(--avatar-size);
-  height: var(--avatar-size);
-  border-radius: 50%;
-  border: 2px solid var(--border-white-medium);
-  object-fit: cover;
-  transition: transform 0.2s ease;
-  will-change: transform;
-}
-
-.user-avatar:hover {
-  transform: scale(1.1);
-}
-
-.user-name {
-  color: var(--text-white);
-  font-weight: 600;
-  font-size: var(--text-sm);
-}
-
-.dropdown-arrow {
-  width: 16px;
-  height: 16px;
-  transition: transform 0.2s ease;
-  will-change: transform;
-  color: var(--text-white);
 }
 
 .dropdown-arrow.rotated {
@@ -324,6 +220,36 @@
   left: 100%;
 }
 
+/* État de chargement du bouton */
+.login-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Spinner pour le bouton de connexion */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid var(--text-white);
+  border-radius: 50%;
+  animation: headerSpinLoader 0.8s linear infinite;
+  display: inline-block;
+  margin-right: 4px;
+}
+
+/* Icône Twitch */
+.twitch-icon {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s ease;
+}
+
+.login-btn:hover .twitch-icon {
+  transform: scale(1.1);
+}
+
 /* Menu burger */
 .menu-toggle {
   display: none;
@@ -404,6 +330,38 @@
   transform: translateX(10px);
 }
 
+/* ===== ANIMATIONS CORRIGÉES ===== */
+
+/* Animation pour le spinner du header */
+@keyframes headerSpinLoader {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Animation d'entrée du header */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -20px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Animation du dropdown */
+@keyframes dropdownSlide {
+  from {
+    opacity: 0;
+    transform: scale3d(0.95, 0.95, 1) translate3d(0, -10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: scale3d(1, 1, 1) translate3d(0, 0, 0);
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .header-container {
@@ -463,29 +421,6 @@
   }
 }
 
-/* Animations */
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translate3d(0, -20px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes dropdownSlide {
-  from {
-    opacity: 0;
-    transform: scale3d(0.95, 0.95, 1) translate3d(0, -10px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: scale3d(1, 1, 1) translate3d(0, 0, 0);
-  }
-}
-
 /* Accessibilité */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -495,4 +430,110 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.header-logo h1:hover {
+  transform: scale(1.05);
+}
+
+/* Navigation desktop */
+.desktop-nav {
+  display: flex;
+  gap: var(--space-lg);
+  align-items: center;
+}
+
+.nav-link {
+  color: var(--text-white);
+  text-decoration: none;
+  font-weight: 600;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-full);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+}
+
+.nav-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-glass-light);
+  transition: left 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  z-index: -1;
+  will-change: left;
+}
+
+.nav-link:hover {
+  transform: translateY(-2px);
+}
+
+.nav-link:hover::before {
+  left: 0;
+}
+
+/* Section utilisateur */
+.user-section {
+  position: relative;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--bg-glass-light);
+  border-radius: var(--radius-full);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-white-medium);
+  cursor: pointer;
+  transition: 
+    transform 0.2s ease,
+    background 0.2s ease;
+  will-change: transform, background;
+}
+
+.user-profile:hover {
+  background: var(--bg-glass-medium);
+  transform: translateY(-2px);
+}
+
+.user-avatar {
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  border-radius: 50%;
+  border: 2px solid var(--border-white-medium);
+  object-fit: cover;
+  transition: transform 0.2s ease;
+  will-change: transform;
+}
+
+.user-avatar:hover {
+  transform: scale(1.1);
+}
+
+.user-name {
+  color: var(--text-white);
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+
+.dropdown-arrow {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s ease;
+  will-change: transform;
+  color: var(--text-white);
 }

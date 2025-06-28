@@ -208,7 +208,7 @@ body {
   justify-content: space-between;
 }
 
-/* ===== ANIMATIONS COMMUNES ===== */
+/* ===== ANIMATIONS COMMUNES CORRIGÉES ===== */
 
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -226,6 +226,7 @@ body {
   }
 }
 
+/* Animation pour les vrais spinners (éléments de chargement) */
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
@@ -242,9 +243,27 @@ body {
   60% { transform: translateY(-5px); }
 }
 
+/* Animation float corrigée - SANS rotation pour éviter que la page tourne */
 @keyframes float {
+  0% { 
+    transform: translateY(0px); 
+    opacity: 1;
+  }
+  50% { 
+    transform: translateY(-10px); 
+    opacity: 0.8;
+  }
+  100% { 
+    transform: translateY(0px); 
+    opacity: 1;
+  }
+}
+
+/* Animation alternative avec rotation très subtile */
+@keyframes floatSubtle {
   0% { transform: translateY(0px) rotate(0deg); }
-  100% { transform: translateY(-100px) rotate(360deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
 }
 
 /* Classes d'animation */

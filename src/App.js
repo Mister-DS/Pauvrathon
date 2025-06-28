@@ -20,6 +20,56 @@ import "./App.css";
 import AdminPanel from "./components/AdminPanel";
 import UserStatsPage from "./pages/UserStatsPage";
 
+// ===== FONCTIONS DE SÉCURITÉ DES TOKENS =====
+const storeSecureTokens = (tokenData, twitchUser) => {
+  const expirationTime = Date.now() + (3600 * 1000); // 1 heure
+  
+  const secureTokenData = {
+    access_token: tokenData.access_token,
+    expires_at: expirationTime,
+    user: twitchUser,
+    stored_at: Date.now()
+  };
+  
+  localStorage.setItem("twitch_session", JSON.stringify(secureTokenData));
+  console.log('🔒 Token stocké avec expiration:', new Date(expirationTime));
+};
+
+const getSecureTokens = () => {
+  try {
+    const storedData = localStorage.getItem("twitch_session");
+    if (!storedData) return null;
+    
+    const sessionData = JSON.parse(storedData);
+    
+    if (Date.now() > sessionData.expires_at) {
+      console.log('⏰ Session expirée, nettoyage...');
+      localStorage.removeItem("twitch_session");
+      return null;
+    }
+    
+    if (!sessionData.access_token || !sessionData.user) {
+      console.log('❌ Session corrompue, nettoyage...');
+      localStorage.removeItem("twitch_session");
+      return null;
+    }
+    
+    return sessionData;
+  } catch (error) {
+    console.error('Erreur lecture session:', error);
+    localStorage.removeItem("twitch_session");
+    return null;
+  }
+};
+
+const clearSecureTokens = () => {
+  localStorage.removeItem("twitch_session");
+  localStorage.removeItem("twitch_access_token");
+  localStorage.removeItem("twitch_user");
+  localStorage.removeItem("twitch_auth_state");
+  console.log('🧹 Session nettoyée');
+};
+
 function App() {
   const [connected, setConnected] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -27,12 +77,22 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState("");
+  const [userRole, setUserRole] = useState(null);
+  const [isAdminLoading, setIsAdminLoading] = useState(false);
 
   useEffect(() => {
     testConnection();
     checkAuthStatus();
     handleAuthCallback();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      checkUserRole(user);
+    } else {
+      setUserRole(null);
+    }
+  }, [user]);
 
   const testConnection = async () => {
     try {
@@ -45,14 +105,17 @@ function App() {
     setLoading(false);
   };
 
-  // Vérifier si l'utilisateur est connecté via Twitch
+  // Vérifier si l'utilisateur est connecté via Twitch (VERSION SÉCURISÉE)
   const checkAuthStatus = () => {
-    const twitchToken = localStorage.getItem("twitch_access_token");
-    const twitchUser = localStorage.getItem("twitch_user");
-
-    if (twitchToken && twitchUser) {
-      setUser(JSON.parse(twitchUser));
+    const sessionData = getSecureTokens();
+    if (sessionData) {
+      setUser(sessionData.user);
       setIsAuthenticated(true);
+      console.log('✅ Session valide trouvée');
+    } else {
+      setUser(null);
+      setIsAuthenticated(false);
+      console.log('❌ Aucune session valide');
     }
   };
 
@@ -103,57 +166,13 @@ function App() {
       setAuthLoading(true);
 
       try {
-        // Échanger le code contre un token d'accès
-        const tokenResponse = await fetch("https://id.twitch.tv/oauth2/token", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: new URLSearchParams({
-            client_id: TWITCH_CLIENT_ID,
-            client_secret: process.env.REACT_APP_TWITCH_CLIENT_SECRET,
-            code: code,
-            grant_type: "authorization_code",
-            redirect_uri: REDIRECT_URI,
-          }),
-        });
-
-        if (!tokenResponse.ok) {
-          throw new Error("Erreur lors de l'échange du token");
-        }
-
-        const tokenData = await tokenResponse.json();
-
-        // Récupérer les informations utilisateur
-        const userResponse = await fetch("https://api.twitch.tv/helix/users", {
-          headers: {
-            Authorization: `Bearer ${tokenData.access_token}`,
-            "Client-Id": TWITCH_CLIENT_ID,
-          },
-        });
-
-        if (!userResponse.ok) {
-          throw new Error(
-            "Erreur lors de la récupération des données utilisateur"
-          );
-        }
-
-        const userData = await userResponse.json();
-        const twitchUser = userData.data[0];
-
-        // Stocker les informations utilisateur
-        localStorage.setItem("twitch_access_token", tokenData.access_token);
-        localStorage.setItem("twitch_user", JSON.stringify(twitchUser));
-
-        setUser(twitchUser);
-        setIsAuthenticated(true);
-
+        console.log("Code d'autorisation reçu:", code);
+        
+        alert("⚠️ TEMPORAIRE: L'authentification est en maintenance pour des raisons de sécurité. Nous créons un backend sécurisé.");
+        
         // Nettoyer l'URL
-        window.history.replaceState(
-          {},
-          document.title,
-          window.location.pathname
-        );
+        window.history.replaceState({}, document.title, window.location.pathname);
+        
       } catch (err) {
         console.error("Erreur lors de la connexion:", err);
         setAuthError("Erreur lors de la connexion : " + err.message);
@@ -164,42 +183,52 @@ function App() {
     }
   };
 
-  // Fonction de déconnexion
+  // Fonction de déconnexion (VERSION SÉCURISÉE)
   const handleLogout = () => {
-    localStorage.removeItem("twitch_access_token");
-    localStorage.removeItem("twitch_user");
+    clearSecureTokens();
     setUser(null);
     setIsAuthenticated(false);
+    setUserRole(null);
+    console.log('👋 Déconnexion sécurisée effectuée');
   };
 
-  // Fonction pour vérifier si l'utilisateur est admin
-  const isAdmin = (user) => {
-    console.log(
-      "🔍 Vérification admin pour:",
-      user?.login || "utilisateur non défini"
-    );
-
+  // Fonction pour vérifier le rôle depuis la base de données
+  const checkUserRole = async (user) => {
     if (!user) {
-      console.log("❌ Pas d'utilisateur connecté");
+      setUserRole(null);
       return false;
     }
 
-    // Votre ID Twitch exact
-    const adminIds = ["498366489"];
-    const adminUsernames = ["mister_ds_"];
+    setIsAdminLoading(true);
+    
+    try {
+      const { data: userData, error } = await supabase
+        .from('users')
+        .select('role')
+        .eq('twitch_user_id', user.id)
+        .single();
 
-    const isAdminById = adminIds.includes(user.id);
-    const isAdminByUsername = adminUsernames.includes(
-      user.login?.toLowerCase()
-    );
+      if (error || !userData) {
+        console.log('❌ Utilisateur non trouvé en base:', error);
+        setUserRole('viewer');
+        return false;
+      }
 
-    const result = isAdminById || isAdminByUsername;
+      console.log('🔍 Rôle utilisateur depuis la base:', userData.role);
+      setUserRole(userData.role);
+      return userData.role === 'admin';
+      
+    } catch (error) {
+      console.error('Erreur vérification rôle:', error);
+      setUserRole('viewer');
+      return false;
+    } finally {
+      setIsAdminLoading(false);
+    }
+  };
 
-    console.log("🔑 Résultat admin check:", result);
-    console.log("   - Par ID:", isAdminById);
-    console.log("   - Par username:", isAdminByUsername);
-
-    return result;
+  const isAdmin = () => {
+    return userRole === 'admin';
   };
 
   return (
@@ -211,7 +240,7 @@ function App() {
           onLogin={handleTwitchLogin}
           isLoading={authLoading}
           authError={authError}
-          isAdmin={isAdmin} // ✅ Passer la fonction isAdmin au Header
+          isAdmin={isAdmin}
         />
 
         <main className="main-content">
@@ -246,18 +275,17 @@ function App() {
             <Route
               path="/admin"
               element={
-                isAdmin(user) ? (
+                isAdmin() ? (
                   <AdminPanel user={user} />
                 ) : (
                   <Navigate to="/" replace />
                 )
               }
             />
-            // Dans votre App.js, remplacez la route /admin/requests par :
             <Route
               path="/admin/requests"
               element={
-                isAdmin(user) ? (
+                isAdmin() ? (
                   <StreamerRequestsPage user={user} />
                 ) : (
                   <Navigate to="/" replace />
