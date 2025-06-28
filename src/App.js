@@ -155,6 +155,68 @@ function App() {
     }
   };
 
+  // Échanger le code d'autorisation contre un token d'accès
+  const exchangeCodeForToken = async (code) => {
+  const response = await fetch('/api/auth/twitch', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ code })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur API: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+  // Récupérer les informations utilisateur de l'API Twitch
+  const fetchTwitchUser = async (accessToken) => {
+    const response = await fetch('https://api.twitch.tv/helix/users', {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Client-Id': TWITCH_CLIENT_ID
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erreur API Twitch: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.data[0];
+  };
+
+  // Créer ou mettre à jour l'utilisateur en base de données
+  const upsertUser = async (twitchUser, accessToken) => {
+    const userData = {
+      twitch_user_id: twitchUser.id,
+      twitch_username: twitchUser.login,
+      twitch_display_name: twitchUser.display_name,
+      profile_image_url: twitchUser.profile_image_url,
+      email: twitchUser.email,
+      access_token: accessToken,
+      last_login: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    const { data, error } = await supabase
+      .from('users')
+      .upsert(userData, {
+        onConflict: 'twitch_user_id',
+        returning: 'minimal'
+      });
+
+    if (error) {
+      console.error('Erreur lors de la sauvegarde utilisateur:', error);
+      throw error;
+    }
+
+    return userData;
+  };
+
   // Traiter le callback d'authentification
   const handleAuthCallback = async () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -164,17 +226,39 @@ function App() {
 
     if (code && state && state === storedState) {
       setAuthLoading(true);
+      setAuthError("");
 
       try {
-        console.log("Code d'autorisation reçu:", code);
+        console.log("🔄 Code d'autorisation reçu:", code);
         
-        alert("⚠️ TEMPORAIRE: L'authentification est en maintenance pour des raisons de sécurité. Nous créons un backend sécurisé.");
+        // 1. Échanger le code contre un token d'accès
+        console.log("🔄 Échange du code contre un token...");
+        const tokenData = await exchangeCodeForToken(code);
+        
+        // 2. Récupérer les informations utilisateur
+        console.log("🔄 Récupération des données utilisateur...");
+        const twitchUser = await fetchTwitchUser(tokenData.access_token);
+        
+        // 3. Sauvegarder en base de données
+        console.log("🔄 Sauvegarde en base de données...");
+        await upsertUser(twitchUser, tokenData.access_token);
+        
+        // 4. Stocker la session localement
+        console.log("🔄 Création de la session locale...");
+        storeSecureTokens(tokenData, twitchUser);
+        
+        // 5. Mettre à jour l'état de l'application
+        setUser(twitchUser);
+        setIsAuthenticated(true);
+        
+        console.log("✅ Connexion réussie !");
+        console.log("👤 Utilisateur connecté:", twitchUser.display_name);
         
         // Nettoyer l'URL
         window.history.replaceState({}, document.title, window.location.pathname);
         
       } catch (err) {
-        console.error("Erreur lors de la connexion:", err);
+        console.error("❌ Erreur lors de la connexion:", err);
         setAuthError("Erreur lors de la connexion : " + err.message);
       } finally {
         setAuthLoading(false);
