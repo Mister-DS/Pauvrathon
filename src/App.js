@@ -22,41 +22,41 @@ import UserStatsPage from "./pages/UserStatsPage";
 
 // ===== FONCTIONS DE SÉCURITÉ DES TOKENS =====
 const storeSecureTokens = (tokenData, twitchUser) => {
-  const expirationTime = Date.now() + (3600 * 1000); // 1 heure
-  
+  const expirationTime = Date.now() + 3600 * 1000; // 1 heure
+
   const secureTokenData = {
     access_token: tokenData.access_token,
     expires_at: expirationTime,
     user: twitchUser,
-    stored_at: Date.now()
+    stored_at: Date.now(),
   };
-  
+
   localStorage.setItem("twitch_session", JSON.stringify(secureTokenData));
-  console.log('🔒 Token stocké avec expiration:', new Date(expirationTime));
+  console.log("🔒 Token stocké avec expiration:", new Date(expirationTime));
 };
 
 const getSecureTokens = () => {
   try {
     const storedData = localStorage.getItem("twitch_session");
     if (!storedData) return null;
-    
+
     const sessionData = JSON.parse(storedData);
-    
+
     if (Date.now() > sessionData.expires_at) {
-      console.log('⏰ Session expirée, nettoyage...');
+      console.log("⏰ Session expirée, nettoyage...");
       localStorage.removeItem("twitch_session");
       return null;
     }
-    
+
     if (!sessionData.access_token || !sessionData.user) {
-      console.log('❌ Session corrompue, nettoyage...');
+      console.log("❌ Session corrompue, nettoyage...");
       localStorage.removeItem("twitch_session");
       return null;
     }
-    
+
     return sessionData;
   } catch (error) {
-    console.error('Erreur lecture session:', error);
+    console.error("Erreur lecture session:", error);
     localStorage.removeItem("twitch_session");
     return null;
   }
@@ -67,7 +67,7 @@ const clearSecureTokens = () => {
   localStorage.removeItem("twitch_access_token");
   localStorage.removeItem("twitch_user");
   localStorage.removeItem("twitch_auth_state");
-  console.log('🧹 Session nettoyée');
+  console.log("🧹 Session nettoyée");
 };
 
 function App() {
@@ -96,7 +96,7 @@ function App() {
 
   const testConnection = async () => {
     try {
-      const { data, error } = await supabase.from("users").select("*").limit(1);
+      const { data } = await supabase.from("users").select("*").limit(1);
       console.log("✅ Base de données connectée !", data);
       setConnected(true);
     } catch (err) {
@@ -111,11 +111,11 @@ function App() {
     if (sessionData) {
       setUser(sessionData.user);
       setIsAuthenticated(true);
-      console.log('✅ Session valide trouvée');
+      console.log("✅ Session valide trouvée");
     } else {
       setUser(null);
       setIsAuthenticated(false);
-      console.log('❌ Aucune session valide');
+      console.log("❌ Aucune session valide");
     }
   };
 
@@ -147,6 +147,7 @@ function App() {
 
     try {
       const authUrl = generateTwitchAuthUrl();
+      console.log("🚀 Redirection vers Twitch:", authUrl);
       window.location.href = authUrl;
     } catch (err) {
       console.error("Erreur lors de la redirection vers Twitch:", err);
@@ -157,28 +158,28 @@ function App() {
 
   // Échanger le code d'autorisation contre un token d'accès
   const exchangeCodeForToken = async (code) => {
-  const response = await fetch('/api/auth/twitch', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ code })
-  });
+    const response = await fetch("/api/auth/twitch", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ code }),
+    });
 
-  if (!response.ok) {
-    throw new Error(`Erreur API: ${response.status}`);
-  }
+    if (!response.ok) {
+      throw new Error(`Erreur API: ${response.status}`);
+    }
 
-  return await response.json();
-};
+    return await response.json();
+  };
 
   // Récupérer les informations utilisateur de l'API Twitch
   const fetchTwitchUser = async (accessToken) => {
-    const response = await fetch('https://api.twitch.tv/helix/users', {
+    const response = await fetch("https://api.twitch.tv/helix/users", {
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Client-Id': TWITCH_CLIENT_ID
-      }
+        Authorization: `Bearer ${accessToken}`,
+        "Client-Id": TWITCH_CLIENT_ID,
+      },
     });
 
     if (!response.ok) {
@@ -199,18 +200,16 @@ function App() {
       email: twitchUser.email,
       access_token: accessToken,
       last_login: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     };
 
-    const { data, error } = await supabase
-      .from('users')
-      .upsert(userData, {
-        onConflict: 'twitch_user_id',
-        returning: 'minimal'
-      });
+    const { error } = await supabase.from("users").upsert(userData, {
+      onConflict: "twitch_user_id",
+      returning: "minimal",
+    });
 
     if (error) {
-      console.error('Erreur lors de la sauvegarde utilisateur:', error);
+      console.error("Erreur lors de la sauvegarde utilisateur:", error);
       throw error;
     }
 
@@ -230,33 +229,32 @@ function App() {
 
       try {
         console.log("🔄 Code d'autorisation reçu:", code);
-        
+
         // 1. Échanger le code contre un token d'accès
         console.log("🔄 Échange du code contre un token...");
         const tokenData = await exchangeCodeForToken(code);
-        
+
         // 2. Récupérer les informations utilisateur
         console.log("🔄 Récupération des données utilisateur...");
         const twitchUser = await fetchTwitchUser(tokenData.access_token);
-        
+
         // 3. Sauvegarder en base de données
         console.log("🔄 Sauvegarde en base de données...");
         await upsertUser(twitchUser, tokenData.access_token);
-        
+
         // 4. Stocker la session localement
         console.log("🔄 Création de la session locale...");
         storeSecureTokens(tokenData, twitchUser);
-        
+
         // 5. Mettre à jour l'état de l'application
         setUser(twitchUser);
         setIsAuthenticated(true);
-        
+
         console.log("✅ Connexion réussie !");
         console.log("👤 Utilisateur connecté:", twitchUser.display_name);
-        
+
         // Nettoyer l'URL
         window.history.replaceState({}, document.title, window.location.pathname);
-        
       } catch (err) {
         console.error("❌ Erreur lors de la connexion:", err);
         setAuthError("Erreur lors de la connexion : " + err.message);
@@ -273,7 +271,7 @@ function App() {
     setUser(null);
     setIsAuthenticated(false);
     setUserRole(null);
-    console.log('👋 Déconnexion sécurisée effectuée');
+    console.log("👋 Déconnexion sécurisée effectuée");
   };
 
   // Fonction pour vérifier le rôle depuis la base de données
@@ -284,27 +282,26 @@ function App() {
     }
 
     setIsAdminLoading(true);
-    
+
     try {
       const { data: userData, error } = await supabase
-        .from('users')
-        .select('role')
-        .eq('twitch_user_id', user.id)
+        .from("users")
+        .select("role")
+        .eq("twitch_user_id", user.id)
         .single();
 
       if (error || !userData) {
-        console.log('❌ Utilisateur non trouvé en base:', error);
-        setUserRole('viewer');
+        console.log("❌ Utilisateur non trouvé en base:", error);
+        setUserRole("viewer");
         return false;
       }
 
-      console.log('🔍 Rôle utilisateur depuis la base:', userData.role);
+      console.log("🔍 Rôle utilisateur depuis la base:", userData.role);
       setUserRole(userData.role);
-      return userData.role === 'admin';
-      
+      return userData.role === "admin";
     } catch (error) {
-      console.error('Erreur vérification rôle:', error);
-      setUserRole('viewer');
+      console.error("Erreur vérification rôle:", error);
+      setUserRole("viewer");
       return false;
     } finally {
       setIsAdminLoading(false);
@@ -312,7 +309,7 @@ function App() {
   };
 
   const isAdmin = () => {
-    return userRole === 'admin';
+    return userRole === "admin";
   };
 
   return (
@@ -338,7 +335,7 @@ function App() {
               element={<LeaderboardPage user={user} />}
             />
             <Route path="/game" element={<GamePage user={user} />} />
-            {/* Page de participation aux Pauvrathons */}
+            {/* Page de participation */}
             <Route
               path="/participate/:streamerId"
               element={<ParticipationPage user={user} />}
@@ -350,12 +347,11 @@ function App() {
               path="/profile/stats"
               element={<UserStatsPage user={user} />}
             />
-            {/* Demande de statut streamer */}
             <Route
               path="/request-streamer"
               element={<StreamerRequestForm user={user} />}
             />
-            {/* Pages admin - Protégées */}
+            {/* Pages admin */}
             <Route
               path="/admin"
               element={
