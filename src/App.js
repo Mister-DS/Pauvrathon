@@ -141,20 +141,29 @@ function App() {
   };
 
   // Gérer la connexion Twitch
-  const handleTwitchLogin = () => {
-    setAuthLoading(true);
-    setAuthError("");
+const handleTwitchLogin = () => {
+  setAuthLoading(true);
+  setAuthError("");
 
-    try {
-      const authUrl = generateTwitchAuthUrl();
-      console.log("🚀 Redirection vers Twitch:", authUrl);
-      window.location.href = authUrl;
-    } catch (err) {
-      console.error("Erreur lors de la redirection vers Twitch:", err);
-      setAuthError("Erreur lors de la redirection vers Twitch");
-      setAuthLoading(false);
-    }
-  };
+  try {
+    const authUrl = generateTwitchAuthUrl();
+    console.log("🚀 Redirection vers Twitch:", authUrl);
+    
+    // Stocker l'état de la tentative de connexion
+    localStorage.setItem('auth_redirecting', 'true');
+    
+    // Redirection effective
+    window.location.href = authUrl;
+  } catch (err) {
+    console.error("Erreur lors de la redirection vers Twitch:", err);
+    setAuthError("Erreur lors de la redirection vers Twitch");
+    setAuthLoading(false);
+    
+    // Nettoyer en cas d'erreur
+    localStorage.removeItem('auth_redirecting');
+    localStorage.removeItem('twitch_auth_state');
+  }
+};
 
   // Échanger le code d'autorisation contre un token d'accès
   const exchangeCodeForToken = async (code) => {
@@ -264,6 +273,28 @@ function App() {
       }
     }
   };
+
+  // Gérer le retour d'authentification
+useEffect(() => {
+  const handleAuthReturn = async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
+    const error = urlParams.get('error');
+    
+    if (error) {
+      setAuthError(`Erreur Twitch: ${error}`);
+      return;
+    }
+    
+    if (code && state) {
+      setAuthLoading(true);
+      await handleAuthCallback();
+    }
+  };
+  
+  handleAuthReturn();
+}, []);
 
   // Fonction de déconnexion (VERSION SÉCURISÉE)
   const handleLogout = () => {
